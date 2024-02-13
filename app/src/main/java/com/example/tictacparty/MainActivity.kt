@@ -11,6 +11,6 @@ class MainActivity : AppCompatActivity() {
         val playNowButton = findViewById<Button>(R.id.playNowButton)
         val matchHistoryButton = findViewById<Button>(R.id.matchHistoryButton)
         val challengeAFriendButton = findViewById<Button>(R.id.challengeAFriendButton)
-        
+
     }
 }
