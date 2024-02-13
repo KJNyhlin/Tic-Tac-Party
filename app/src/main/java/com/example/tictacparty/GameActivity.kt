@@ -28,6 +28,7 @@ class GameActivity : AppCompatActivity() {
     lateinit var exitImage : ImageView
     lateinit var helpImage : ImageView
 
+    var buttons = mutableListOf<ImageButton>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,12 +36,8 @@ class GameActivity : AppCompatActivity() {
 
 
         iniatilizeViews()
-        exitImage.setOnClickListener {
+        addingClickListeners()
 
-        }
-        helpImage.setOnClickListener {
-
-        }
     }
     fun iniatilizeViews(){
         titleTextView = findViewById(R.id.titleTextView)
@@ -61,5 +58,28 @@ class GameActivity : AppCompatActivity() {
         gameInfo2 = findViewById(R.id.gameInfo2)
         exitImage = findViewById(R.id.exitImage)
         helpImage = findViewById(R.id.helpImage)
+    }
+    fun addingClickListeners(){
+        buttons.add(gamebutton1)
+        buttons.add(gamebutton2)
+        buttons.add(gamebutton3)
+        buttons.add(gamebutton4)
+        buttons.add(gamebutton6)
+        buttons.add(gamebutton7)
+        buttons.add(gamebutton7)
+        buttons.add(gamebutton8)
+        buttons.add(gamebutton9)
+
+        for(button in buttons){
+            button.setOnClickListener {
+
+            }
+        }
+        exitImage.setOnClickListener {
+
+        }
+        helpImage.setOnClickListener {
+
+        }
     }
 }
