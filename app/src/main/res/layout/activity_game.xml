@@ -12,13 +12,13 @@
         android:id="@+id/textView8"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="60dp"
+        android:layout_marginTop="32dp"
         android:fontFamily="@font/russo_one"
         android:shadowColor="#515151"
         android:shadowDx="5"
         android:shadowDy="5"
         android:shadowRadius="5"
-        android:text="Tic Tac Toe"
+        android:text="Tic Tac Party"
         android:textColor="#D8F4FF"
         android:textSize="34sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -27,134 +27,224 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="64dp"
+        android:id="@+id/player2"
+        android:layout_width="60dp"
         android:layout_height="60dp"
-        app:srcCompat="@drawable/avatar7"
-        tools:layout_editor_absoluteX="173dp"
-        tools:layout_editor_absoluteY="117dp" />
+        android:layout_marginTop="20dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView8"
+        app:srcCompat="@drawable/avatar7" />
 
     <ImageView
-        android:id="@+id/imageView2"
-        android:layout_width="63dp"
-        android:layout_height="67dp"
-        app:srcCompat="@drawable/avatar6"
-        tools:layout_editor_absoluteX="174dp"
-        tools:layout_editor_absoluteY="562dp" />
+        android:id="@+id/player1"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_marginBottom="96dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.481"
+        app:layout_constraintStart_toStartOf="parent"
+        app:srcCompat="@drawable/avatar6" />
 
     <GridLayout
         android:id="@+id/gridLayout"
-        android:layout_width="301dp"
-        android:layout_height="307dp"
+        android:layout_width="290dp"
+        android:layout_height="289dp"
         android:layout_margin="60dp"
-        android:layout_marginBottom="20dp"
         android:columnCount="3"
         android:orientation="horizontal"
         android:rowCount="3"
-        app:layout_constraintBottom_toTopOf="@+id/imageView2"
+        app:layout_constraintBottom_toTopOf="@+id/player1"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.495"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView">
+        app:layout_constraintTop_toBottomOf="@+id/textView10"
+        app:layout_constraintVertical_bias="0.625">
 
-        <Button
+        <ImageButton
             android:id="@+id/gameButton1"
-            style="@style/Widget.Material3.Button.ElevatedButton"
             android:layout_width="90dp"
             android:layout_height="90dp"
             android:layout_rowWeight="0"
             android:layout_columnWeight="0"
             android:layout_margin="2dp"
-            android:elevation="8dp"
             android:background="@drawable/rounded_button"
-            android:shadowColor="#171717" />
+            android:elevation="16dp"
+            android:shadowColor="#171717"
+            tools:src="@drawable/vector__1_" />
 
-        <Button
+        <ImageButton
             android:id="@+id/gameButton2"
-            style="@style/Widget.Material3.Button.ElevatedButton"
             android:layout_width="90dp"
             android:layout_height="90dp"
             android:layout_row="0"
             android:layout_column="1"
             android:layout_margin="2dp"
-            android:elevation="8dp"
-            android:background="@drawable/rounded_button" />
+            android:background="@drawable/rounded_button"
+            android:elevation="16dp"
+            tools:src="@drawable/profile_icon" />
 
-        <Button
+        <ImageButton
             android:id="@+id/gameButton3"
-            style="@style/Widget.Material3.Button.ElevatedButton"
             android:layout_width="90dp"
             android:layout_height="90dp"
             android:layout_row="0"
             android:layout_column="2"
             android:layout_margin="3dp"
-            android:elevation="8dp"
-            android:background="@drawable/rounded_button" />
+            android:background="@drawable/rounded_button"
+            android:elevation="16dp"
+            />
 
-        <Button
+        <ImageButton
             android:id="@+id/gameButton4"
-            style="@style/Widget.Material3.Button.ElevatedButton"
             android:layout_width="90dp"
             android:layout_height="90dp"
             android:layout_row="1"
             android:layout_column="0"
             android:layout_margin="3dp"
-            android:elevation="8dp"
-            android:background="@drawable/rounded_button" />
+            android:background="@drawable/rounded_button"
+            android:elevation="16dp"
+            tools:src="@drawable/vector__1_" />
 
-        <Button
+        <ImageButton
             android:id="@+id/gameButton5"
-            style="@style/Widget.Material3.Button.ElevatedButton"
             android:layout_width="90dp"
             android:layout_height="90dp"
             android:layout_row="1"
             android:layout_column="1"
             android:layout_margin="3dp"
-            android:elevation="8dp"
-            android:background="@drawable/rounded_button" />
+            android:background="@drawable/rounded_button"
+            android:elevation="16dp" />
 
-        <Button
+        <ImageButton
             android:id="@+id/gameButton6"
-            style="@style/Widget.Material3.Button.ElevatedButton"
             android:layout_width="90dp"
             android:layout_height="90dp"
             android:layout_row="1"
             android:layout_column="2"
             android:layout_margin="3dp"
-            android:elevation="8dp"
-            android:background="@drawable/rounded_button" />
+            android:background="@drawable/rounded_button"
+            android:elevation="16dp"
+            tools:src="@drawable/profile_icon" />
 
-        <Button
+        <ImageButton
             android:id="@+id/gameButton7"
-            style="@style/Widget.Material3.Button.ElevatedButton"
             android:layout_width="90dp"
             android:layout_height="90dp"
             android:layout_row="2"
             android:layout_column="0"
             android:layout_margin="3dp"
-            android:elevation="8dp"
-            android:background="@drawable/rounded_button" />
+            android:background="@drawable/rounded_button"
+            android:elevation="16dp" />
 
-        <Button
+        <ImageButton
             android:id="@+id/gameButton8"
-            style="@style/Widget.Material3.Button.ElevatedButton"
             android:layout_width="90dp"
             android:layout_height="90dp"
             android:layout_row="2"
             android:layout_column="1"
             android:layout_margin="3dp"
-            android:elevation="8dp"
-            android:background="@drawable/rounded_button" />
+            android:background="@drawable/rounded_button"
+            android:elevation="16dp" />
 
-        <Button
+        <ImageButton
             android:id="@+id/gameButton9"
-            style="@style/Widget.Material3.Button.ElevatedButton"
             android:layout_width="90dp"
             android:layout_height="90dp"
             android:layout_row="2"
             android:layout_column="2"
             android:layout_margin="3dp"
-            android:elevation="8dp"
-            android:background="@drawable/rounded_button" />
+            android:background="@drawable/rounded_button"
+            android:elevation="16dp"
+            android:outlineAmbientShadowColor="@color/black"
+            android:outlineSpotShadowColor="@color/black" />
+
 
     </GridLayout>
+
+    <TextView
+        android:id="@+id/username1"
+        android:layout_width="98dp"
+        android:layout_height="24dp"
+        android:layout_marginTop="4dp"
+        android:fontFamily="@font/roboto"
+        android:textAlignment="center"
+        android:textColor="#303030"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.474"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/player1"
+        tools:text="Coraline - O" />
+
+    <TextView
+        android:id="@+id/textView10"
+        android:layout_width="131dp"
+        android:layout_height="27dp"
+        android:layout_marginTop="16dp"
+        android:fontFamily="@font/roboto"
+        android:text="TextView"
+        android:textAlignment="center"
+        android:textColor="#323232"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/player2"
+        tools:text="Skatergurl - X" />
+
+    <TextView
+        android:id="@+id/infoTextView2"
+        android:layout_width="224dp"
+        android:layout_height="30dp"
+        android:layout_marginTop="8dp"
+        android:fontFamily="@font/roboto"
+        android:text="TextView"
+        android:textAlignment="center"
+        android:textColor="#323232"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.471"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView10"
+        tools:text="Skatergurl's turn..." />
+
+    <TextView
+        android:id="@+id/textView12"
+        android:layout_width="201dp"
+        android:layout_height="35dp"
+        android:layout_marginTop="12dp"
+        android:fontFamily="@font/roboto"
+        android:textAlignment="center"
+        android:textColor="#232323"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.487"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/gridLayout"
+        tools:text="Your turn!" />
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="36dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/image_6" />
+
+    <ImageView
+        android:id="@+id/imageView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="28dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/image_4" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
