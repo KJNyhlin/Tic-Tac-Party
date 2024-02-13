@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">TicTacParty</string>
+    <string name="play_now_text">Play now</string>
+    <string name="match_history_text">Match history</string>
+    <string name="challenge_text">Challenge a friend</string>
+    <string name="app_name_title">Tic Tac Party</string>
 </resources>

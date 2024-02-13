@@ -8,53 +8,55 @@
     tools:context=".MainActivity" >
 
 
-
     <RelativeLayout
         android:id="@+id/d_avatars_2"
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
-        tools:layout_editor_absoluteX="155dp"
-        tools:layout_editor_absoluteY="174dp" />
+        android:layout_marginTop="40dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView" />
 
     <Button
-        android:id="@+id/button"
+        android:id="@+id/playNowButton"
         android:layout_width="200dp"
         android:layout_height="40dp"
         android:layout_marginTop="40dp"
         android:backgroundTint="#DEA4C8"
-        android:text="Play now"
+        android:text="@string/play_now_text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/d_avatars_2" />
 
     <Button
-        android:id="@+id/button2"
+        android:id="@+id/matchHistoryButton"
         android:layout_width="200dp"
         android:layout_height="40dp"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="24dp"
         android:backgroundTint="#DEA4C8"
-        android:text="Match history"
+        android:text="@string/match_history_text"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.502"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button" />
+        app:layout_constraintTop_toBottomOf="@+id/playNowButton" />
 
     <Button
-        android:id="@+id/button3"
+        android:id="@+id/challengeAFriendButton"
         android:layout_width="200dp"
         android:layout_height="40dp"
         android:layout_marginTop="100dp"
         android:backgroundTint="#DEA4C8"
-        android:text="Challenge a friend"
+        android:text="@string/challenge_text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.502"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button" />
+        app:layout_constraintTop_toBottomOf="@+id/playNowButton" />
 
     <TextView
         android:id="@+id/textView"
-        android:layout_width="200dp"
+        android:layout_width="220dp"
         android:layout_height="39dp"
         android:layout_marginTop="20dp"
         android:fontFamily="@font/russo_one"
@@ -62,7 +64,7 @@
         android:shadowDx="10"
         android:shadowDy="10"
         android:shadowRadius="10"
-        android:text="Tic Tac Toe"
+        android:text="@string/app_name"
         android:textColor="#D8F4FF"
         android:textSize="34sp"
         app:layout_constraintEnd_toEndOf="parent"
