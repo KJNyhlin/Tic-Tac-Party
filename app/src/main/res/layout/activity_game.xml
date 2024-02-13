@@ -9,7 +9,7 @@
     tools:context=".GameActivity">
 
     <TextView
-        android:id="@+id/textView8"
+        android:id="@+id/titleTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
@@ -30,11 +30,11 @@
         android:id="@+id/player2"
         android:layout_width="60dp"
         android:layout_height="60dp"
-        android:layout_marginTop="112dp"
+        android:layout_marginTop="84dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/textView8"
+        app:layout_constraintTop_toTopOf="@+id/titleTextView"
         app:srcCompat="@drawable/avatar7" />
 
     <ImageView
@@ -56,12 +56,12 @@
         android:columnCount="3"
         android:orientation="horizontal"
         android:rowCount="3"
-        app:layout_constraintBottom_toTopOf="@+id/player1"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.396"
+        app:layout_constraintHorizontal_bias="0.462"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView10"
-        app:layout_constraintVertical_bias="1.0">
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.57">
 
         <ImageButton
             android:id="@+id/gameButton1"
@@ -179,10 +179,10 @@
         tools:text="Coraline - O" />
 
     <TextView
-        android:id="@+id/textView10"
+        android:id="@+id/username2"
         android:layout_width="131dp"
         android:layout_height="27dp"
-        android:layout_marginTop="4dp"
+        android:layout_marginTop="24dp"
         android:fontFamily="@font/roboto"
         android:text="TextView"
         android:textAlignment="center"
@@ -194,7 +194,7 @@
         tools:text="Skatergurl - X" />
 
     <TextView
-        android:id="@+id/infoTextView2"
+        android:id="@+id/gameInfo2"
         android:layout_width="224dp"
         android:layout_height="30dp"
         android:layout_marginBottom="8dp"
@@ -211,10 +211,9 @@
         tools:text="Skatergurl's turn..." />
 
     <TextView
-        android:id="@+id/textView12"
+        android:id="@+id/gameInfo1"
         android:layout_width="201dp"
         android:layout_height="35dp"
-        android:layout_marginTop="4dp"
         android:fontFamily="@font/roboto"
         android:textAlignment="center"
         android:textColor="#232323"
@@ -223,26 +222,24 @@
         app:layout_constraintBottom_toTopOf="@+id/player1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/gridLayout"
-        app:layout_constraintVertical_bias="0.523"
         tools:text="Your turn!" />
 
     <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="36dp"
+        android:id="@+id/exitImage"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="32dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/image_6" />
 
     <ImageView
-        android:id="@+id/imageView2"
+        android:id="@+id/helpImage"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
-        android:layout_marginEnd="28dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="16dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/image_4" />
