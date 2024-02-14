@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "961835047378",
+    "project_id": "tictacparty-e6b16",
+    "storage_bucket": "tictacparty-e6b16.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:961835047378:android:ae532244645f8b4c08100b",
+        "android_client_info": {
+          "package_name": "com.example.tictacparty"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAl4sJm8DziciygBwPEufYChLfSs-m5R68"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
