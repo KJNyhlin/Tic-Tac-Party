@@ -2,7 +2,6 @@ package com.example.tictacparty
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.Button
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
@@ -23,8 +22,7 @@ class GameActivity : AppCompatActivity() {
     lateinit var gamebutton9 : ImageButton
     lateinit var username1: TextView
     lateinit var username2: TextView
-    lateinit var gameInfo1 : TextView
-    lateinit var gameInfo2 : TextView
+    lateinit var gameInfo : TextView
     lateinit var exitImage : ImageView
     lateinit var helpImage : ImageView
 
@@ -54,8 +52,7 @@ class GameActivity : AppCompatActivity() {
         gamebutton9 = findViewById(R.id.gameButton9)
         username1 = findViewById(R.id.username1)
         username2 = findViewById(R.id.username2)
-        gameInfo1 = findViewById(R.id.gameInfo1)
-        gameInfo2 = findViewById(R.id.gameInfo2)
+        gameInfo = findViewById(R.id.gameInfo)
         exitImage = findViewById(R.id.exitImage)
         helpImage = findViewById(R.id.helpImage)
     }

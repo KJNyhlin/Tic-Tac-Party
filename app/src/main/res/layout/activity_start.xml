@@ -27,10 +27,10 @@
     <Button
         android:id="@+id/accountBtn"
         style="@style/Widget.Material3.Button.ElevatedButton"
-        android:layout_width="360dp"
+        android:layout_width="300dp"
         android:layout_height="56dp"
         android:layout_marginTop="150dp"
-        android:backgroundTint="#F6FAFE"
+        android:backgroundTint="#E2F4FB"
         android:elevation="16dp"
         android:shadowColor="#5C5C5C"
         android:shadowDx="13"
@@ -44,10 +44,10 @@
 
     <Button
         android:id="@+id/loginButton"
-        android:layout_width="360dp"
+        android:layout_width="300dp"
         android:layout_height="56dp"
         android:layout_marginTop="40dp"
-        android:backgroundTint="#F6FAFE"
+        android:backgroundTint="#E2F4FB"
         android:elevation="16dp"
         android:text="@string/log_in"
         android:textColor="#020101"
