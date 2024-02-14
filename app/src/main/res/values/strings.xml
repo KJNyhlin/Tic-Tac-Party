@@ -12,4 +12,5 @@
     <string name="confirm_password">Confirm password</string>
     <string name="Email">Email (for password recovery only)</string>
     <string name="create">Create</string>
+    <string name="choose_avatar">Choose your avatar</string>
 </resources>
