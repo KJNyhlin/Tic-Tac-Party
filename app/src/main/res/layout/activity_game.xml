@@ -12,7 +12,7 @@
         android:id="@+id/titleTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="36dp"
         android:fontFamily="@font/russo_one"
         android:shadowColor="#424242"
         android:shadowDx="10"
@@ -22,7 +22,7 @@
         android:textColor="#D8F4FF"
         android:textSize="34sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintHorizontal_bias="0.505"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -30,7 +30,7 @@
         android:id="@+id/player2"
         android:layout_width="60dp"
         android:layout_height="60dp"
-        android:layout_marginTop="100dp"
+        android:layout_marginTop="76dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
@@ -41,7 +41,7 @@
         android:id="@+id/player1"
         android:layout_width="60dp"
         android:layout_height="60dp"
-        android:layout_marginBottom="80dp"
+        android:layout_marginBottom="112dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
@@ -60,7 +60,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.567">
+        app:layout_constraintVertical_bias="0.595">
 
         <ImageButton
             android:id="@+id/gameButton1"
@@ -166,67 +166,51 @@
         android:id="@+id/username1"
         android:layout_width="98dp"
         android:layout_height="24dp"
-        android:layout_marginTop="4dp"
+        android:layout_marginTop="8dp"
         android:fontFamily="@font/roboto"
+        android:text="X - Coraline"
         android:textAlignment="center"
         android:textColor="#303030"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/player1"
-        tools:text="Coraline - O" />
+        app:layout_constraintTop_toBottomOf="@+id/player1" />
 
     <TextView
         android:id="@+id/username2"
-        android:layout_width="131dp"
-        android:layout_height="27dp"
-        android:layout_marginTop="12dp"
+        android:layout_width="112dp"
+        android:layout_height="25dp"
+        android:layout_marginTop="8dp"
         android:fontFamily="@font/roboto"
-        android:text="TextView"
+        android:text="O - Skatergurl"
         android:textAlignment="center"
         android:textColor="#323232"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/player2"
-        tools:text="Skatergurl - X" />
+        app:layout_constraintTop_toBottomOf="@+id/player2" />
 
     <TextView
-        android:id="@+id/gameInfo2"
+        android:id="@+id/gameInfo"
         android:layout_width="224dp"
         android:layout_height="30dp"
-        android:layout_marginBottom="8dp"
         android:fontFamily="@font/roboto"
-        android:text="TextView"
+        android:text="Skatergurl's turn...."
         android:textAlignment="center"
         android:textColor="#323232"
         android:textSize="20sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/player2"
+        app:layout_constraintBottom_toTopOf="@+id/gridLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.502"
         app:layout_constraintStart_toStartOf="parent"
         tools:text="Skatergurl's turn..." />
 
-    <TextView
-        android:id="@+id/gameInfo1"
-        android:layout_width="201dp"
-        android:layout_height="35dp"
-        android:fontFamily="@font/roboto"
-        android:textAlignment="center"
-        android:textColor="#232323"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/player1"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        tools:text="Your turn!" />
-
     <ImageView
         android:id="@+id/exitImage"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="32dp"
         app:layout_constraintStart_toStartOf="parent"
@@ -236,7 +220,7 @@
     <ImageView
         android:id="@+id/helpImage"
         android:layout_width="wrap_content"
-        android:layout_height="48dp"
+        android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
         android:layout_marginEnd="16dp"
         app:layout_constraintEnd_toEndOf="parent"
