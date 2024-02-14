@@ -1,5 +1,6 @@
 package com.example.tictacparty
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
@@ -16,6 +17,13 @@ class MainActivity : AppCompatActivity() {
         val playNowButton = findViewById<Button>(R.id.playNowButton)
         val matchHistoryButton = findViewById<Button>(R.id.matchHistoryButton)
         val challengeAFriendButton = findViewById<Button>(R.id.challengeAFriendButton)
+
+        playNowButton.setOnClickListener {
+            //temporary solution, this button should lead to matchmaking
+            val intent = Intent(this, GameActivity::class.java)
+            startActivity(intent)
+        }
+
 
     }
 }
