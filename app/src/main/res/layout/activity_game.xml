@@ -14,11 +14,11 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
         android:fontFamily="@font/russo_one"
-        android:shadowColor="#515151"
-        android:shadowDx="5"
+        android:shadowColor="#424242"
+        android:shadowDx="10"
         android:shadowDy="5"
         android:shadowRadius="5"
-        android:text="Tic Tac Party"
+        android:text="@string/app_name_title"
         android:textColor="#D8F4FF"
         android:textSize="34sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -30,7 +30,7 @@
         android:id="@+id/player2"
         android:layout_width="60dp"
         android:layout_height="60dp"
-        android:layout_marginTop="84dp"
+        android:layout_marginTop="100dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
@@ -50,7 +50,7 @@
 
     <GridLayout
         android:id="@+id/gridLayout"
-        android:layout_width="290dp"
+        android:layout_width="295dp"
         android:layout_height="289dp"
         android:layout_margin="60dp"
         android:columnCount="3"
@@ -58,10 +58,9 @@
         android:rowCount="3"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.462"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.57">
+        app:layout_constraintVertical_bias="0.567">
 
         <ImageButton
             android:id="@+id/gameButton1"
@@ -182,7 +181,7 @@
         android:id="@+id/username2"
         android:layout_width="131dp"
         android:layout_height="27dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="12dp"
         android:fontFamily="@font/roboto"
         android:text="TextView"
         android:textAlignment="center"
