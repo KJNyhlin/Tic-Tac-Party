@@ -13,7 +13,11 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="40dp"
         android:fontFamily="@font/russo_one"
-        android:text="Tic Tac Toe"
+        android:shadowColor="#4C4C4C"
+        android:shadowDx="10"
+        android:shadowDy="10"
+        android:shadowRadius="10"
+        android:text="@string/app_name_title"
         android:textColor="#D8F4FF"
         android:textSize="34sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -21,12 +25,15 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/button6"
+        android:id="@+id/Create"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Button"
-        tools:layout_editor_absoluteX="163dp"
-        tools:layout_editor_absoluteY="657dp" />
+        android:layout_marginBottom="24dp"
+        android:text="@string/create"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <EditText
         android:id="@+id/editTextText"
@@ -68,12 +75,13 @@
         android:id="@+id/textView3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="25dp"
+        android:layout_marginTop="12dp"
         android:fontFamily="sans-serif-black"
-        android:text="Create your account"
-        android:textColor="#EAE4E4"
-        android:textSize="16sp"
+        android:text="@string/create_your_account"
+        android:textColor="#FFFFFF"
+        android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView2" />
 
@@ -85,6 +93,7 @@
         android:layout_marginBottom="2dp"
         android:text="User name"
         android:textColor="#FDFCFC"
+        android:textSize="16sp"
         app:layout_constraintBottom_toTopOf="@+id/editTextText"
         app:layout_constraintStart_toStartOf="parent" />
 
@@ -94,8 +103,9 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="30dp"
         android:layout_marginBottom="2dp"
-        android:text="Password"
+        android:text="@string/password"
         android:textColor="#FDFCFC"
+        android:textSize="16sp"
         app:layout_constraintBottom_toTopOf="@+id/editTextTextPassword"
         app:layout_constraintStart_toStartOf="parent" />
 
@@ -105,8 +115,9 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="30dp"
         android:layout_marginBottom="2dp"
-        android:text="Comfirm password"
+        android:text="@string/confirm_password"
         android:textColor="#FDFCFC"
+        android:textSize="16sp"
         app:layout_constraintBottom_toTopOf="@+id/editTextTextPassword2"
         app:layout_constraintStart_toStartOf="parent" />
 
@@ -116,8 +127,9 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="30dp"
         android:layout_marginBottom="2dp"
-        android:text="Email (for password recovery only)"
+        android:text="@string/Email"
         android:textColor="#FDFCFC"
+        android:textSize="16sp"
         app:layout_constraintBottom_toTopOf="@+id/editTextTextEmailAddress2"
         app:layout_constraintStart_toStartOf="parent" />
 

@@ -8,27 +8,15 @@
     tools:context=".MainActivity" >
 
 
-    <RelativeLayout
-        android:id="@+id/d_avatars_2"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="40dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView" />
-
     <Button
         android:id="@+id/playNowButton"
         android:layout_width="200dp"
         android:layout_height="40dp"
-        android:layout_marginTop="40dp"
         android:backgroundTint="#DEA4C8"
         android:text="@string/play_now_text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/d_avatars_2" />
+        tools:layout_editor_absoluteY="258dp" />
 
     <Button
         android:id="@+id/matchHistoryButton"
@@ -56,15 +44,16 @@
 
     <TextView
         android:id="@+id/textView"
-        android:layout_width="220dp"
-        android:layout_height="39dp"
+        android:layout_width="277dp"
+        android:layout_height="58dp"
         android:layout_marginTop="20dp"
         android:fontFamily="@font/russo_one"
         android:shadowColor="#3C3B3B"
         android:shadowDx="10"
         android:shadowDy="10"
         android:shadowRadius="10"
-        android:text="@string/app_name"
+        android:text="@string/app_name_title"
+        android:textAlignment="center"
         android:textColor="#D8F4FF"
         android:textSize="34sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -77,5 +66,16 @@
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
         app:menu="@menu/navigation_bar" />
+
+    <ImageView
+        android:id="@+id/imageAvatar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView"
+        app:srcCompat="@drawable/avatar6" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

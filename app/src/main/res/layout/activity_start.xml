@@ -8,15 +8,16 @@
     tools:context=".StartActivity">
 
     <TextView
-        android:id="@+id/createAccountBtn"
+        android:id="@+id/createAccountTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="40dp"
         android:fontFamily="@font/russo_one"
+        android:shadowColor="#252525"
         android:shadowDx="10"
         android:shadowDy="10"
         android:shadowRadius="10"
-        android:text="Tic Tac Toe"
+        android:text="@string/app_name_title"
         android:textColor="#D8F4FF"
         android:textSize="34sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -24,26 +25,34 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/button4"
+        android:id="@+id/accountBtn"
+        style="@style/Widget.Material3.Button.ElevatedButton"
         android:layout_width="360dp"
         android:layout_height="56dp"
         android:layout_marginTop="150dp"
         android:backgroundTint="#F6FAFE"
-        android:text="Create account"
+        android:elevation="16dp"
+        android:shadowColor="#5C5C5C"
+        android:shadowDx="13"
+        android:shadowDy="13"
+        android:text="@string/create_account"
         android:textColor="#090505"
+        app:cornerRadius="12dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/createAccountBtn" />
+        app:layout_constraintTop_toBottomOf="@+id/createAccountTitle" />
 
     <Button
-        android:id="@+id/button5"
+        android:id="@+id/loginButton"
         android:layout_width="360dp"
         android:layout_height="56dp"
         android:layout_marginTop="40dp"
         android:backgroundTint="#F6FAFE"
-        android:text="Log in"
+        android:elevation="16dp"
+        android:text="@string/log_in"
         android:textColor="#020101"
+        app:cornerRadius="12dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button4" />
+        app:layout_constraintTop_toBottomOf="@+id/accountBtn" />
 </androidx.constraintlayout.widget.ConstraintLayout>
