@@ -20,13 +20,21 @@ class CreateAccountActivity : AppCompatActivity() {
         val createButton = findViewById<Button>(R.id.Create)
 
         createButton.setOnClickListener {
+            val Username = editName.text.toString()
             val password = editPassword.text.toString()
             val passwordConfirm = editPasswordConfirm.text.toString()
-            if (password == passwordConfirm) {
-                // Create Account
+            val email = editMail.text.toString()
+
+            if (Username.isEmpty() || password.isEmpty() || passwordConfirm.isEmpty() || email.isEmpty()) {
+                //Empty fields
+                Toast.makeText(this, "All fields must be filled", Toast.LENGTH_SHORT).show()
+            } else if (password != passwordConfirm) {
+                //Password and Password confirm doesn't match
+                Toast.makeText(this, "Passwords don't match", Toast.LENGTH_SHORT).show()
             } else {
-                // Lösenorden matchar inte. 😞 Visa ett felmeddelande till användaren.
-                Toast.makeText(this, "Password doesn't match", Toast.LENGTH_SHORT).show()
+                //Everything is correct
+
+
             }
         }
 
