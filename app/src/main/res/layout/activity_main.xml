@@ -25,6 +25,7 @@
         android:layout_height="40dp"
         android:layout_marginTop="52dp"
         android:backgroundTint="#DEA4C8"
+        android:onClick="addMain"
         android:text="@string/play_now_text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"
@@ -82,5 +83,18 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/titleTextView"
         app:srcCompat="@drawable/avatar6" />
+
+    <FrameLayout
+        android:id="@+id/fragmentContainer"
+        android:layout_width="408dp"
+        android:layout_height="559dp"
+        app:layout_constraintBottom_toTopOf="@+id/nav_view"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/titleTextView"
+        app:layout_constraintVertical_bias="0.0">
+
+    </FrameLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
