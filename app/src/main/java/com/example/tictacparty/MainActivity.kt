@@ -17,47 +17,16 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         val db = Firebase.firestore
-
-        val playNowButton = findViewById<Button>(R.id.playNowButton)
-        val matchHistoryButton = findViewById<Button>(R.id.matchHistoryButton)
-        val challengeAFriendButton = findViewById<Button>(R.id.challengeAFriendButton)
         val bottomNavView = findViewById<BottomNavigationView>(R.id.bottomNavView)
 
-//        playNowButton.setOnClickListener {
-//            //temporary solution, this button should lead to matchmaking
-//            val intent = Intent(this, GameActivity::class.java)
-//            startActivity(intent)
-//        }
-
-
-    }
-    fun addMatchMakingFragment(view : View){
-        val matchFragment = MatchMakingFragment()
-        val transaction = supportFragmentManager.beginTransaction()
-        transaction.add(R.id.fragmentContainer,matchFragment, "matchFragment")
+       // addMainFragment()
+        val mainFragment = MainActivityFragment()
+        val fragmentManager = supportFragmentManager
+        val transaction = fragmentManager.beginTransaction()
+        transaction.replace(R.id.fragmentContainer,mainFragment, "mainFragment")
         transaction.commit()
-    }
-    
-    fun removeMatchMakingFragment(view : View){
-        val matchFragment = supportFragmentManager.findFragmentByTag("matchFragment")
 
-        if(matchFragment !=null){
-            val transaction = supportFragmentManager.beginTransaction()
-            transaction.remove(matchFragment)
-            transaction.commit()
-        }
-        else{
-            Toast.makeText(this, "Not found", Toast.LENGTH_SHORT).show()
-        }
-    }
-    fun addMainFragment(view : View ){
-        val mainFragment = MainFragment()
-        val transaction = supportFragmentManager.beginTransaction()
-        transaction.add(R.id.fragmentContainer,mainFragment, "mainFragment")
-        transaction.commit()
-    }
-    
-            bottomNavView.setOnItemSelectedListener { item ->
+        bottomNavView.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.navigation_play_game -> {
                     // Koden som körs när "Play game"-knappen klickas på
@@ -77,4 +46,8 @@ class MainActivity : AppCompatActivity() {
                 else -> false
             }
         }
+
+
+    }
+
 }

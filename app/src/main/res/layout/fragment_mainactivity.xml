@@ -3,19 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-    <Button
-        android:id="@+id/matchHistoryButton"
-        android:layout_width="200dp"
-        android:layout_height="40dp"
-        android:layout_marginTop="30dp"
-        android:backgroundTint="#DEA4C8"
-        android:text="@string/match_history_text"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/playNowButton" />
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
 
     <Button
         android:id="@+id/challengeAFriendButton"
@@ -25,7 +14,7 @@
         android:backgroundTint="#DEA4C8"
         android:text="@string/challenge_text"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintHorizontal_bias="0.502"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/matchHistoryButton" />
 
@@ -33,23 +22,35 @@
         android:id="@+id/playNowButton"
         android:layout_width="200dp"
         android:layout_height="40dp"
-        android:layout_marginTop="52dp"
+        android:layout_marginTop="100dp"
         android:backgroundTint="#DEA4C8"
-        android:onClick="addMatchMakingFragment"
         android:text="@string/play_now_text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView3" />
+        app:layout_constraintTop_toBottomOf="@+id/imageAvatar" />
+
+    <Button
+        android:id="@+id/matchHistoryButton"
+        android:layout_width="200dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="30dp"
+        android:backgroundTint="#DEA4C8"
+        android:text="@string/match_history_text"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.502"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/playNowButton" />
 
     <ImageView
-        android:id="@+id/imageView3"
+        android:id="@+id/imageAvatar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="36dp"
+        android:layout_marginTop="50dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/avatar6" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
