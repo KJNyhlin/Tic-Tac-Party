@@ -31,7 +31,7 @@ class MainActivity : AppCompatActivity() {
                 R.id.navigation_play_game -> {
                     // Koden som körs när "Play game"-knappen klickas på
                     //temporary solution for testing, should lead to: ???
-                    val intent = Intent(this, GameActivity::class.java)
+                    val intent = Intent(this, MainActivity::class.java)
                     startActivity(intent)
                     true
                 }
