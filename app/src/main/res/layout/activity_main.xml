@@ -7,41 +7,6 @@
     android:background="@drawable/gradient_background"
     tools:context=".MainActivity" >
 
-    <Button
-        android:id="@+id/challengeAFriendButton"
-        android:layout_width="200dp"
-        android:layout_height="40dp"
-        android:layout_marginTop="30dp"
-        android:backgroundTint="#DEA4C8"
-        android:text="@string/challenge_text"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.502"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/matchHistoryButton" />
-
-    <Button
-        android:id="@+id/playNowButton"
-        android:layout_width="200dp"
-        android:layout_height="40dp"
-        android:layout_marginTop="52dp"
-        android:backgroundTint="#DEA4C8"
-        android:text="@string/play_now_text"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageAvatar" />
-
-    <Button
-        android:id="@+id/matchHistoryButton"
-        android:layout_width="200dp"
-        android:layout_height="40dp"
-        android:layout_marginTop="30dp"
-        android:backgroundTint="#DEA4C8"
-        android:text="@string/match_history_text"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.502"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/playNowButton" />
 
     <TextView
         android:id="@+id/titleTextView"
@@ -64,7 +29,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/nav_view"
+        android:id="@+id/bottomNavView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -72,15 +37,17 @@
         app:layout_constraintStart_toStartOf="parent"
         app:menu="@menu/navigation_bar" />
 
-    <ImageView
-        android:id="@+id/imageAvatar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="36dp"
+    <FrameLayout
+        android:id="@+id/fragmentContainer"
+        android:layout_width="408dp"
+        android:layout_height="559dp"
+        app:layout_constraintBottom_toTopOf="@+id/nav_view"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/titleTextView"
-        app:srcCompat="@drawable/avatar6" />
+        app:layout_constraintVertical_bias="0.0">
+
+    </FrameLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
