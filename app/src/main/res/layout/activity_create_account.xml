@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="40dp"
         android:fontFamily="@font/russo_one"
-        android:text="Tic Tac Toe"
+        android:text="@string/app_name_title"
         android:textColor="#D8F4FF"
         android:textSize="34sp"
         app:layout_constraintEnd_toEndOf="parent"
