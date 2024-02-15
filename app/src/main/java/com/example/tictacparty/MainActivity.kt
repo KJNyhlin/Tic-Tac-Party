@@ -11,9 +11,15 @@ import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
 
 class MainActivity : AppCompatActivity() {
-
+    public var loggedIn : Boolean = false;
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
+
+        if(!loggedIn){
+            val intent = Intent(this, StartActivity::class.java)
+            startActivity(intent)
+        }
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         val db = Firebase.firestore
