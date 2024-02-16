@@ -6,17 +6,18 @@
         android:duration="200"/>
     <item
         android:drawable="@drawable/circle2"
-        android:duration="500"/>
+        android:duration="600"/>
     <item
         android:drawable="@drawable/circle3"
-        android:duration="500"/>
+        android:duration="600"/>
     <item
         android:drawable="@drawable/circle4"
-        android:duration="500"/>
+        android:duration="600"/>
     <item
         android:drawable="@drawable/circle5"
-        android:duration="500"/>
+        android:duration="600"/>
     <item
         android:drawable="@drawable/circle6"
         android:duration="200"/>
+
 </animation-list>
