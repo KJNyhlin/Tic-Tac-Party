@@ -35,7 +35,7 @@
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/titleTextView"
-        app:srcCompat="@drawable/avatar7" />
+        app:srcCompat="@drawable/avatar_7" />
 
     <ImageView
         android:id="@+id/player1"
@@ -46,7 +46,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:srcCompat="@drawable/avatar6" />
+        app:srcCompat="@drawable/avatar_9" />
 
     <GridLayout
         android:id="@+id/gridLayout"

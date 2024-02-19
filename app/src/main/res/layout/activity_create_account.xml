@@ -28,12 +28,12 @@
         android:id="@+id/Create"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="24dp"
+        android:layout_marginTop="10dp"
         android:text="@string/create"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/avatar8" />
 
     <EditText
         android:id="@+id/editTextText"
@@ -160,20 +160,20 @@
         android:layout_width="60dp"
         android:layout_height="60dp"
         android:layout_marginStart="16dp"
-        android:layout_marginBottom="88dp"
-        app:layout_constraintBottom_toTopOf="@+id/Create"
+        android:layout_marginTop="17dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:srcCompat="@drawable/avatar10" />
+        app:layout_constraintTop_toBottomOf="@+id/chooseText"
+        app:srcCompat="@drawable/avatar_1" />
 
     <ImageView
         android:id="@+id/avatar2"
         android:layout_width="60dp"
         android:layout_height="60dp"
         android:layout_marginStart="20dp"
-        android:layout_marginBottom="88dp"
-        app:layout_constraintBottom_toTopOf="@+id/Create"
+        android:layout_marginTop="17dp"
         app:layout_constraintStart_toEndOf="@+id/avatar1"
-        app:srcCompat="@drawable/avatar2" />
+        app:layout_constraintTop_toBottomOf="@+id/chooseText"
+        app:srcCompat="@drawable/avatar_2" />
 
     <TextView
         android:id="@+id/chooseText"
@@ -197,30 +197,30 @@
         android:layout_width="60dp"
         android:layout_height="60dp"
         android:layout_marginStart="20dp"
-        android:layout_marginBottom="88dp"
-        app:layout_constraintBottom_toTopOf="@+id/Create"
+        android:layout_marginTop="17dp"
         app:layout_constraintStart_toEndOf="@+id/avatar2"
-        app:srcCompat="@drawable/avatar4" />
+        app:layout_constraintTop_toBottomOf="@+id/chooseText"
+        app:srcCompat="@drawable/avatar_3" />
 
     <ImageView
         android:id="@+id/avatar4"
         android:layout_width="60dp"
         android:layout_height="60dp"
         android:layout_marginStart="20dp"
-        android:layout_marginBottom="88dp"
-        app:layout_constraintBottom_toTopOf="@+id/Create"
+        android:layout_marginTop="17dp"
         app:layout_constraintStart_toEndOf="@+id/avatar3"
-        app:srcCompat="@drawable/avatar8" />
+        app:layout_constraintTop_toBottomOf="@+id/chooseText"
+        app:srcCompat="@drawable/avatar_4" />
 
     <ImageView
         android:id="@+id/avatar5"
         android:layout_width="60dp"
         android:layout_height="60dp"
         android:layout_marginStart="20dp"
-        android:layout_marginBottom="88dp"
-        app:layout_constraintBottom_toTopOf="@+id/Create"
+        android:layout_marginTop="17dp"
         app:layout_constraintStart_toEndOf="@+id/avatar4"
-        app:srcCompat="@drawable/avatar9" />
+        app:layout_constraintTop_toBottomOf="@+id/chooseText"
+        app:srcCompat="@drawable/avatar_5" />
 
     <ImageView
         android:id="@+id/avatar6"
@@ -230,7 +230,7 @@
         android:layout_marginTop="8dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/avatar1"
-        app:srcCompat="@drawable/avatar3" />
+        app:srcCompat="@drawable/avatar_6" />
 
     <ImageView
         android:id="@+id/avatar8"
@@ -240,7 +240,7 @@
         android:layout_marginTop="8dp"
         app:layout_constraintStart_toEndOf="@+id/avatar7"
         app:layout_constraintTop_toBottomOf="@+id/avatar3"
-        app:srcCompat="@drawable/avatar1" />
+        app:srcCompat="@drawable/avatar_8" />
 
     <ImageView
         android:id="@+id/avatar7"
@@ -250,7 +250,7 @@
         android:layout_marginTop="8dp"
         app:layout_constraintStart_toEndOf="@+id/avatar6"
         app:layout_constraintTop_toBottomOf="@+id/avatar2"
-        app:srcCompat="@drawable/avatar7" />
+        app:srcCompat="@drawable/avatar_7" />
 
     <ImageView
         android:id="@+id/avatar9"
@@ -260,7 +260,7 @@
         android:layout_marginTop="8dp"
         app:layout_constraintStart_toEndOf="@+id/avatar8"
         app:layout_constraintTop_toBottomOf="@+id/avatar4"
-        app:srcCompat="@drawable/avatar6" />
+        app:srcCompat="@drawable/avatar_9" />
 
     <ImageView
         android:id="@+id/avatar10"
@@ -270,5 +270,5 @@
         android:layout_marginTop="8dp"
         app:layout_constraintStart_toEndOf="@+id/avatar9"
         app:layout_constraintTop_toBottomOf="@+id/avatar5"
-        app:srcCompat="@drawable/avatar5" />
+        app:srcCompat="@drawable/avatar_10" />
 </androidx.constraintlayout.widget.ConstraintLayout>

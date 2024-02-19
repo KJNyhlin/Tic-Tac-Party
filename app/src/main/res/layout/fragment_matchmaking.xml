@@ -25,7 +25,7 @@
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView"
-        app:srcCompat="@drawable/avatar7" />
+        app:srcCompat="@drawable/avatar_7" />
 
     <TextView
         android:id="@+id/textView"
