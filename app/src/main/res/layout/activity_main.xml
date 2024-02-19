@@ -8,6 +8,17 @@
     tools:context=".MainActivity" >
 
 
+    <ImageButton
+        android:id="@+id/temporaryLogOutButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:backgroundTint="#9C27B0"
+        android:src="@drawable/baseline_logout_24"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <TextView
         android:id="@+id/titleTextView"
         android:layout_width="260dp"
