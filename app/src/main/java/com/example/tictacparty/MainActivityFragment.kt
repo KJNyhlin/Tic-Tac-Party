@@ -28,7 +28,6 @@ class MainActivityFragment() : Fragment() {
             val transaction = activity?.supportFragmentManager?.beginTransaction()
             transaction?.replace(R.id.fragmentContainer,matchFragment, "matchFragment")
             transaction?.commit()
-
         }
     }
 }

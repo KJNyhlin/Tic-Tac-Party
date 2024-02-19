@@ -18,7 +18,6 @@ class CreateAccountActivity : AppCompatActivity() {
         //Just for test/example how to call
         //createUser("andreas", "Passw0rd", "andreas@andreas.se")
     }
-
     private fun createUser(userName : String, password : String, email : String) {
         // UserName cannot be stored, just email+password, might be added as a connected table in firestore as well somehow?
         auth = Firebase.auth
