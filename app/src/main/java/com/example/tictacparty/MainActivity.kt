@@ -8,12 +8,25 @@ import android.widget.Button
 import android.widget.Toast
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.auth
 import com.google.firebase.firestore.firestore
 
+object GlobalVariables {
+    var loggedInUser: String? = null
+    var loggedIn : Boolean = false
+    var player : Player? = null
+}
 class MainActivity : AppCompatActivity() {
-
+    lateinit var auth : FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        auth = Firebase.auth
+
+        if(!GlobalVariables.loggedIn){
+            val intent = Intent(this, StartActivity::class.java)
+            startActivity(intent)
+        }
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         val db = Firebase.firestore
@@ -53,4 +66,6 @@ class MainActivity : AppCompatActivity() {
 
 
     }
+
+
 }
