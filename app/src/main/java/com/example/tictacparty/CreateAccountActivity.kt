@@ -8,6 +8,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import android.util.Log
+import android.widget.ImageView
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
@@ -16,6 +17,7 @@ import com.google.firebase.firestore.auth.User
 
 
 class CreateAccountActivity : AppCompatActivity() {
+
     lateinit var auth : FirebaseAuth
     val db = FirebaseFirestore.getInstance()
 
@@ -29,6 +31,8 @@ class CreateAccountActivity : AppCompatActivity() {
         val editPasswordConfirm = findViewById<EditText>(R.id.editTextTextPassword2)
         val editMail = findViewById<EditText>(R.id.editTextTextEmailAddress2)
         val createButton = findViewById<Button>(R.id.Create)
+
+        addAvatarImageListeners()
 
         createButton.setOnClickListener {
             val Username = editName.text.toString()
@@ -118,5 +122,25 @@ class CreateAccountActivity : AppCompatActivity() {
                     }
                 }
             }
+    }
+    fun addAvatarImageListeners(){
+
+        val avatars = listOf(
+            Pair(findViewById<ImageView>(R.id.avatar1), R.drawable.avatar1),
+            Pair(findViewById<ImageView>(R.id.avatar2), R.drawable.avatar2),
+            Pair(findViewById<ImageView>(R.id.avatar3), R.drawable.avatar3),
+            Pair(findViewById<ImageView>(R.id.avatar4), R.drawable.avatar4),
+            Pair(findViewById<ImageView>(R.id.avatar5), R.drawable.avatar5),
+            Pair(findViewById<ImageView>(R.id.avatar6), R.drawable.avatar6),
+            Pair(findViewById<ImageView>(R.id.avatar7), R.drawable.avatar7),
+            Pair(findViewById<ImageView>(R.id.avatar8), R.drawable.avatar8),
+            Pair(findViewById<ImageView>(R.id.avatar9), R.drawable.avatar9),
+            Pair(findViewById<ImageView>(R.id.avatar10), R.drawable.avatar10),
+        )
+        for((imageView, resId)in avatars){
+            imageView.setOnClickListener {
+                GlobalVariables.player?.avatarImage = resId
+            }
+        }
     }
 }

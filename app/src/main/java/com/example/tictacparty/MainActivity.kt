@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
+import android.widget.ImageButton
 import android.widget.Toast
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.Firebase
@@ -20,8 +21,16 @@ object GlobalVariables {
 class MainActivity : AppCompatActivity() {
     lateinit var auth : FirebaseAuth
 
+    lateinit var temporaryLogOutButton : ImageButton
+
     override fun onCreate(savedInstanceState: Bundle?) {
         auth = Firebase.auth
+
+        //Temporary log.button
+        temporaryLogOutButton = findViewById(R.id.temporaryLogOutButton)
+        temporaryLogOutButton.setOnClickListener {
+
+        }
 
         if(!GlobalVariables.loggedIn){
             val intent = Intent(this, StartActivity::class.java)

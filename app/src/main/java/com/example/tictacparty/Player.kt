@@ -4,7 +4,7 @@ class Player(
     val email : String,
     val username : String,
     val userId : String,
-    var icon : String
+    var icon : String,
     var wins : Int,
     var lost : Int,
     var draw : Int,
@@ -15,4 +15,6 @@ class Player(
 
     constructor() : this("", "", "",0, 0, 0, 0,
         0, false)
+
 }
+
