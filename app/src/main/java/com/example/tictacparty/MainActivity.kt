@@ -59,10 +59,14 @@ class MainActivity : AppCompatActivity() {
                 }
                 R.id.navigation_leaderboard -> {
                     // Koden som körs när "leaderboard"-knappen klickas på
+                    val intent = Intent(this, LeaderboardActivity::class.java)
+                    startActivity(intent)
                     true
                 }
                 R.id.navigation_profile -> {
                     // Koden som körs när "profile"-knappen klickas på
+                    val intent = Intent(this, ProfileActivity::class.java)
+                    startActivity(intent)
                     true
                 }
                 else -> false
