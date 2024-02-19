@@ -13,8 +13,7 @@ class Player(
     var searchingOpponent : Boolean
 ) {
 
-    constructor() : this("", "", "",0, 0, 0, 0,
-        0, false)
-
+    constructor() : this("", "", "","", 0, 0, 0,
+        0, 0, false)
 }
 
