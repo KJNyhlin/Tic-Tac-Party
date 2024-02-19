@@ -78,6 +78,7 @@ class CreateAccountActivity : AppCompatActivity() {
                     var uid = auth.currentUser?.uid ?: ""
 
                     val player = Player(email, userName, uid.toString(), 0, 0, 0, avatarImage, 0, false)
+
                     GlobalVariables.player = player
                     Log.d("!!!", "player.avatarimage=${player.avatarImage}")
                     db.collection("players")
