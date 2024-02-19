@@ -6,10 +6,10 @@
         android:title="Play game" />
     <item
         android:id="@+id/navigation_leaderboard"
-        android:icon="@drawable/leader"
+        android:icon="@drawable/game_icon"
         android:title="Leaderboard" />
     <item
         android:id="@+id/navigation_profile"
-        android:icon="@drawable/profil1"
+        android:icon="@drawable/leaderboard_icon"
         android:title="Profile" />
 </menu>
