@@ -2,6 +2,7 @@ package com.example.tictacparty
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -48,6 +49,10 @@ class MainActivityFragment() : Fragment() {
         }
 
         val picture = view.findViewById<ImageView>(R.id.imageAvatar)
+        if(GlobalVariables.player?.avatarImage!=null) {
+            picture.setImageResource(GlobalVariables.player!!.avatarImage)
+            Log.d("!!!", "inMainActivity: ${GlobalVariables.player!!.avatarImage}")
+        }
         picture.setOnClickListener {
             logout()
         }

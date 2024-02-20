@@ -26,11 +26,6 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         auth = Firebase.auth
 
-        //Temporary log.button
-        temporaryLogOutButton = findViewById(R.id.temporaryLogOutButton)
-        temporaryLogOutButton.setOnClickListener {
-
-        }
 
         if(!GlobalVariables.loggedIn){
             val intent = Intent(this, StartActivity::class.java)
@@ -47,6 +42,11 @@ class MainActivity : AppCompatActivity() {
         val transaction = fragmentManager.beginTransaction()
         transaction.replace(R.id.fragmentContainer,mainFragment, "mainFragment")
         transaction.commit()
+
+        temporaryLogOutButton = findViewById(R.id.temporaryLogOutButton)
+        temporaryLogOutButton.setOnClickListener {
+            GlobalVariables.loggedIn=false
+        }
 
         bottomNavView.setOnItemSelectedListener { item ->
             when (item.itemId) {
