@@ -9,7 +9,7 @@
     <Button
         android:id="@+id/challengeAFriendButton"
         android:layout_width="200dp"
-        android:layout_height="40dp"
+        android:layout_height="48dp"
         android:layout_marginTop="30dp"
         android:backgroundTint="#DEA4C8"
         android:text="@string/challenge_text"
@@ -21,7 +21,7 @@
     <Button
         android:id="@+id/playNowButton"
         android:layout_width="200dp"
-        android:layout_height="40dp"
+        android:layout_height="48dp"
         android:layout_marginTop="100dp"
         android:backgroundTint="#DEA4C8"
         android:text="@string/play_now_text"
@@ -33,7 +33,7 @@
     <Button
         android:id="@+id/matchHistoryButton"
         android:layout_width="200dp"
-        android:layout_height="40dp"
+        android:layout_height="48dp"
         android:layout_marginTop="30dp"
         android:backgroundTint="#DEA4C8"
         android:text="@string/match_history_text"

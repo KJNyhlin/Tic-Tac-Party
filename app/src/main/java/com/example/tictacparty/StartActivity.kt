@@ -21,7 +21,10 @@ class StartActivity : AppCompatActivity() {
 
         loginButton.setOnClickListener {
             //TODO this is examplecode because of missing loginactivity
-            signIn("uu@uu.uu", "uuuuuu")
+            //signIn("uu@uu.uu", "uuuuuu")
+
+            val intent = Intent(this, LogInActivity::class.java)
+            startActivity(intent)
 
         }
         createAccountButton.setOnClickListener {

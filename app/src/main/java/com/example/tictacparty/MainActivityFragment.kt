@@ -38,6 +38,7 @@ class MainActivityFragment() : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         auth = Firebase.auth
         super.onViewCreated(view, savedInstanceState)
+
         val playNowButton = view.findViewById<Button>(R.id.playNowButton)
         val matchHistoryButton = view.findViewById<Button>(R.id.matchHistoryButton)
         val challengeAFriendButton = view.findViewById<Button>(R.id.challengeAFriendButton)
@@ -47,15 +48,21 @@ class MainActivityFragment() : Fragment() {
             transaction?.replace(R.id.fragmentContainer,matchFragment, "matchFragment")
             transaction?.commit()
         }
+        challengeAFriendButton.setOnClickListener{
+            val intent=Intent(context,GameActivity::class.java)
+            startActivity(intent)
+        }
 
         val picture = view.findViewById<ImageView>(R.id.imageAvatar)
         if(GlobalVariables.player?.avatarImage!=null) {
             picture.setImageResource(GlobalVariables.player!!.avatarImage)
             Log.d("!!!", "inMainActivity: ${GlobalVariables.player!!.avatarImage}")
         }
-        picture.setOnClickListener {
-            logout()
-        }
+
+        //I moved the Logout-button to profileActivity
+//        picture.setOnClickListener {
+//            logout()
+//        }
 
         Toast.makeText(requireContext(), "${GlobalVariables.player?.username.toString()}", Toast.LENGTH_SHORT).show()
 
@@ -65,12 +72,15 @@ class MainActivityFragment() : Fragment() {
         }*/
 
     }
-    fun logout(){
-        auth.signOut()
-        GlobalVariables.loggedInUser = ""
-        GlobalVariables.loggedIn = false
-        val intent = Intent(requireContext(), MainActivity::class.java)
-        startActivity(intent)
-        activity?.finish()
-    }
+
+
+    //I moved the log-out function to Profile-Activity/Jennet. Hope it's okay, otherwise tell me!:)
+//    fun logout(){
+//        auth.signOut()
+//        GlobalVariables.loggedInUser = ""
+//        GlobalVariables.loggedIn = false
+//        val intent = Intent(requireContext(), MainActivity::class.java)
+//        startActivity(intent)
+//        activity?.finish()
+//    }
 }
