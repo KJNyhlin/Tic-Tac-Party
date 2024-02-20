@@ -7,6 +7,8 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import android.util.Log
+import android.view.animation.AlphaAnimation
+import android.view.animation.ScaleAnimation
 import android.widget.ImageView
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
@@ -146,6 +148,11 @@ class CreateAccountActivity : AppCompatActivity() {
                 Log.d("!!!", "inAvatarListener - Old avatarImage: ${newPlayer.avatarImage}")
                 newPlayer.avatarImage=resId
                 Log.d("!!!", "inAvatarListener - New avatarImage: ${newPlayer.avatarImage}")
+
+                //Added an animation, so that user "knows" that the avatar is clicked
+                val scaleAnimation= ScaleAnimation(0.8f,1.0f,0.8f,1.0f)
+                scaleAnimation.duration=500
+                imageView.startAnimation(scaleAnimation)
             }
         }
     }

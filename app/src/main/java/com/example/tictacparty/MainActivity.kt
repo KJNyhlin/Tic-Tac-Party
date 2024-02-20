@@ -21,32 +21,26 @@ object GlobalVariables {
 class MainActivity : AppCompatActivity() {
     lateinit var auth : FirebaseAuth
 
-    lateinit var temporaryLogOutButton : ImageButton
-
     override fun onCreate(savedInstanceState: Bundle?) {
         auth = Firebase.auth
-
 
         if(!GlobalVariables.loggedIn){
             val intent = Intent(this, StartActivity::class.java)
             startActivity(intent)
         }
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         val db = Firebase.firestore
+
+
+        addMainFragment()
+        bottomNavListener()
+
+
+    }
+    fun bottomNavListener(){
         val bottomNavView = findViewById<BottomNavigationView>(R.id.bottomNavView)
-
-       // addMainFragment()
-        val mainFragment = MainActivityFragment()
-        val fragmentManager = supportFragmentManager
-        val transaction = fragmentManager.beginTransaction()
-        transaction.replace(R.id.fragmentContainer,mainFragment, "mainFragment")
-        transaction.commit()
-
-        temporaryLogOutButton = findViewById(R.id.temporaryLogOutButton)
-        temporaryLogOutButton.setOnClickListener {
-            GlobalVariables.loggedIn=false
-        }
 
         bottomNavView.setOnItemSelectedListener { item ->
             when (item.itemId) {
@@ -73,8 +67,12 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-
     }
-
-
+    fun addMainFragment(){
+        val mainFragment = MainActivityFragment()
+        val fragmentManager = supportFragmentManager
+        val transaction = fragmentManager.beginTransaction()
+        transaction.replace(R.id.fragmentContainer,mainFragment, "mainFragment")
+        transaction.commit()
+    }
 }
