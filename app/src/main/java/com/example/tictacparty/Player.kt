@@ -9,10 +9,11 @@ class Player(
     var draw : Int,
     var avatarImage : Int,
     var mmrScore : Int,
-    var searchingOpponent : Boolean
+    var searchingOpponent : Boolean,
+    var searchingOpponentStartTime : Long
 ) {
 
     constructor() : this("", "", "",0, 0, 0, 0,
-        0,  false)
+        0,  false, 0)
 }
 

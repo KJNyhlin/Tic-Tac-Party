@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment
 class MatchMakingFragment() : Fragment(){
 
     var animationSpinning = AnimationDrawable()
+    val player = GlobalVariables.player
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -27,6 +28,15 @@ class MatchMakingFragment() : Fragment(){
 
 
         return view
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        player?.searchingOpponent = true
+        player?.searchingOpponentStartTime = System.currentTimeMillis()
+        // kod för att anropa Firestore här
+
     }
 
 }

@@ -7,8 +7,6 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import android.util.Log
-import android.view.animation.AlphaAnimation
-import android.view.animation.ScaleAnimation
 import android.widget.ImageView
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
@@ -20,7 +18,6 @@ class CreateAccountActivity : AppCompatActivity() {
 
     lateinit var auth : FirebaseAuth
     val db = FirebaseFirestore.getInstance()
-    var newPlayer = Player()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,8 +37,6 @@ class CreateAccountActivity : AppCompatActivity() {
             val password = editPassword.text.toString()
             val passwordConfirm = editPasswordConfirm.text.toString()
             val email = editMail.text.toString()
-            var avatarImage = newPlayer.avatarImage
-
 
             if (Username.isEmpty() || password.isEmpty() || passwordConfirm.isEmpty() || email.isEmpty()) {
                 //Empty fields
@@ -55,17 +50,15 @@ class CreateAccountActivity : AppCompatActivity() {
                 Toast.makeText(this, "The email address is badly formatted.", Toast.LENGTH_SHORT).show()
             } else if (password.length < 6) {
                 Toast.makeText(this, "The given password is invalid. [ Password should be at least 6 characters ]", Toast.LENGTH_SHORT).show()
-            } else if(avatarImage==0){
-                Toast.makeText(this, "You must choose an avatar", Toast.LENGTH_SHORT).show()
             } else {
-            createUser(Username, password, email, avatarImage)
+                createUser(Username, password, email)
             }
         }
 
         //Just for test/example how to call
         //createUser("andreas", "Passw0rd", "andreas@andreas.se")
     }
-    private fun createUser(userName : String, password : String, email : String, avatarImage : Int) {
+    private fun createUser(userName : String, password : String, email : String) {
         // UserName cannot be stored, just email+password, might be added as a connected table in firestore as well somehow?
         auth = Firebase.auth
         auth.createUserWithEmailAndPassword(email, password)
@@ -77,10 +70,8 @@ class CreateAccountActivity : AppCompatActivity() {
                     Log.d("!!!", "logged in user: ${auth.currentUser?.uid.toString()}")
                     var uid = auth.currentUser?.uid ?: ""
 
-                    val player = Player(email, userName, uid.toString(), 0, 0, 0, avatarImage, 0, false)
-
+                    val player = Player(email, userName, uid, 0, 0, 0, 0, 0, false, 0)
                     GlobalVariables.player = player
-                    Log.d("!!!", "player.avatarimage=${player.avatarImage}")
                     db.collection("players")
                         .add(player)
                         .addOnSuccessListener { documentReference ->
@@ -130,30 +121,23 @@ class CreateAccountActivity : AppCompatActivity() {
                 }
             }
     }
-    fun addAvatarImageListeners() {
+    fun addAvatarImageListeners(){
 
         val avatars = listOf(
-            Pair(findViewById<ImageView>(R.id.avatar1), R.drawable.avatar_1),
-            Pair(findViewById<ImageView>(R.id.avatar2), R.drawable.avatar_2),
-            Pair(findViewById<ImageView>(R.id.avatar3), R.drawable.avatar_3),
-            Pair(findViewById<ImageView>(R.id.avatar4), R.drawable.avatar_4),
-            Pair(findViewById<ImageView>(R.id.avatar5), R.drawable.avatar_5),
-            Pair(findViewById<ImageView>(R.id.avatar6), R.drawable.avatar_6),
-            Pair(findViewById<ImageView>(R.id.avatar7), R.drawable.avatar_7),
-            Pair(findViewById<ImageView>(R.id.avatar8), R.drawable.avatar_8),
-            Pair(findViewById<ImageView>(R.id.avatar9), R.drawable.avatar_9),
-            Pair(findViewById<ImageView>(R.id.avatar10), R.drawable.avatar_10),
+            Pair(findViewById<ImageView>(R.id.avatar1), R.drawable.avatar1),
+            Pair(findViewById<ImageView>(R.id.avatar2), R.drawable.avatar2),
+            Pair(findViewById<ImageView>(R.id.avatar3), R.drawable.avatar3),
+            Pair(findViewById<ImageView>(R.id.avatar4), R.drawable.avatar4),
+            Pair(findViewById<ImageView>(R.id.avatar5), R.drawable.avatar5),
+            Pair(findViewById<ImageView>(R.id.avatar6), R.drawable.avatar6),
+            Pair(findViewById<ImageView>(R.id.avatar7), R.drawable.avatar7),
+            Pair(findViewById<ImageView>(R.id.avatar8), R.drawable.avatar8),
+            Pair(findViewById<ImageView>(R.id.avatar9), R.drawable.avatar9),
+            Pair(findViewById<ImageView>(R.id.avatar10), R.drawable.avatar10),
         )
         for((imageView, resId)in avatars){
             imageView.setOnClickListener {
-                Log.d("!!!", "inAvatarListener - Old avatarImage: ${newPlayer.avatarImage}")
-                newPlayer.avatarImage=resId
-                Log.d("!!!", "inAvatarListener - New avatarImage: ${newPlayer.avatarImage}")
-
-                //Added an animation, so that user "knows" that the avatar is clicked
-                val scaleAnimation= ScaleAnimation(0.8f,1.0f,0.8f,1.0f)
-                scaleAnimation.duration=500
-                imageView.startAnimation(scaleAnimation)
+                GlobalVariables.player?.avatarImage = resId
             }
         }
     }
