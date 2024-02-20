@@ -2,16 +2,23 @@ package com.example.tictacparty
 
 import android.graphics.drawable.AnimationDrawable
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.fragment.app.Fragment
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.QueryDocumentSnapshot
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 
 class MatchMakingFragment() : Fragment(){
 
     var animationSpinning = AnimationDrawable()
     val player = GlobalVariables.player
+    val db = Firebase.firestore
+    val playersRef = db.collection("players")
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -35,8 +42,44 @@ class MatchMakingFragment() : Fragment(){
 
         player?.searchingOpponent = true
         player?.searchingOpponentStartTime = System.currentTimeMillis()
-        // kod för att anropa Firestore här
 
+        var opponent : String = ""
+        // this needs to be fixed, should be possible to abort if no match is found
+        while (opponent == "") {
+            opponent = findOpponent()
+            // add prompt here: "No opponent was found. Try again / go back"
+        }
+
+
+    }
+
+    private fun findOpponent(): String {
+        var lowestTimeMillis : Long = System.currentTimeMillis()
+        var opponentsUserName : String = ""
+        playersRef.whereEqualTo("searchingOpponent", true).get().addOnSuccessListener { documents ->
+            for (document in documents) {
+                var currentDocumentsStartTime : Any? = document.get("searchingOpponentStartTime")
+                var currentDocumentsStartTimeAsLong : Long? = currentDocumentsStartTime as? Long
+                if (currentDocumentsStartTimeAsLong != null && currentDocumentsStartTimeAsLong != 0.toLong()) {
+                    if (currentDocumentsStartTimeAsLong < lowestTimeMillis) {
+                        lowestTimeMillis = currentDocumentsStartTimeAsLong
+                        opponentsUserName = document.get("username").toString()
+                    }
+                }
+            }
+        }
+        return opponentsUserName
+    }
+
+    fun updatePlayerInFirestore(player: Player) {
+        val db = Firebase.firestore
+        val playerRef = GlobalVariables.player?.let { db.collection("players").document(it.username) }
+
+        if (playerRef != null) {
+            playerRef.update("searchingOpponent", GlobalVariables.player?.searchingOpponent)
+                .addOnSuccessListener { Log.d("!!!", "DocumentSnapshot successfully updated!") }
+                .addOnFailureListener { e -> Log.w("!!!", "Error updating document", e) }
+        }
     }
 
 }
