@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.fragment.app.Fragment
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -14,9 +15,16 @@ import com.google.firebase.ktx.Firebase
 class MatchMakingFragment() : Fragment(){
 
     var animationSpinning = AnimationDrawable()
+
+    lateinit var spinningWheel : ImageView
+    lateinit var searchingOpponent : ImageView
+    lateinit var searchingUsername : TextView
+
+
     val player = GlobalVariables.player
     val db = Firebase.firestore
     val playersRef = db.collection("players")
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -26,13 +34,31 @@ class MatchMakingFragment() : Fragment(){
         val view = inflater.inflate(R.layout.fragment_matchmaking, container, false)
 
 
-        val imageView = view.findViewById<ImageView>(R.id.spinningWheel)
-        imageView.setBackgroundResource(R.drawable.animation_spinningwheel)
-        val animationSpinning = imageView.background as? AnimationDrawable
-        animationSpinning?.start()
+        searchingOpponent = view.findViewById<ImageView>(R.id.searchingOpponent)
+        spinningWheel = view.findViewById<ImageView>(R.id.spinningWheel)
+        searchingUsername = view.findViewById<TextView>(R.id.searchingUsername)
+
+
+        updateMatchMakingFragment()
 
 
         return view
+    }
+
+
+    fun updateMatchMakingFragment(){
+
+        spinningWheel.setBackgroundResource(R.drawable.animation_spinningwheel)
+        val animationSpinning = spinningWheel.background as? AnimationDrawable
+        animationSpinning?.start()
+
+        if(GlobalVariables.player?.avatarImage!=null) {
+            searchingOpponent.setImageResource(GlobalVariables.player!!.avatarImage)
+            Log.d("!!!", "inMainActivity: ${GlobalVariables.player!!.avatarImage}")
+        }
+        //capitalize() - Skriver ut användarnamnet så att första bokstaven blir stor och resten blir små.
+        searchingUsername.text = GlobalVariables.player?.username?.capitalize()
+
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -81,5 +107,6 @@ class MatchMakingFragment() : Fragment(){
                 .addOnFailureListener { e -> Log.w("!!!", "Error updating document", e) }
         }
     }
+
 
 }

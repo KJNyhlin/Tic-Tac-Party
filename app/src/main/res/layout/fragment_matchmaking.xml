@@ -6,7 +6,7 @@
     android:layout_height="match_parent">
 
     <ImageView
-        android:id="@+id/whoAvatar"
+        android:id="@+id/otherOpponent"
         android:layout_width="80dp"
         android:layout_height="80dp"
         android:layout_marginTop="68dp"
@@ -17,18 +17,18 @@
         app:srcCompat="@drawable/_d_avatar_18" />
 
     <ImageView
-        android:id="@+id/matchAvatar"
+        android:id="@+id/searchingOpponent"
         android:layout_width="80dp"
         android:layout_height="80dp"
         android:layout_marginTop="188dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView"
+        app:layout_constraintTop_toBottomOf="@+id/searchingforPlayer"
         app:srcCompat="@drawable/avatar_7" />
 
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/searchingforPlayer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="84dp"
@@ -37,7 +37,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/whoAvatar" />
+        app:layout_constraintTop_toBottomOf="@+id/otherOpponent" />
 
     <ImageView
         android:id="@+id/spinningWheel"
@@ -47,16 +47,24 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView"
+        app:layout_constraintTop_toBottomOf="@+id/searchingforPlayer"
          />
 
     <TextView
-        android:id="@+id/textView8"
+        android:id="@+id/searchingUsername"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Skatergurl"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/matchAvatar" />
+        app:layout_constraintTop_toBottomOf="@+id/searchingOpponent" />
+
+    <TextView
+        android:id="@+id/findingUsername"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/otherOpponent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

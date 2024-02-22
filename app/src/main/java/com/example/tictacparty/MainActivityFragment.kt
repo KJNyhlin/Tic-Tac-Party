@@ -59,12 +59,7 @@ class MainActivityFragment() : Fragment() {
             Log.d("!!!", "inMainActivity: ${GlobalVariables.player!!.avatarImage}")
         }
 
-        //I moved the Logout-button to profileActivity
-//        picture.setOnClickListener {
-//            logout()
-//        }
-
-        Toast.makeText(requireContext(), "${GlobalVariables.player?.username.toString()}", Toast.LENGTH_SHORT).show()
+        Toast.makeText(requireContext(), "Welcome ${GlobalVariables.player?.username?.capitalize()}", Toast.LENGTH_SHORT).show()
 
         /*f(GlobalVariables.loggedIn == false){
             val intent = Intent(requireContext(), MainActivity::class.java)
@@ -72,15 +67,4 @@ class MainActivityFragment() : Fragment() {
         }*/
 
     }
-
-
-    //I moved the log-out function to Profile-Activity/Jennet. Hope it's okay, otherwise tell me!:)
-//    fun logout(){
-//        auth.signOut()
-//        GlobalVariables.loggedInUser = ""
-//        GlobalVariables.loggedIn = false
-//        val intent = Intent(requireContext(), MainActivity::class.java)
-//        startActivity(intent)
-//        activity?.finish()
-//    }
 }
