@@ -45,20 +45,17 @@ class MainActivity : AppCompatActivity() {
         bottomNavView.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.navigation_play_game -> {
-                    // Koden som körs när "Play game"-knappen klickas på
                     //temporary solution for testing, should lead to: ???
                     val intent = Intent(this, MainActivity::class.java)
                     startActivity(intent)
                     true
                 }
                 R.id.navigation_leaderboard -> {
-                    // Koden som körs när "leaderboard"-knappen klickas på
                     val intent = Intent(this, LeaderboardActivity::class.java)
                     startActivity(intent)
                     true
                 }
                 R.id.navigation_profile -> {
-                    // Koden som körs när "profile"-knappen klickas på
                     val intent = Intent(this, ProfileActivity::class.java)
                     startActivity(intent)
                     true
