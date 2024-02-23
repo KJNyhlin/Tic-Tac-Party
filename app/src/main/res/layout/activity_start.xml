@@ -28,7 +28,7 @@
         android:id="@+id/accountBtn"
         style="@style/Widget.Material3.Button.ElevatedButton"
         android:layout_width="300dp"
-        android:layout_height="56dp"
+        android:layout_height="48dp"
         android:layout_marginTop="150dp"
         android:backgroundTint="#FFEBF3F6"
         android:elevation="16dp"
@@ -45,7 +45,7 @@
     <Button
         android:id="@+id/loginButton"
         android:layout_width="300dp"
-        android:layout_height="56dp"
+        android:layout_height="48dp"
         android:layout_marginTop="40dp"
         android:backgroundTint="#EBF3F6"
         android:elevation="16dp"

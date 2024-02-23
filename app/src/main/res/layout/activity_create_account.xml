@@ -95,53 +95,53 @@
         android:id="@+id/textView4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="28dp"
+        android:layout_marginStart="2dp"
         android:layout_marginBottom="2dp"
         android:fontFamily="@font/roboto"
         android:text="User name"
         android:textColor="#FFFFFF"
         android:textSize="16sp"
         app:layout_constraintBottom_toTopOf="@+id/editTextText"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="@+id/editTextText" />
 
     <TextView
         android:id="@+id/hintPassword"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
+        android:layout_marginStart="2dp"
         android:layout_marginBottom="2dp"
         android:fontFamily="@font/roboto"
         android:text="@string/password"
         android:textColor="#FFFFFF"
         android:textSize="16sp"
         app:layout_constraintBottom_toTopOf="@+id/editTextTextPassword"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="@+id/editTextTextPassword" />
 
     <TextView
         android:id="@+id/textView6"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
+        android:layout_marginStart="2dp"
         android:layout_marginBottom="2dp"
         android:fontFamily="@font/roboto"
         android:text="@string/confirm_password"
         android:textColor="#FFFFFF"
         android:textSize="16sp"
         app:layout_constraintBottom_toTopOf="@+id/editTextTextPassword2"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="@+id/editTextTextPassword2" />
 
     <TextView
         android:id="@+id/hintEmail"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
+        android:layout_marginStart="2dp"
         android:layout_marginBottom="2dp"
         android:fontFamily="@font/roboto"
         android:text="@string/Email"
         android:textColor="#FFFFFF"
         android:textSize="16sp"
         app:layout_constraintBottom_toTopOf="@+id/editTextTextEmailAddress2"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="@+id/editTextTextEmailAddress2" />
 
     <EditText
         android:id="@+id/editTextTextPassword2"
@@ -169,7 +169,7 @@
         android:id="@+id/avatar2"
         android:layout_width="60dp"
         android:layout_height="60dp"
-        android:layout_marginStart="20dp"
+        android:layout_marginStart="14dp"
         android:layout_marginTop="17dp"
         app:layout_constraintStart_toEndOf="@+id/avatar1"
         app:layout_constraintTop_toBottomOf="@+id/chooseText"
@@ -196,7 +196,7 @@
         android:id="@+id/avatar3"
         android:layout_width="60dp"
         android:layout_height="60dp"
-        android:layout_marginStart="20dp"
+        android:layout_marginStart="14dp"
         android:layout_marginTop="17dp"
         app:layout_constraintStart_toEndOf="@+id/avatar2"
         app:layout_constraintTop_toBottomOf="@+id/chooseText"
@@ -206,7 +206,7 @@
         android:id="@+id/avatar4"
         android:layout_width="60dp"
         android:layout_height="60dp"
-        android:layout_marginStart="20dp"
+        android:layout_marginStart="14dp"
         android:layout_marginTop="17dp"
         app:layout_constraintStart_toEndOf="@+id/avatar3"
         app:layout_constraintTop_toBottomOf="@+id/chooseText"
@@ -216,8 +216,8 @@
         android:id="@+id/avatar5"
         android:layout_width="60dp"
         android:layout_height="60dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="17dp"
+        android:layout_marginStart="14dp"
+        android:layout_marginTop="16dp"
         app:layout_constraintStart_toEndOf="@+id/avatar4"
         app:layout_constraintTop_toBottomOf="@+id/chooseText"
         app:srcCompat="@drawable/avatar_5" />
@@ -236,7 +236,7 @@
         android:id="@+id/avatar8"
         android:layout_width="60dp"
         android:layout_height="60dp"
-        android:layout_marginStart="20dp"
+        android:layout_marginStart="14dp"
         android:layout_marginTop="8dp"
         app:layout_constraintStart_toEndOf="@+id/avatar7"
         app:layout_constraintTop_toBottomOf="@+id/avatar3"
@@ -246,7 +246,7 @@
         android:id="@+id/avatar7"
         android:layout_width="60dp"
         android:layout_height="60dp"
-        android:layout_marginStart="20dp"
+        android:layout_marginStart="14dp"
         android:layout_marginTop="8dp"
         app:layout_constraintStart_toEndOf="@+id/avatar6"
         app:layout_constraintTop_toBottomOf="@+id/avatar2"
@@ -256,7 +256,7 @@
         android:id="@+id/avatar9"
         android:layout_width="60dp"
         android:layout_height="60dp"
-        android:layout_marginStart="20dp"
+        android:layout_marginStart="14dp"
         android:layout_marginTop="8dp"
         app:layout_constraintStart_toEndOf="@+id/avatar8"
         app:layout_constraintTop_toBottomOf="@+id/avatar4"
@@ -266,8 +266,10 @@
         android:id="@+id/avatar10"
         android:layout_width="60dp"
         android:layout_height="60dp"
-        android:layout_marginStart="20dp"
+        android:layout_marginStart="14dp"
         android:layout_marginTop="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.071"
         app:layout_constraintStart_toEndOf="@+id/avatar9"
         app:layout_constraintTop_toBottomOf="@+id/avatar5"
         app:srcCompat="@drawable/avatar_10" />
