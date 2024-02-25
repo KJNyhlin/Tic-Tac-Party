@@ -3,6 +3,8 @@ package com.example.tictacparty
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.provider.Settings.Global
+import android.view.KeyEvent
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
@@ -23,7 +25,6 @@ class ProfileActivity : AppCompatActivity() {
     lateinit var gamesLost : TextView
     lateinit var recentGames : TextView
     lateinit var recentGamesRecyclerView : RecyclerView
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         auth = Firebase.auth
@@ -52,8 +53,9 @@ class ProfileActivity : AppCompatActivity() {
     }
     fun logout(){
         auth.signOut()
-        GlobalVariables.loggedInUser = ""
+        GlobalVariables.loggedInUser = null
         GlobalVariables.loggedIn = false
+        GlobalVariables.player = null
         val intent = Intent(this, MainActivity::class.java)
         startActivity(intent)
     }
@@ -68,7 +70,8 @@ class ProfileActivity : AppCompatActivity() {
         if(GlobalVariables.player!=null) {
             profileUsername.text = GlobalVariables.player!!.username.capitalize()
             rankingScore.text = "Current Ranking Score: ${GlobalVariables.player!!.mmrScore}"
-
+            val gamesPlayedNo = GlobalVariables.player!!.wins + GlobalVariables.player!!.lost
+            gamesPlayed.text = "Games Played: ${gamesPlayedNo}"
             gamesWon.text = "Games Won: ${GlobalVariables.player!!.wins}"
             gamesLost.text = "Games Lost: ${GlobalVariables.player!!.lost}"
         }

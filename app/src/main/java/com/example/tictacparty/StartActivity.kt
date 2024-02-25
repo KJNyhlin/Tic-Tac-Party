@@ -20,9 +20,6 @@ class StartActivity : AppCompatActivity() {
         var loginButton = findViewById<Button>(R.id.loginButton)
 
         loginButton.setOnClickListener {
-            //TODO this is examplecode because of missing loginactivity
-            //signIn("uu@uu.uu", "uuuuuu")
-
             val intent = Intent(this, LogInActivity::class.java)
             startActivity(intent)
 

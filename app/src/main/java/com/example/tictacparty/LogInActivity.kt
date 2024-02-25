@@ -49,7 +49,7 @@ class LogInActivity : AppCompatActivity() {
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     // Sign in success, update UI with the signed-in user's information
-                    val user = auth.currentUser
+                    //val user = auth.currentUser
                     if (auth.currentUser?.email != null) {
                         val userId = auth.currentUser?.uid.toString()
                         var player: Player? = null
@@ -68,7 +68,7 @@ class LogInActivity : AppCompatActivity() {
                                 }
                                 GlobalVariables.loggedInUser = auth.currentUser?.email
                                 GlobalVariables.loggedIn = true
-                                Toast.makeText(this, "Authentication succeeded.", Toast.LENGTH_SHORT).show()
+                                Log.d("!!!", "Authentication succeeded.")
                                 // Proceed to next activity or handle authentication success
                                 val intent = Intent(this, MainActivity::class.java)
                                 startActivity(intent)

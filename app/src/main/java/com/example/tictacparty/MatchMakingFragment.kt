@@ -34,15 +34,19 @@ class MatchMakingFragment() : Fragment(){
     var opponentsUserName : String = ""
 
 
-
-
+    override fun onResume() {
+        if(!GlobalVariables.loggedIn){
+            val intent = Intent(requireActivity(), StartActivity::class.java)
+            startActivity(intent)
+        }
+        super.onResume()
+    }
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_matchmaking, container, false)
-
 
         searchingOpponent = view.findViewById<ImageView>(R.id.searchingOpponent)
         spinningWheel = view.findViewById<ImageView>(R.id.spinningWheel)
