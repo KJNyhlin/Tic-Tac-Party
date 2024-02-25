@@ -59,6 +59,8 @@ class MainActivityFragment() : Fragment() {
             Log.d("!!!", "inMainActivity: ${GlobalVariables.player!!.avatarImage}")
         }
 
+
+
         Toast.makeText(requireContext(), "Welcome ${GlobalVariables.player?.username?.capitalize()}", Toast.LENGTH_SHORT).show()
 
         /*f(GlobalVariables.loggedIn == false){

@@ -34,7 +34,7 @@ class MatchMakingFragment() : Fragment(){
         val view = inflater.inflate(R.layout.fragment_matchmaking, container, false)
 
 
-        searchingOpponent = view.findViewById<ImageView>(R.id.searchingOpponent)
+        searchingOpponent = view.findViewById<ImageView>(R.id.loggedinPlayer)
         spinningWheel = view.findViewById<ImageView>(R.id.spinningWheel)
         searchingUsername = view.findViewById<TextView>(R.id.searchingUsername)
 
@@ -44,35 +44,18 @@ class MatchMakingFragment() : Fragment(){
 
         return view
     }
-
-
-    fun updateMatchMakingFragment(){
-
-        spinningWheel.setBackgroundResource(R.drawable.animation_spinningwheel)
-        val animationSpinning = spinningWheel.background as? AnimationDrawable
-        animationSpinning?.start()
-
-        if(GlobalVariables.player?.avatarImage!=null) {
-            searchingOpponent.setImageResource(GlobalVariables.player!!.avatarImage)
-            Log.d("!!!", "inMainActivity: ${GlobalVariables.player!!.avatarImage}")
-        }
-        //capitalize() - Skriver ut användarnamnet så att första bokstaven blir stor och resten blir små.
-        searchingUsername.text = GlobalVariables.player?.username?.capitalize()
-
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         player?.searchingOpponent = true
         player?.searchingOpponentStartTime = System.currentTimeMillis()
 
-        var opponent : String = ""
-        // the following needs to be fixed, should be possible to abort if no match is found
-        while (opponent == "") {
-            opponent = findOpponent()
-            // add prompt here: "No opponent was found. Try again / go back"
-        }
+//        var opponent : String = ""
+//        // the following needs to be fixed, should be possible to abort if no match is found
+//        while (opponent == "") {
+//            opponent = findOpponent()
+//            // add prompt here: "No opponent was found. Try again / go back"
+//        }
 
 
     }
@@ -107,6 +90,19 @@ class MatchMakingFragment() : Fragment(){
                 .addOnFailureListener { e -> Log.w("!!!", "Error updating document", e) }
         }
     }
+    fun updateMatchMakingFragment(){
 
+        spinningWheel.setBackgroundResource(R.drawable.animation_spinningwheel)
+        val animationSpinning = spinningWheel.background as? AnimationDrawable
+        animationSpinning?.start()
+
+        if(GlobalVariables.player?.avatarImage!=null) {
+            searchingOpponent.setImageResource(GlobalVariables.player!!.avatarImage)
+            Log.d("!!!", "inMainActivity: ${GlobalVariables.player!!.avatarImage}")
+        }
+        //capitalize() - Skriver ut användarnamnet så att första bokstaven blir stor och resten blir små.
+        searchingUsername.text = GlobalVariables.player?.username?.capitalize()
+
+    }
 
 }
