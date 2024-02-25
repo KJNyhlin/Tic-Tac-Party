@@ -4,6 +4,8 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.provider.Settings.Global
+import android.view.KeyEvent
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
@@ -29,7 +31,6 @@ class ProfileActivity : AppCompatActivity() {
     lateinit var recentGames : TextView
     lateinit var recentGamesRecyclerView : RecyclerView
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         auth = Firebase.auth
         super.onCreate(savedInstanceState)
@@ -54,10 +55,11 @@ class ProfileActivity : AppCompatActivity() {
     }
     fun logout(){
         auth.signOut()
-        GlobalVariables.loggedInUser = ""
+        GlobalVariables.loggedInUser = null
         GlobalVariables.loggedIn = false
         GlobalVariables.player=null
         Log.d("!!!","Log out: ${GlobalVariables.player?.username}")
+
         val intent = Intent(this, MainActivity::class.java)
         startActivity(intent)
     }
