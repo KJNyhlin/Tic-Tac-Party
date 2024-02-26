@@ -87,6 +87,7 @@ class MatchMakingFragment() : Fragment() {
                     } else {
                         opponentsUserName = opponent
                         opponentFound = true
+                        Log.d("!!!", "Matched with opponent: $opponentsUserName")
                         //(maybe necessary to check that activity is not null before requireActivity)
                         val intent = Intent(requireActivity(), GameActivity::class.java)
                         intent.putExtra("opponentsUsername", opponentsUserName)
