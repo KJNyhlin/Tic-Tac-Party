@@ -58,6 +58,10 @@ class MainActivityFragment() : Fragment() {
             picture.setImageResource(GlobalVariables.player!!.avatarImage)
             Log.d("!!!", "inMainActivity: ${GlobalVariables.player!!.avatarImage}")
         }
+        picture.setOnClickListener{
+            val intent = Intent(context, GameActivity::class.java)
+            startActivity(intent)
+        }
 
         if(GlobalVariables.player?.username != null) {
             Toast.makeText(

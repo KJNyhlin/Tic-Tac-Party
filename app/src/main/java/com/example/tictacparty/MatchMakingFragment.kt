@@ -22,20 +22,22 @@ class MatchMakingFragment() : Fragment() {
 
     var animationSpinning = AnimationDrawable()
 
+
     lateinit var spinningWheel : ImageView
     lateinit var loggedInPlayer : ImageView
     lateinit var searchingUsername : TextView
+
 
 
     val player = GlobalVariables.player
     val db = Firebase.firestore
     val playersRef = db.collection("players")
     var opponentFound = false
-    var opponentsUserName : String = ""
+    var opponentsUserName: String = ""
 
 
     override fun onResume() {
-        if(!GlobalVariables.loggedIn){
+        if (!GlobalVariables.loggedIn) {
             val intent = Intent(requireActivity(), StartActivity::class.java)
             startActivity(intent)
         }
@@ -51,20 +53,25 @@ class MatchMakingFragment() : Fragment() {
 
 
         loggedInPlayer = view.findViewById<ImageView>(R.id.loggedinPlayer)
+
         spinningWheel = view.findViewById<ImageView>(R.id.spinningWheel)
-        searchingUsername = view.findViewById<TextView>(R.id.searchingUsername)
+        loggedInUsername = view.findViewById<TextView>(R.id.searchingUsername)
 
 
-        updateMatchMakingFragment()
+        //updateMatchMakingFragment()
 
 
         return view
     }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         player?.searchingOpponent = true
         player?.searchingOpponentStartTime = System.currentTimeMillis()
+        if (player != null) {
+            updatePlayerInFirestore(player)
+        }
 
         opponentSearchTimer()
 
@@ -76,11 +83,12 @@ class MatchMakingFragment() : Fragment() {
     //new version:
     fun opponentSearchTimer() {
         //debug print, remove before release
-        Log.d("opponentSearchTimer", "Nu körs opponentSearchTimer()")
+        Log.d("!!!", "Nu körs opponentSearchTimer()")
         val timer = Timer()
         var seconds = 0
         timer.scheduleAtFixedRate(object : TimerTask() {
             override fun run() {
+                Log.d("!!!", "Och nu körs findOpponent()")
                 findOpponent { opponent ->
                     if (opponent.isEmpty()) {
                         //ev text "Searching for opponent..."
@@ -101,79 +109,91 @@ class MatchMakingFragment() : Fragment() {
                         showTimeoutDialog()
                     }
                     timer.cancel()
-            }
+                }
             }
         }, 0, 1000)
     }
 
-        fun findOpponent(callback: (String) -> Unit) {
-            var lowestTimeMillis: Long = System.currentTimeMillis()
-            var opponentsUserName: String = ""
-            playersRef.whereEqualTo("searchingOpponent", true).get()
-                .addOnSuccessListener { documents ->
-                    for (document in documents) {
-                        var currentDocumentsStartTime: Any? =
-                            document.get("searchingOpponentStartTime")
-                        var currentDocumentsStartTimeAsLong: Long? =
-                            currentDocumentsStartTime as? Long
-                        // checks that startTime is not the default value 0
-                        if (currentDocumentsStartTimeAsLong != null && currentDocumentsStartTimeAsLong != 0.toLong()) {
-                            // saves the username of the player object with the lowest timemillis
-                            if (currentDocumentsStartTimeAsLong < lowestTimeMillis) {
-                                lowestTimeMillis = currentDocumentsStartTimeAsLong
-                                // checks that this player is not oneself
-                                if (document.get("username").toString() != player?.username) {
-                                    opponentsUserName = document.get("username").toString()
-                                }
+    fun findOpponent(callback: (String) -> Unit) {
+        var lowestTimeMillis: Long = System.currentTimeMillis()
+        var opponentsUserName: String = ""
+        playersRef.whereEqualTo("searchingOpponent", true).get()
+            .addOnSuccessListener { documents ->
+                for (document in documents) {
+                    var currentDocumentsStartTime: Any? =
+                        document.get("searchingOpponentStartTime")
+                    var currentDocumentsStartTimeAsLong: Long? =
+                        currentDocumentsStartTime as? Long
+                    // checks that startTime is not the default value 0
+                    if (currentDocumentsStartTimeAsLong != null && currentDocumentsStartTimeAsLong != 0.toLong()) {
+                        // saves the username of the player object with the lowest timemillis
+                        if (currentDocumentsStartTimeAsLong < lowestTimeMillis) {
+                            lowestTimeMillis = currentDocumentsStartTimeAsLong
+                            // checks that this player is not oneself
+                            if (document.get("username").toString() != player?.username) {
+                                opponentsUserName = document.get("username").toString()
                             }
                         }
                     }
-                    callback(opponentsUserName)
                 }
-        }
-
-        fun showTimeoutDialog() {
-            activity?.runOnUiThread {
-                val builder = AlertDialog.Builder(requireActivity())
-                builder.setTitle("Timeout")
-                builder.setMessage("No opponent was found.")
-                builder.setPositiveButton("Try again") { _, _ ->
-                    opponentSearchTimer()
-                }
-                builder.setNegativeButton("Cancel") { _, _ ->
-                    parentFragmentManager.popBackStack()
-                }
-
-                val dialog: AlertDialog = builder.create()
-                dialog.show()
+                callback(opponentsUserName)
             }
-        }
+    }
 
-        //this function is never used here, could probably be removed
-        fun updatePlayerInFirestore(player: Player) {
-            val db = Firebase.firestore
-            val playerRef =
-                GlobalVariables.player?.let { db.collection("players").document(it.username) }
-
-            if (playerRef != null) {
-                playerRef.update("searchingOpponent", GlobalVariables.player?.searchingOpponent)
-                    .addOnSuccessListener { Log.d("!!!", "DocumentSnapshot successfully updated!") }
-                    .addOnFailureListener { e -> Log.w("!!!", "Error updating document", e) }
+    fun showTimeoutDialog() {
+        activity?.runOnUiThread {
+            val builder = AlertDialog.Builder(requireActivity())
+            builder.setTitle("Timeout")
+            builder.setMessage("No opponent was found.")
+            builder.setPositiveButton("Try again") { _, _ ->
+                opponentSearchTimer()
             }
+            builder.setNegativeButton("Cancel") { _, _ ->
+                parentFragmentManager.popBackStack()
+            }
+
+            val dialog: AlertDialog = builder.create()
+            dialog.show()
         }
 
     fun updateMatchMakingFragment(){
+    }
+
 
         spinningWheel.setBackgroundResource(R.drawable.animation_spinningwheel)
         val animationSpinning = spinningWheel.background as? AnimationDrawable
         animationSpinning?.start()
 
-        if(GlobalVariables.player?.avatarImage!=null) {
+
+        if (GlobalVariables.player?.avatarImage != null) {
             loggedInPlayer.setImageResource(GlobalVariables.player!!.avatarImage)
             Log.d("!!!", "inMainActivity: ${GlobalVariables.player!!.avatarImage}")
         }
         //capitalize() - Skriver ut användarnamnet så att första bokstaven blir stor och resten blir små.
-        searchingUsername.text = GlobalVariables.player?.username?.capitalize()
+        loggedInUsername.text = GlobalVariables.player?.username?.capitalize()
 
     }
+}
+
+    fun updatePlayerInFirestore(player: Player) {
+        val db = Firebase.firestore
+        val playerRef = GlobalVariables.player?.username?.let { db.collection("players").document(it) }
+
+        if (playerRef != null) {
+            playerRef.update("searchingOpponent", player.searchingOpponent)
+                .addOnSuccessListener {
+                    playerRef.update("searchingOpponentStartTime", player.searchingOpponentStartTime)
+                        .addOnSuccessListener {
+                            Log.d("!!!", "Both fields successfully updated!")
+                        }
+                        .addOnFailureListener { e ->
+                            Log.w("!!!", "Error updating searchingOpponentStartTime", e)
+                        }
+                }
+                .addOnFailureListener { e ->
+                    Log.w("!!!", "Error updating searchingOpponent", e)
+                }
+        }
+    }
+
 }
