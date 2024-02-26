@@ -23,7 +23,7 @@ class MatchMakingFragment() : Fragment() {
     var animationSpinning = AnimationDrawable()
 
     lateinit var spinningWheel : ImageView
-    lateinit var searchingOpponent : ImageView
+    lateinit var loggedInPlayer : ImageView
     lateinit var searchingUsername : TextView
 
 
@@ -50,7 +50,7 @@ class MatchMakingFragment() : Fragment() {
         val view = inflater.inflate(R.layout.fragment_matchmaking, container, false)
 
 
-        searchingOpponent = view.findViewById<ImageView>(R.id.searchingOpponent)
+        loggedInPlayer = view.findViewById<ImageView>(R.id.loggedinPlayer)
         spinningWheel = view.findViewById<ImageView>(R.id.spinningWheel)
         searchingUsername = view.findViewById<TextView>(R.id.searchingUsername)
 
@@ -161,7 +161,7 @@ class MatchMakingFragment() : Fragment() {
                     .addOnFailureListener { e -> Log.w("!!!", "Error updating document", e) }
             }
         }
-    }
+
     fun updateMatchMakingFragment(){
 
         spinningWheel.setBackgroundResource(R.drawable.animation_spinningwheel)
@@ -169,11 +169,11 @@ class MatchMakingFragment() : Fragment() {
         animationSpinning?.start()
 
         if(GlobalVariables.player?.avatarImage!=null) {
-            searchingOpponent.setImageResource(GlobalVariables.player!!.avatarImage)
+            loggedInPlayer.setImageResource(GlobalVariables.player!!.avatarImage)
             Log.d("!!!", "inMainActivity: ${GlobalVariables.player!!.avatarImage}")
         }
         //capitalize() - Skriver ut användarnamnet så att första bokstaven blir stor och resten blir små.
         searchingUsername.text = GlobalVariables.player?.username?.capitalize()
 
     }
-
+}
