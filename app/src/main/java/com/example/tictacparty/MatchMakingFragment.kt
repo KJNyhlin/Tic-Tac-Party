@@ -22,20 +22,20 @@ class MatchMakingFragment() : Fragment() {
 
     var animationSpinning = AnimationDrawable()
 
-    lateinit var spinningWheel : ImageView
-    lateinit var searchingOpponent : ImageView
-    lateinit var searchingUsername : TextView
+    lateinit var spinningWheel: ImageView
+    lateinit var loggedInPlayer: ImageView
+    lateinit var loggedInUsername: TextView
 
 
     val player = GlobalVariables.player
     val db = Firebase.firestore
     val playersRef = db.collection("players")
     var opponentFound = false
-    var opponentsUserName : String = ""
+    var opponentsUserName: String = ""
 
 
     override fun onResume() {
-        if(!GlobalVariables.loggedIn){
+        if (!GlobalVariables.loggedIn) {
             val intent = Intent(requireActivity(), StartActivity::class.java)
             startActivity(intent)
         }
@@ -50,9 +50,12 @@ class MatchMakingFragment() : Fragment() {
         val view = inflater.inflate(R.layout.fragment_matchmaking, container, false)
 
 
-        //searchingOpponent = view.findViewById<ImageView>(R.id.searchingOpponent)
+
+        loggedInPlayer = view.findViewById<ImageView>(R.id.loggedinPlayer)
+
+
         spinningWheel = view.findViewById<ImageView>(R.id.spinningWheel)
-        searchingUsername = view.findViewById<TextView>(R.id.searchingUsername)
+        loggedInUsername = view.findViewById<TextView>(R.id.searchingUsername)
 
 
         //updateMatchMakingFragment()
@@ -60,6 +63,7 @@ class MatchMakingFragment() : Fragment() {
 
         return view
     }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -105,54 +109,71 @@ class MatchMakingFragment() : Fragment() {
                         showTimeoutDialog()
                     }
                     timer.cancel()
-            }
+                }
             }
         }, 0, 1000)
     }
 
-        fun findOpponent(callback: (String) -> Unit) {
-            var lowestTimeMillis: Long = System.currentTimeMillis()
-            var opponentsUserName: String = ""
-            playersRef.whereEqualTo("searchingOpponent", true).get()
-                .addOnSuccessListener { documents ->
-                    for (document in documents) {
-                        var currentDocumentsStartTime: Any? =
-                            document.get("searchingOpponentStartTime")
-                        var currentDocumentsStartTimeAsLong: Long? =
-                            currentDocumentsStartTime as? Long
-                        // checks that startTime is not the default value 0
-                        if (currentDocumentsStartTimeAsLong != null && currentDocumentsStartTimeAsLong != 0.toLong()) {
-                            // saves the username of the player object with the lowest timemillis
-                            if (currentDocumentsStartTimeAsLong < lowestTimeMillis) {
-                                lowestTimeMillis = currentDocumentsStartTimeAsLong
-                                // checks that this player is not oneself
-                                if (document.get("username").toString() != player?.username) {
-                                    opponentsUserName = document.get("username").toString()
-                                }
+    fun findOpponent(callback: (String) -> Unit) {
+        var lowestTimeMillis: Long = System.currentTimeMillis()
+        var opponentsUserName: String = ""
+        playersRef.whereEqualTo("searchingOpponent", true).get()
+            .addOnSuccessListener { documents ->
+                for (document in documents) {
+                    var currentDocumentsStartTime: Any? =
+                        document.get("searchingOpponentStartTime")
+                    var currentDocumentsStartTimeAsLong: Long? =
+                        currentDocumentsStartTime as? Long
+                    // checks that startTime is not the default value 0
+                    if (currentDocumentsStartTimeAsLong != null && currentDocumentsStartTimeAsLong != 0.toLong()) {
+                        // saves the username of the player object with the lowest timemillis
+                        if (currentDocumentsStartTimeAsLong < lowestTimeMillis) {
+                            lowestTimeMillis = currentDocumentsStartTimeAsLong
+                            // checks that this player is not oneself
+                            if (document.get("username").toString() != player?.username) {
+                                opponentsUserName = document.get("username").toString()
                             }
                         }
                     }
-                    callback(opponentsUserName)
                 }
-        }
-
-        fun showTimeoutDialog() {
-            activity?.runOnUiThread {
-                val builder = AlertDialog.Builder(requireActivity())
-                builder.setTitle("Timeout")
-                builder.setMessage("No opponent was found.")
-                builder.setPositiveButton("Try again") { _, _ ->
-                    opponentSearchTimer()
-                }
-                builder.setNegativeButton("Cancel") { _, _ ->
-                    parentFragmentManager.popBackStack()
-                }
-
-                val dialog: AlertDialog = builder.create()
-                dialog.show()
+                callback(opponentsUserName)
             }
-        }
+    }
 
+    fun showTimeoutDialog() {
+        activity?.runOnUiThread {
+            val builder = AlertDialog.Builder(requireActivity())
+            builder.setTitle("Timeout")
+            builder.setMessage("No opponent was found.")
+            builder.setPositiveButton("Try again") { _, _ ->
+                opponentSearchTimer()
+            }
+            builder.setNegativeButton("Cancel") { _, _ ->
+                parentFragmentManager.popBackStack()
+            }
+
+            val dialog: AlertDialog = builder.create()
+            dialog.show()
+        }
+    }
+
+
+
+    fun updateMatchMakingFragment() {
+
+        spinningWheel.setBackgroundResource(R.drawable.animation_spinningwheel)
+        val animationSpinning = spinningWheel.background as? AnimationDrawable
+        animationSpinning?.start()
+
+        if (GlobalVariables.player?.avatarImage != null) {
+            loggedInPlayer.setImageResource(GlobalVariables.player!!.avatarImage)
+            Log.d("!!!", "inMainActivity: ${GlobalVariables.player!!.avatarImage}")
+        }
+        //capitalize() - Skriver ut användarnamnet så att första bokstaven blir stor och resten blir små.
+        loggedInUsername.text = GlobalVariables.player?.username?.capitalize()
+
+    }
+}
     fun updatePlayerInFirestore(player: Player) {
         val db = Firebase.firestore
         val playerRef = GlobalVariables.player?.username?.let { db.collection("players").document(it) }
@@ -175,18 +196,5 @@ class MatchMakingFragment() : Fragment() {
     }
 
 }
-    //fun updateMatchMakingFragment(){
-//
-    //    spinningWheel.setBackgroundResource(R.drawable.animation_spinningwheel)
-    //    val animationSpinning = spinningWheel.background as? AnimationDrawable
-    //    animationSpinning?.start()
-//
-    //    if(GlobalVariables.player?.avatarImage!=null) {
-    //        searchingOpponent.setImageResource(GlobalVariables.player!!.avatarImage)
-    //        Log.d("!!!", "inMainActivity: ${GlobalVariables.player!!.avatarImage}")
-    //    }
-    //    //capitalize() - Skriver ut användarnamnet så att första bokstaven blir stor och resten blir små.
-    //    searchingUsername.text = GlobalVariables.player?.username?.capitalize()
-//
-    //}
+
 

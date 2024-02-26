@@ -1,5 +1,5 @@
 package com.example.tictacparty
-import android.content.ContentValues
+
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -8,20 +8,18 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
-import com.google.android.gms.tasks.Task
 import com.google.firebase.Firebase
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.firestore
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat.startActivity
 
 
 class GameActivity : AppCompatActivity() {
 
     lateinit var titleTextView: TextView
 
-    lateinit var player1_avatar : ImageView
-    lateinit var player2_avatar : ImageView
+    lateinit var player1_avatar: ImageView
+    lateinit var player2_avatar: ImageView
     lateinit var gamebutton1: ImageButton
     lateinit var gamebutton2: ImageButton
     lateinit var gamebutton3: ImageButton
@@ -44,9 +42,9 @@ class GameActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_game)
         val playerOne =
-            Player("email@example.com", "Spelare 1", "id1", 0, 0, 0, 0, 0, false, 0, "kryss")
+            Player("email@example.com", "Spelare 1", "id1", 0, 0, 0, 0, 0, false, 0, "cross")
         val playerTwo =
-            Player("email2@example.com", "Spelare 2", "id2", 0, 0, 0, 0, 0, false, 0, "runda")
+            Player("email2@example.com", "Spelare 2", "id2", 0, 0, 0, 0, 0, false, 0, "circle")
 
 
         val game = Game(1, playerOne, playerTwo, 1, "ongoing")
@@ -61,7 +59,7 @@ class GameActivity : AppCompatActivity() {
 
     fun iniatilizeViews() {
         titleTextView = findViewById(R.id.titleTextView)
-        player1_avatar = findViewById(R.id.player1)
+        player1_avatar = findViewById(R.id.player2)
         player2_avatar = findViewById(R.id.player2)
         gamebutton1 = findViewById(R.id.gameButton1)
         gamebutton2 = findViewById(R.id.gameButton2)
@@ -85,7 +83,7 @@ class GameActivity : AppCompatActivity() {
         helpImage.setOnClickListener {
 
         }
-        
+
         addExitDialog()
 
     }
@@ -109,7 +107,7 @@ class GameActivity : AppCompatActivity() {
             button.setOnClickListener {
                 if (button.tag == null) {
                     val currentPlayer = determineWhoseTurnItIs(game)
-                    if (currentPlayer.symbol == "kryss") {
+                    if (currentPlayer.symbol == "cross") {
                         button.setBackgroundResource(R.drawable.profile_icon)
                     } else {
                         button.setBackgroundResource(R.drawable.vector__1_)
@@ -117,17 +115,17 @@ class GameActivity : AppCompatActivity() {
                     button.tag = currentPlayer.symbol
                     game.nextMove = if (game.nextMove == 1) 2 else 1
                     updateDatabase(currentPlayer, game)
-                   
+
                 } else {
                     Toast.makeText(
                         this@GameActivity,
-                        "Knappen är redan tagen! 😅",
+                        "This place is taken! 😅",
                         Toast.LENGTH_SHORT
                     ).show()
                 }
             }
-            
-            
+
+
         }
     }
 
@@ -173,20 +171,20 @@ class GameActivity : AppCompatActivity() {
                 }
             }
     }
-    }
+
     fun addExitDialog() {
 
         val addContactDialog = AlertDialog.Builder(this)
             .setTitle(" Exit game?")
             .setMessage("Do you want to exit the game? You will lose points by exiting")
             .setIcon(R.drawable.gameboard)
-            .setPositiveButton("Yes"){_, _->
+            .setPositiveButton("Yes") { _, _ ->
                 Toast.makeText(this, "You exited!", Toast.LENGTH_SHORT).show()
                 val intent = Intent(this, MainActivity::class.java)
                 startActivity(intent)
             }
-            .setNegativeButton("No"){_,_->
-                Toast.makeText(this,"You didn't exit.", Toast.LENGTH_SHORT).show()
+            .setNegativeButton("No") { _, _ ->
+                Toast.makeText(this, "You didn't exit.", Toast.LENGTH_SHORT).show()
 
             }.create()
 
@@ -195,15 +193,16 @@ class GameActivity : AppCompatActivity() {
         }
     }
 
-fun updateNewGameViews() {
-    if (GlobalVariables.player?.avatarImage != null) {
-        loggedInPlayerImage.setImageResource(GlobalVariables.player!!.avatarImage)
-        Log.d("!!!", "inMainActivity: ${GlobalVariables.player!!.avatarImage}")
-    }
+    fun updateNewGameViews() {
+        if (GlobalVariables.player?.avatarImage != null) {
+            player1_avatar.setImageResource(GlobalVariables.player!!.avatarImage)
+            Log.d("!!!", "inMainActivity: ${GlobalVariables.player!!.avatarImage}")
+        }
 
-    if (GlobalVariables.player != null) {
-        loggedInUsername.text = "X - ${GlobalVariables.player!!.username}"
-    }
+        if (GlobalVariables.player != null) {
+            username1.text = "X - ${GlobalVariables.player!!.username}"
+        }
 
+    }
 }
 

@@ -27,7 +27,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
-        android:id="@+id/otherPlayerImage"
+        android:id="@+id/player2"
         android:layout_width="64dp"
         android:layout_height="64dp"
         android:layout_marginTop="76dp"
@@ -38,7 +38,7 @@
         app:srcCompat="@drawable/avatar_7" />
 
     <ImageView
-        android:id="@+id/loggedInPlayerImage"
+        android:id="@+id/player1"
         android:layout_width="64dp"
         android:layout_height="64dp"
         android:layout_marginBottom="112dp"
@@ -163,7 +163,7 @@
     </GridLayout>
 
     <TextView
-        android:id="@+id/loggedInUsername"
+        android:id="@+id/username1"
         android:layout_width="98dp"
         android:layout_height="24dp"
         android:layout_marginTop="8dp"
@@ -175,10 +175,10 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/loggedInPlayerImage" />
+        app:layout_constraintTop_toBottomOf="@+id/player1" />
 
     <TextView
-        android:id="@+id/otherUsername"
+        android:id="@+id/username2"
         android:layout_width="112dp"
         android:layout_height="25dp"
         android:layout_marginTop="8dp"
@@ -189,7 +189,7 @@
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/otherPlayerImage" />
+        app:layout_constraintTop_toBottomOf="@+id/player2" />
 
     <TextView
         android:id="@+id/gameInfo"
