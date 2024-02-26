@@ -50,12 +50,12 @@ class MatchMakingFragment() : Fragment() {
         val view = inflater.inflate(R.layout.fragment_matchmaking, container, false)
 
 
-        searchingOpponent = view.findViewById<ImageView>(R.id.searchingOpponent)
+        //searchingOpponent = view.findViewById<ImageView>(R.id.searchingOpponent)
         spinningWheel = view.findViewById<ImageView>(R.id.spinningWheel)
         searchingUsername = view.findViewById<TextView>(R.id.searchingUsername)
 
 
-        updateMatchMakingFragment()
+        //updateMatchMakingFragment()
 
 
         return view
@@ -65,6 +65,9 @@ class MatchMakingFragment() : Fragment() {
 
         player?.searchingOpponent = true
         player?.searchingOpponentStartTime = System.currentTimeMillis()
+        if (player != null) {
+            updatePlayerInFirestore(player)
+        }
 
         opponentSearchTimer()
 
@@ -76,11 +79,12 @@ class MatchMakingFragment() : Fragment() {
     //new version:
     fun opponentSearchTimer() {
         //debug print, remove before release
-        Log.d("opponentSearchTimer", "Nu körs opponentSearchTimer()")
+        Log.d("!!!", "Nu körs opponentSearchTimer()")
         val timer = Timer()
         var seconds = 0
         timer.scheduleAtFixedRate(object : TimerTask() {
             override fun run() {
+                Log.d("!!!", "Och nu körs findOpponent()")
                 findOpponent { opponent ->
                     if (opponent.isEmpty()) {
                         //ev text "Searching for opponent..."
@@ -149,31 +153,40 @@ class MatchMakingFragment() : Fragment() {
             }
         }
 
-        //this function is never used here, could probably be removed
-        fun updatePlayerInFirestore(player: Player) {
-            val db = Firebase.firestore
-            val playerRef =
-                GlobalVariables.player?.let { db.collection("players").document(it.username) }
+    fun updatePlayerInFirestore(player: Player) {
+        val db = Firebase.firestore
+        val playerRef = GlobalVariables.player?.username?.let { db.collection("players").document(it) }
 
-            if (playerRef != null) {
-                playerRef.update("searchingOpponent", GlobalVariables.player?.searchingOpponent)
-                    .addOnSuccessListener { Log.d("!!!", "DocumentSnapshot successfully updated!") }
-                    .addOnFailureListener { e -> Log.w("!!!", "Error updating document", e) }
-            }
+        if (playerRef != null) {
+            playerRef.update("searchingOpponent", player.searchingOpponent)
+                .addOnSuccessListener {
+                    playerRef.update("searchingOpponentStartTime", player.searchingOpponentStartTime)
+                        .addOnSuccessListener {
+                            Log.d("!!!", "Both fields successfully updated!")
+                        }
+                        .addOnFailureListener { e ->
+                            Log.w("!!!", "Error updating searchingOpponentStartTime", e)
+                        }
+                }
+                .addOnFailureListener { e ->
+                    Log.w("!!!", "Error updating searchingOpponent", e)
+                }
         }
     }
-    fun updateMatchMakingFragment(){
 
-        spinningWheel.setBackgroundResource(R.drawable.animation_spinningwheel)
-        val animationSpinning = spinningWheel.background as? AnimationDrawable
-        animationSpinning?.start()
-
-        if(GlobalVariables.player?.avatarImage!=null) {
-            searchingOpponent.setImageResource(GlobalVariables.player!!.avatarImage)
-            Log.d("!!!", "inMainActivity: ${GlobalVariables.player!!.avatarImage}")
-        }
-        //capitalize() - Skriver ut användarnamnet så att första bokstaven blir stor och resten blir små.
-        searchingUsername.text = GlobalVariables.player?.username?.capitalize()
-
-    }
+}
+    //fun updateMatchMakingFragment(){
+//
+    //    spinningWheel.setBackgroundResource(R.drawable.animation_spinningwheel)
+    //    val animationSpinning = spinningWheel.background as? AnimationDrawable
+    //    animationSpinning?.start()
+//
+    //    if(GlobalVariables.player?.avatarImage!=null) {
+    //        searchingOpponent.setImageResource(GlobalVariables.player!!.avatarImage)
+    //        Log.d("!!!", "inMainActivity: ${GlobalVariables.player!!.avatarImage}")
+    //    }
+    //    //capitalize() - Skriver ut användarnamnet så att första bokstaven blir stor och resten blir små.
+    //    searchingUsername.text = GlobalVariables.player?.username?.capitalize()
+//
+    //}
 
