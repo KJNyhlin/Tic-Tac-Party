@@ -23,10 +23,9 @@ class MatchMakingFragment() : Fragment() {
     var animationSpinning = AnimationDrawable()
 
 
-    lateinit var spinningWheel : ImageView
-    lateinit var loggedInPlayer : ImageView
-    lateinit var searchingUsername : TextView
-
+    lateinit var spinningWheel: ImageView
+    lateinit var loggedInPlayer: ImageView
+    lateinit var searchingUsername: TextView
 
 
     val player = GlobalVariables.player
@@ -55,7 +54,7 @@ class MatchMakingFragment() : Fragment() {
         loggedInPlayer = view.findViewById<ImageView>(R.id.loggedinPlayer)
 
         spinningWheel = view.findViewById<ImageView>(R.id.spinningWheel)
-        loggedInUsername = view.findViewById<TextView>(R.id.searchingUsername)
+        //loggedInUsername = view.findViewById<TextView>(R.id.searchingUsername)
 
 
         //updateMatchMakingFragment()
@@ -88,7 +87,7 @@ class MatchMakingFragment() : Fragment() {
         var seconds = 0
         timer.scheduleAtFixedRate(object : TimerTask() {
             override fun run() {
-                Log.d("!!!", "Och nu körs findOpponent()")
+                Log.d("!!!", "Nu körs findOpponent()")
                 findOpponent { opponent ->
                     if (opponent.isEmpty()) {
                         //ev text "Searching for opponent..."
@@ -156,8 +155,8 @@ class MatchMakingFragment() : Fragment() {
             dialog.show()
         }
 
-    fun updateMatchMakingFragment(){
-    }
+        fun updateMatchMakingFragment() {
+        }
 
 
         spinningWheel.setBackgroundResource(R.drawable.animation_spinningwheel)
@@ -170,30 +169,41 @@ class MatchMakingFragment() : Fragment() {
             Log.d("!!!", "inMainActivity: ${GlobalVariables.player!!.avatarImage}")
         }
         //capitalize() - Skriver ut användarnamnet så att första bokstaven blir stor och resten blir små.
-        loggedInUsername.text = GlobalVariables.player?.username?.capitalize()
+        //loggedInUsername.text = GlobalVariables.player?.username?.capitalize()
 
     }
 }
 
-    fun updatePlayerInFirestore(player: Player) {
-        val db = Firebase.firestore
-        val playerRef = GlobalVariables.player?.username?.let { db.collection("players").document(it) }
-
-        if (playerRef != null) {
-            playerRef.update("searchingOpponent", player.searchingOpponent)
-                .addOnSuccessListener {
-                    playerRef.update("searchingOpponentStartTime", player.searchingOpponentStartTime)
-                        .addOnSuccessListener {
-                            Log.d("!!!", "Both fields successfully updated!")
-                        }
-                        .addOnFailureListener { e ->
-                            Log.w("!!!", "Error updating searchingOpponentStartTime", e)
-                        }
-                }
-                .addOnFailureListener { e ->
-                    Log.w("!!!", "Error updating searchingOpponent", e)
-                }
+fun updatePlayerInFirestore(player: Player) {
+    val db = Firebase.firestore
+    val searchingOpponent : Boolean = player.searchingOpponent
+    val searchingOpponentStartTime : Long = player.searchingOpponentStartTime
+    val username = GlobalVariables.player?.username
+    val playerRef = username.let {
+        if (it != null) {
+            db.collection("players").document(it)
         }
     }
+    Log.d("!!!", "Searching for username $playerRef in the database")
+    Log.d("!!!", "Användarnamn från GlobalVariables: $username")
+    Log.d("!!!", "searchingOpponent is now $searchingOpponent")
+    Log.d("!!!", "searchingOpponentStartTime is now $searchingOpponentStartTime")
 
+    if (playerRef != null) {
+        playerRef.update("searchingOpponent", searchingOpponent)
+            .addOnSuccessListener {
+                playerRef.update("searchingOpponentStartTime", searchingOpponentStartTime)
+                    .addOnSuccessListener {
+                        Log.d("!!!", "Both fields successfully updated!")
+                    }
+                    .addOnFailureListener { e ->
+                        Log.w("!!!", "Error updating searchingOpponentStartTime", e)
+                    }
+            }
+            .addOnFailureListener { e ->
+                Log.w("!!!", "Error updating searchingOpponent", e)
+            }
+    }
 }
+
+
