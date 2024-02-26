@@ -70,6 +70,7 @@ class MainActivity : AppCompatActivity() {
         val fragmentManager = supportFragmentManager
         val transaction = fragmentManager.beginTransaction()
         transaction.replace(R.id.fragmentContainer,mainFragment, "mainFragment")
+        transaction.addToBackStack(null)
         transaction.commit()
     }
 }
