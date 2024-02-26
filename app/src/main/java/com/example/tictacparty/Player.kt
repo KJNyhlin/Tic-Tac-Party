@@ -24,7 +24,7 @@ class Player(
             "userId" to userId,
             "wins" to wins,
             "lost" to lost,
-            "draw" to draw,
+            "gamesPlayed" to gamesPlayed,
             "avatarImage" to avatarImage,
             "mmrScore" to mmrScore,
             "searchingOpponent" to searchingOpponent,

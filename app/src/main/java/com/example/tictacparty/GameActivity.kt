@@ -107,7 +107,7 @@ class GameActivity : AppCompatActivity() {
             button.setOnClickListener {
                 if (button.tag == null) {
                     val currentPlayer = determineWhoseTurnItIs(game)
-                    if (currentPlayer.symbol == "kryss") {
+                    if (currentPlayer.symbol == "cross") {
                         button.setBackgroundResource(R.drawable.profile_icon)
                     } else {
                         button.setBackgroundResource(R.drawable.vector__1_)
