@@ -19,6 +19,7 @@ object GlobalVariables {
     var loggedInUser: String? = null
     var loggedIn : Boolean = false
     var player : Player? = null
+    var opponentPlayer : Player? = null
 }
 class MainActivity : AppCompatActivity() {
     lateinit var auth : FirebaseAuth

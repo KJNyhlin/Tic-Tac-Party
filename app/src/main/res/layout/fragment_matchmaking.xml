@@ -17,7 +17,7 @@
         app:srcCompat="@drawable/_d_avatar_18" />
 
     <ImageView
-        android:id="@+id/searchingOpponent"
+        android:id="@+id/loggedinPlayer"
         android:layout_width="80dp"
         android:layout_height="80dp"
         android:layout_marginTop="188dp"
@@ -58,7 +58,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/searchingOpponent" />
+        app:layout_constraintTop_toBottomOf="@+id/loggedinPlayer" />
 
     <TextView
         android:id="@+id/findingUsername"
