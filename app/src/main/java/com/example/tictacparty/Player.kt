@@ -6,7 +6,7 @@ class Player(
     val userId : String,
     var wins : Int,
     var lost : Int,
-    var draw : Int,
+    var gamesPlayed : Int,
     var avatarImage : Int,
     var mmrScore : Int,
     var searchingOpponent : Boolean,

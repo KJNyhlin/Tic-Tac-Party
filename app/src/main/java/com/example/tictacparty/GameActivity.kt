@@ -1,6 +1,6 @@
 package com.example.tictacparty
-
 import android.content.ContentValues
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -13,6 +13,8 @@ import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.firestore
+import androidx.appcompat.app.AlertDialog
+
 
 class GameActivity : AppCompatActivity() {
 
@@ -79,12 +81,13 @@ class GameActivity : AppCompatActivity() {
 
     fun addingClickListeners() {
 
-        exitImage.setOnClickListener {
 
-        }
         helpImage.setOnClickListener {
 
         }
+        
+        addExitDialog()
+
     }
 
     fun determineWhoseTurnItIs(game: Game): Player {
@@ -114,6 +117,7 @@ class GameActivity : AppCompatActivity() {
                     button.tag = currentPlayer.symbol
                     game.nextMove = if (game.nextMove == 1) 2 else 1
                     updateDatabase(currentPlayer, game)
+                   
                 } else {
                     Toast.makeText(
                         this@GameActivity,
@@ -122,8 +126,9 @@ class GameActivity : AppCompatActivity() {
                     ).show()
                 }
             }
+            
+            
         }
-
     }
 
     private fun updateDatabase(currentPlayer: Player, game: Game) {
@@ -168,15 +173,34 @@ class GameActivity : AppCompatActivity() {
                 }
             }
     }
+    }
+    fun addExitDialog() {
 
-}
+        val addContactDialog = AlertDialog.Builder(this)
+            .setTitle(" Exit game?")
+            .setMessage("Do you want to exit the game? You will lose points by exiting")
+            .setIcon(R.drawable.gameboard)
+            .setPositiveButton("Yes"){_, _->
+                Toast.makeText(this, "You exited!", Toast.LENGTH_SHORT).show()
+                val intent = Intent(this, MainActivity::class.java)
+                startActivity(intent)
+            }
+            .setNegativeButton("No"){_,_->
+                Toast.makeText(this,"You didn't exit.", Toast.LENGTH_SHORT).show()
+
+            }.create()
+
+        exitImage.setOnClickListener {
+            addContactDialog.show()
+        }
+    }
 
 fun updateNewGameViews() {
     if (GlobalVariables.player?.avatarImage != null) {
         loggedInPlayerImage.setImageResource(GlobalVariables.player!!.avatarImage)
         Log.d("!!!", "inMainActivity: ${GlobalVariables.player!!.avatarImage}")
     }
-    TOOD : We need to decide where the GameIcon for the players (X or O)  shall be stored.
+
     if (GlobalVariables.player != null) {
         loggedInUsername.text = "X - ${GlobalVariables.player!!.username}"
     }

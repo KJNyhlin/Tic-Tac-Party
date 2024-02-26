@@ -58,12 +58,34 @@ class CreateAccountActivity : AppCompatActivity() {
             } else if(avatarImage==0){
                 Toast.makeText(this, "You must choose an avatar", Toast.LENGTH_SHORT).show()
             } else {
-            createUser(Username, password, email, avatarImage)
+                userNameFree(Username) {isFree ->
+                    if(isFree) {
+                        createUser(Username, password, email, avatarImage)
+                    } else {
+                        Toast.makeText(this, "Your username is taken :(", Toast.LENGTH_SHORT).show()
+                    }
+                }
             }
         }
 
         //Just for test/example how to call
         //createUser("andreas", "Passw0rd", "andreas@andreas.se")
+    }
+
+    private fun userNameFree(username: String, callback: (Boolean) -> Unit) {
+        val db = FirebaseFirestore.getInstance()
+        val playersCollection = db.collection("players")
+        playersCollection
+            .whereEqualTo("username", username)
+            .get()
+            .addOnSuccessListener { documents ->
+                val isFree = documents.isEmpty // Check if no documents match the query
+                callback(isFree)
+            }
+            .addOnFailureListener { exception ->
+                Log.w("!!!", "Error getting documents: ", exception)
+                callback(false)
+            }
     }
     private fun createUser(userName : String, password : String, email : String, avatarImage : Int) {
         // UserName cannot be stored, just email+password, might be added as a connected table in firestore as well somehow?
