@@ -22,9 +22,11 @@ class MatchMakingFragment() : Fragment() {
 
     var animationSpinning = AnimationDrawable()
 
-    lateinit var spinningWheel: ImageView
-    lateinit var loggedInPlayer: ImageView
-    lateinit var loggedInUsername: TextView
+
+    lateinit var spinningWheel : ImageView
+    lateinit var loggedInPlayer : ImageView
+    lateinit var searchingUsername : TextView
+
 
 
     val player = GlobalVariables.player
@@ -50,9 +52,7 @@ class MatchMakingFragment() : Fragment() {
         val view = inflater.inflate(R.layout.fragment_matchmaking, container, false)
 
 
-
         loggedInPlayer = view.findViewById<ImageView>(R.id.loggedinPlayer)
-
 
         spinningWheel = view.findViewById<ImageView>(R.id.spinningWheel)
         loggedInUsername = view.findViewById<TextView>(R.id.searchingUsername)
@@ -155,15 +155,15 @@ class MatchMakingFragment() : Fragment() {
             val dialog: AlertDialog = builder.create()
             dialog.show()
         }
+
+    fun updateMatchMakingFragment(){
     }
 
-
-
-    fun updateMatchMakingFragment() {
 
         spinningWheel.setBackgroundResource(R.drawable.animation_spinningwheel)
         val animationSpinning = spinningWheel.background as? AnimationDrawable
         animationSpinning?.start()
+
 
         if (GlobalVariables.player?.avatarImage != null) {
             loggedInPlayer.setImageResource(GlobalVariables.player!!.avatarImage)
@@ -174,6 +174,7 @@ class MatchMakingFragment() : Fragment() {
 
     }
 }
+
     fun updatePlayerInFirestore(player: Player) {
         val db = Firebase.firestore
         val playerRef = GlobalVariables.player?.username?.let { db.collection("players").document(it) }
@@ -196,5 +197,3 @@ class MatchMakingFragment() : Fragment() {
     }
 
 }
-
-
