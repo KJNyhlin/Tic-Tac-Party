@@ -18,14 +18,14 @@ class MainActivityFragment() : Fragment() {
 
     lateinit var auth : FirebaseAuth
 
-    /*override fun onResume() {
-        super.onResume()
-        if (!GlobalVariables.loggedIn) {
-            val intent = Intent(requireContext(), MainActivity::class.java)
+    override fun onResume() {
+        if(!GlobalVariables.loggedIn){
+            val intent = Intent(requireActivity(), StartActivity::class.java)
             startActivity(intent)
-            requireActivity().finish() // Finish the activity to prevent going back to it
         }
-    }*/
+        super.onResume()
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -59,28 +59,17 @@ class MainActivityFragment() : Fragment() {
             Log.d("!!!", "inMainActivity: ${GlobalVariables.player!!.avatarImage}")
         }
 
-        //I moved the Logout-button to profileActivity
-//        picture.setOnClickListener {
-//            logout()
-//        }
-
-        Toast.makeText(requireContext(), "${GlobalVariables.player?.username.toString()}", Toast.LENGTH_SHORT).show()
-
+        if(GlobalVariables.player?.username != null) {
+            Toast.makeText(
+                requireContext(),
+                "Welcome ${GlobalVariables.player?.username?.capitalize()}",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
         /*f(GlobalVariables.loggedIn == false){
             val intent = Intent(requireContext(), MainActivity::class.java)
             startActivity(intent)
         }*/
 
     }
-
-
-    //I moved the log-out function to Profile-Activity/Jennet. Hope it's okay, otherwise tell me!:)
-//    fun logout(){
-//        auth.signOut()
-//        GlobalVariables.loggedInUser = ""
-//        GlobalVariables.loggedIn = false
-//        val intent = Intent(requireContext(), MainActivity::class.java)
-//        startActivity(intent)
-//        activity?.finish()
-//    }
 }

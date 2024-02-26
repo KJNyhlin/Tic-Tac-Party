@@ -27,9 +27,9 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
-        android:id="@+id/player2"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
+        android:id="@+id/otherPlayerImage"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
         android:layout_marginTop="76dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
@@ -38,9 +38,9 @@
         app:srcCompat="@drawable/avatar_7" />
 
     <ImageView
-        android:id="@+id/player1"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
+        android:id="@+id/loggedInPlayerImage"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
         android:layout_marginBottom="112dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -163,7 +163,7 @@
     </GridLayout>
 
     <TextView
-        android:id="@+id/username1"
+        android:id="@+id/loggedInUsername"
         android:layout_width="98dp"
         android:layout_height="24dp"
         android:layout_marginTop="8dp"
@@ -175,10 +175,10 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/player1" />
+        app:layout_constraintTop_toBottomOf="@+id/loggedInPlayerImage" />
 
     <TextView
-        android:id="@+id/username2"
+        android:id="@+id/otherUsername"
         android:layout_width="112dp"
         android:layout_height="25dp"
         android:layout_marginTop="8dp"
@@ -189,7 +189,7 @@
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/player2" />
+        app:layout_constraintTop_toBottomOf="@+id/otherPlayerImage" />
 
     <TextView
         android:id="@+id/gameInfo"
@@ -223,6 +223,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
         android:layout_marginEnd="16dp"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/image_4" />
