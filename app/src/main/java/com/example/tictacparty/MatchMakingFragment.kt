@@ -27,7 +27,7 @@ class MatchMakingFragment() : Fragment() {
 
     lateinit var spinningWheel: ImageView
     lateinit var loggedInPlayer: ImageView
-    lateinit var searchingUsername: TextView
+    lateinit var loggedInUsername: TextView
 
 
     val player = GlobalVariables.player
@@ -56,10 +56,10 @@ class MatchMakingFragment() : Fragment() {
         loggedInPlayer = view.findViewById<ImageView>(R.id.loggedinPlayer)
 
         spinningWheel = view.findViewById<ImageView>(R.id.spinningWheel)
-        //loggedInUsername = view.findViewById<TextView>(R.id.searchingUsername)
+        loggedInUsername = view.findViewById<TextView>(R.id.loggedInUsername)
 
 
-        //updateMatchMakingFragment()
+        updateMatchMakingFragment()
 
 
         return view
@@ -155,9 +155,8 @@ class MatchMakingFragment() : Fragment() {
             val dialog: AlertDialog = builder.create()
             dialog.show()
         }
-
+    }
         fun updateMatchMakingFragment() {
-        }
 
 
         spinningWheel.setBackgroundResource(R.drawable.animation_spinningwheel)

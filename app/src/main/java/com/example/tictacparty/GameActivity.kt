@@ -108,9 +108,9 @@ class GameActivity : AppCompatActivity() {
                 if (button.tag == null) {
                     val currentPlayer = determineWhoseTurnItIs(game)
                     if (currentPlayer.symbol == "cross") {
-                        button.setBackgroundResource(R.drawable.profile_icon)
+                        button.setImageResource(R.drawable.profile_icon)
                     } else {
-                        button.setBackgroundResource(R.drawable.vector__1_)
+                        button.setImageResource(R.drawable.vector__1_)
                     }
                     button.tag = currentPlayer.symbol
                     game.nextMove = if (game.nextMove == 1) 2 else 1
@@ -200,7 +200,7 @@ class GameActivity : AppCompatActivity() {
         }
 
         if (GlobalVariables.player != null) {
-            username1.text = "X - ${GlobalVariables.player!!.username}"
+            username1.text = "${GlobalVariables.player!!.symbol} - ${GlobalVariables.player!!.username}"
         }
 
     }
