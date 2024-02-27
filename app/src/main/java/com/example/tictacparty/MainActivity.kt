@@ -116,4 +116,14 @@ class MainActivity : AppCompatActivity() {
                 }
         }
     }
+    override fun onBackPressed() {
+        val fragment = supportFragmentManager.findFragmentById(R.id.fragmentContainer)
+        if (fragment is MatchMakingFragment) {
+            fragment.handleBackPressed()
+        } else {
+            super.onBackPressed()
+        }
+    }
+
+
 }
