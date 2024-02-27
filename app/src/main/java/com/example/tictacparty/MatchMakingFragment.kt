@@ -143,6 +143,7 @@ class MatchMakingFragment() : Fragment() {
                             // checks that this player is not oneself
                             if (document.get("username").toString() != player?.username) {
                                 opponentsUserName = document.get("username").toString()
+                                resetSearchingOpponent()
                             }
                         }
                     }
