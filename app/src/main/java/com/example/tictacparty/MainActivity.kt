@@ -51,6 +51,14 @@ class MainActivity : AppCompatActivity() {
         addMainFragment()
         bottomNavListener()
 
+        //temp test code
+        val mainFragment = supportFragmentManager.findFragmentByTag("mainFragment")
+        if (mainFragment != null) {
+            Log.d("MainActivity", "MainActivityFragment finns i backstacken")
+        } else {
+            Log.d("MainActivity", "MainActivityFragment finns inte i backstacken")
+        }
+
 
     }
     fun bottomNavListener(){
@@ -59,7 +67,6 @@ class MainActivity : AppCompatActivity() {
         bottomNavView.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.navigation_play_game -> {
-                    //temporary solution for testing, should lead to: ???
                     val intent = Intent(this, MainActivity::class.java)
                     startActivity(intent)
                     true
@@ -84,7 +91,7 @@ class MainActivity : AppCompatActivity() {
         val fragmentManager = supportFragmentManager
         val transaction = fragmentManager.beginTransaction()
         transaction.replace(R.id.fragmentContainer,mainFragment, "mainFragment")
-        transaction.addToBackStack(null)
+        transaction.addToBackStack("mainFragment")
         transaction.commit()
     }
 
