@@ -42,9 +42,9 @@ class GameActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_game)
         val playerOne =
-            Player("email@example.com", "Spelare 1", "id1", 0, 0, 0, 0, 0, false, 0, "cross")
+            Player("", "email@example.com", "Spelare 1", "id1", 0, 0, 0, 0, 0, false, 0, "cross")
         val playerTwo =
-            Player("email2@example.com", "Spelare 2", "id2", 0, 0, 0, 0, 0, false, 0, "circle")
+            Player("", "email2@example.com", "Spelare 2", "id2", 0, 0, 0, 0, 0, false, 0, "circle")
 
 
         val game = Game(1, playerOne, playerTwo, 1, "ongoing")

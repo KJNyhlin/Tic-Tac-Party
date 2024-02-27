@@ -12,7 +12,9 @@ import android.widget.ImageView
 import androidx.appcompat.app.AlertDialog
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import com.example.tictacparty.FirestoreHelper.updatePlayerInFirestore
 import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import java.util.Timer
 import java.util.TimerTask
@@ -69,7 +71,7 @@ class MatchMakingFragment() : Fragment() {
         player?.searchingOpponent = true
         player?.searchingOpponentStartTime = System.currentTimeMillis()
         if (player != null) {
-            updatePlayerInFirestore(player)
+            updatePlayerInFirestore(player.username, player)
         }
 
         opponentSearchTimer()
@@ -81,13 +83,12 @@ class MatchMakingFragment() : Fragment() {
 
     //new version:
     fun opponentSearchTimer() {
-        //debug print, remove before release
-        Log.d("!!!", "Nu körs opponentSearchTimer()")
+        Log.d("!!!", "Nu körs opponentSearchTimer()") //debug print, remove before release
         val timer = Timer()
         var seconds = 0
         timer.scheduleAtFixedRate(object : TimerTask() {
             override fun run() {
-                Log.d("!!!", "Nu körs findOpponent()")
+                Log.d("!!!", "Nu körs findOpponent() från opponentSearchTimer()")
                 findOpponent { opponent ->
                     if (opponent.isEmpty()) {
                         //ev text "Searching for opponent..."
@@ -173,36 +174,35 @@ class MatchMakingFragment() : Fragment() {
 
     }
 }
+object FirestoreHelper {
+    private val db = FirebaseFirestore.getInstance()
+    private val playersCollection = db.collection("players")
 
-fun updatePlayerInFirestore(player: Player) {
-    val db = Firebase.firestore
-    val searchingOpponent : Boolean = player.searchingOpponent
-    val searchingOpponentStartTime : Long = player.searchingOpponentStartTime
-    val username = GlobalVariables.player?.username
-    val playerRef = username.let {
-        if (it != null) {
-            db.collection("players").document(it)
+    fun updatePlayerInFirestore(username: String, player: Player) {
+        val playerRef = playersCollection.document(player.documentId)
+
+        Log.d("!!!", "Nu körs updatePlayerInFirestore")
+        playerRef.get().addOnSuccessListener { documentSnapshot ->
+            if (documentSnapshot.exists()) {
+                val existingPlayer = documentSnapshot.toObject(Player::class.java)
+                existingPlayer?.let {
+                    it.searchingOpponent = player.searchingOpponent
+                    it.searchingOpponentStartTime = player.searchingOpponentStartTime
+
+                    playerRef.set(it)
+                        .addOnSuccessListener {
+                            Log.d("!!!","Dokument för $username uppdaterades framgångsrikt.")
+                        }
+                        .addOnFailureListener { exception ->
+                            Log.d("!!!","Fel vid uppdatering av dokument för $username: $exception")
+                        }
+                }
+            } else {
+                Log.d("!!!","Dokumentet för $username finns inte i databasen.")
+            }
+        }.addOnFailureListener { exception ->
+            Log.d("!!!","Fel vid hämtning av dokument för $username: $exception")
         }
-    }
-    Log.d("!!!", "Searching for username $playerRef in the database")
-    Log.d("!!!", "Användarnamn från GlobalVariables: $username")
-    Log.d("!!!", "searchingOpponent is now $searchingOpponent")
-    Log.d("!!!", "searchingOpponentStartTime is now $searchingOpponentStartTime")
-
-    if (playerRef != null) {
-        playerRef.update("searchingOpponent", searchingOpponent)
-            .addOnSuccessListener {
-                playerRef.update("searchingOpponentStartTime", searchingOpponentStartTime)
-                    .addOnSuccessListener {
-                        Log.d("!!!", "Both fields successfully updated!")
-                    }
-                    .addOnFailureListener { e ->
-                        Log.w("!!!", "Error updating searchingOpponentStartTime", e)
-                    }
-            }
-            .addOnFailureListener { e ->
-                Log.w("!!!", "Error updating searchingOpponent", e)
-            }
     }
 }
 
