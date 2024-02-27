@@ -12,6 +12,7 @@ import android.widget.ImageView
 import androidx.appcompat.app.AlertDialog
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
@@ -66,6 +67,14 @@ class MatchMakingFragment() : Fragment() {
         } else {
             // Fragmentet är inte fäst vid sin aktivitet
             Log.d("FragmentStatus", "Fragmentet är inte fäst vid sin aktivitet")
+        }
+
+        //more temp test code
+        val mainFragment = activity?.supportFragmentManager?.findFragmentByTag("mainFragment")
+        if (mainFragment != null) {
+            Log.d("!!!", "MainActivityFragment finns i backstacken")
+        } else {
+            Log.d("!!!", "MainActivityFragment finns inte i backstacken")
         }
 
 
@@ -143,6 +152,7 @@ class MatchMakingFragment() : Fragment() {
                             // checks that this player is not oneself
                             if (document.get("username").toString() != player?.username) {
                                 opponentsUserName = document.get("username").toString()
+                                resetSearchingOpponent()
                             }
                         }
                     }
@@ -161,8 +171,12 @@ class MatchMakingFragment() : Fragment() {
             }
             builder.setNegativeButton("Cancel") { _, _ ->
                 resetSearchingOpponent()
-                parentFragmentManager.popBackStack()
+                //activity?.supportFragmentManager?.popBackStack("mainFragment", FragmentManager.POP_BACK_STACK_INCLUSIVE)
+                val intent = Intent(requireActivity(), MainActivity::class.java)
+                startActivity(intent)
+
             }
+
 
             val dialog: AlertDialog = builder.create()
             dialog.show()
