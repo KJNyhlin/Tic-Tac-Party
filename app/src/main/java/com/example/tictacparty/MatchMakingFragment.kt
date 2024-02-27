@@ -12,13 +12,11 @@ import android.widget.ImageView
 import androidx.appcompat.app.AlertDialog
 import android.widget.TextView
 import androidx.fragment.app.Fragment
-import com.example.tictacparty.FirestoreHelper.updatePlayerInFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import java.util.Timer
 import java.util.TimerTask
-import kotlin.concurrent.scheduleAtFixedRate
 
 class MatchMakingFragment() : Fragment() {
 
@@ -61,6 +59,15 @@ class MatchMakingFragment() : Fragment() {
 
         //updateMatchMakingFragment()
 
+        //temp Test code
+        if (isAdded()) {
+            // Fragmentet är fäst vid sin aktivitet
+            Log.d("FragmentStatus", "Fragmentet är fäst vid sin aktivitet")
+        } else {
+            // Fragmentet är inte fäst vid sin aktivitet
+            Log.d("FragmentStatus", "Fragmentet är inte fäst vid sin aktivitet")
+        }
+
 
         return view
     }
@@ -71,7 +78,7 @@ class MatchMakingFragment() : Fragment() {
         player?.searchingOpponent = true
         player?.searchingOpponentStartTime = System.currentTimeMillis()
         if (player != null) {
-            updatePlayerInFirestore(player.username, player)
+            FirestoreHelper.updatePlayerInFirestore(player)
         }
 
         opponentSearchTimer()
@@ -79,9 +86,13 @@ class MatchMakingFragment() : Fragment() {
 
     }
 
+    fun handleBackPressed() {
+        // This is to handle what happens when the back button is pressed while findOpponent() is running
+        resetSearchingOpponent()
+    }
+
     //TODO när man trycker cancel i dialogrutan kommer man inte tillbaka till MainActivity (beror på hur fragmentet är uppbyggt...)
 
-    //new version:
     fun opponentSearchTimer() {
         Log.d("!!!", "Nu körs opponentSearchTimer()") //debug print, remove before release
         val timer = Timer()
@@ -149,6 +160,7 @@ class MatchMakingFragment() : Fragment() {
                 opponentSearchTimer()
             }
             builder.setNegativeButton("Cancel") { _, _ ->
+                resetSearchingOpponent()
                 parentFragmentManager.popBackStack()
             }
 
@@ -173,37 +185,55 @@ class MatchMakingFragment() : Fragment() {
         //loggedInUsername.text = GlobalVariables.player?.username?.capitalize()
 
     }
-}
-object FirestoreHelper {
-    private val db = FirebaseFirestore.getInstance()
-    private val playersCollection = db.collection("players")
+    object FirestoreHelper {
+        private val db = FirebaseFirestore.getInstance()
+        private val playersCollection = db.collection("players")
 
-    fun updatePlayerInFirestore(username: String, player: Player) {
-        val playerRef = playersCollection.document(player.documentId)
+        fun updatePlayerInFirestore(player: Player) {
+            val playerRef = playersCollection.document(player.documentId)
+            val username = player.username
 
-        Log.d("!!!", "Nu körs updatePlayerInFirestore")
-        playerRef.get().addOnSuccessListener { documentSnapshot ->
-            if (documentSnapshot.exists()) {
-                val existingPlayer = documentSnapshot.toObject(Player::class.java)
-                existingPlayer?.let {
-                    it.searchingOpponent = player.searchingOpponent
-                    it.searchingOpponentStartTime = player.searchingOpponentStartTime
+            Log.d("!!!", "Nu körs updatePlayerInFirestore")
+            playerRef.get().addOnSuccessListener { documentSnapshot ->
+                if (documentSnapshot.exists()) {
+                    val existingPlayer = documentSnapshot.toObject(Player::class.java)
+                    existingPlayer?.let {
+                        it.searchingOpponent = player.searchingOpponent
+                        it.searchingOpponentStartTime = player.searchingOpponentStartTime
 
-                    playerRef.set(it)
-                        .addOnSuccessListener {
-                            Log.d("!!!","Dokument för $username uppdaterades framgångsrikt.")
-                        }
-                        .addOnFailureListener { exception ->
-                            Log.d("!!!","Fel vid uppdatering av dokument för $username: $exception")
-                        }
+                        playerRef.set(it)
+                            .addOnSuccessListener {
+                                Log.d("!!!","Dokument för $username uppdaterades framgångsrikt.")
+                            }
+                            .addOnFailureListener { exception ->
+                                Log.d("!!!","Fel vid uppdatering av dokument för $username: $exception")
+                            }
+                    }
+                } else {
+                    Log.d("!!!","Dokumentet för $username finns inte i databasen.")
                 }
-            } else {
-                Log.d("!!!","Dokumentet för $username finns inte i databasen.")
+            }.addOnFailureListener { exception ->
+                Log.d("!!!","Fel vid hämtning av dokument för $username: $exception")
             }
-        }.addOnFailureListener { exception ->
-            Log.d("!!!","Fel vid hämtning av dokument för $username: $exception")
         }
     }
+
+    fun resetSearchingOpponent() {
+        player?.searchingOpponent = false
+        player?.searchingOpponentStartTime = 0
+        Log.d("!!!", "Nu anropas resetSearchingOpponent(). player.searchingOpponent är satt till ${player?.searchingOpponent}.")
+        if (player != null) {
+            FirestoreHelper.updatePlayerInFirestore(player)
+        }
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        resetSearchingOpponent()
+    }
+
+
 }
+
 
 
