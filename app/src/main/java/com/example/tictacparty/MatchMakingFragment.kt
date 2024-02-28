@@ -156,7 +156,8 @@ class MatchMakingFragment() : Fragment() {
             dialog.show()
         }
     }
-        fun updateMatchMakingFragment() {
+
+    fun updateMatchMakingFragment() {
 
 
         spinningWheel.setBackgroundResource(R.drawable.animation_spinningwheel)
@@ -173,6 +174,7 @@ class MatchMakingFragment() : Fragment() {
 
     }
 }
+
 object FirestoreHelper {
     private val db = FirebaseFirestore.getInstance()
     private val playersCollection = db.collection("players")
@@ -190,17 +192,20 @@ object FirestoreHelper {
 
                     playerRef.set(it)
                         .addOnSuccessListener {
-                            Log.d("!!!","Dokument för $username uppdaterades framgångsrikt.")
+                            Log.d("!!!", "Dokument för $username uppdaterades framgångsrikt.")
                         }
                         .addOnFailureListener { exception ->
-                            Log.d("!!!","Fel vid uppdatering av dokument för $username: $exception")
+                            Log.d(
+                                "!!!",
+                                "Fel vid uppdatering av dokument för $username: $exception"
+                            )
                         }
                 }
             } else {
-                Log.d("!!!","Dokumentet för $username finns inte i databasen.")
+                Log.d("!!!", "Dokumentet för $username finns inte i databasen.")
             }
         }.addOnFailureListener { exception ->
-            Log.d("!!!","Fel vid hämtning av dokument för $username: $exception")
+            Log.d("!!!", "Fel vid hämtning av dokument för $username: $exception")
         }
     }
 }

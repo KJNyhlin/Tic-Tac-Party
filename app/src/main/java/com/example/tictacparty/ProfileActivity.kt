@@ -19,17 +19,17 @@ import kotlinx.coroutines.Dispatchers.Main
 
 class ProfileActivity : AppCompatActivity() {
 
-    lateinit var auth : FirebaseAuth
-    lateinit var logOutImage : ImageView
-    lateinit var profileUsername : TextView
-    lateinit var profilePicture : ImageView
-    lateinit var whichRank : TextView
-    lateinit var rankingScore : TextView
-    lateinit var gamesPlayed : TextView
-    lateinit var gamesWon : TextView
-    lateinit var gamesLost : TextView
-    lateinit var recentGames : TextView
-    lateinit var recentGamesRecyclerView : RecyclerView
+    lateinit var auth: FirebaseAuth
+    lateinit var logOutImage: ImageView
+    lateinit var profileUsername: TextView
+    lateinit var profilePicture: ImageView
+    lateinit var whichRank: TextView
+    lateinit var rankingScore: TextView
+    lateinit var gamesPlayed: TextView
+    lateinit var gamesWon: TextView
+    lateinit var gamesLost: TextView
+    lateinit var recentGames: TextView
+    lateinit var recentGamesRecyclerView: RecyclerView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         auth = Firebase.auth
@@ -40,9 +40,9 @@ class ProfileActivity : AppCompatActivity() {
         profileUsername = findViewById(R.id.profileUsername)
         whichRank = findViewById(R.id.whichRank)
         rankingScore = findViewById(R.id.rankingScoreText)
-        gamesPlayed =findViewById(R.id.gamesPlayedText)
-        gamesWon=findViewById(R.id.gamesWonText)
-        gamesLost=findViewById(R.id.gamesLostText)
+        gamesPlayed = findViewById(R.id.gamesPlayedText)
+        gamesWon = findViewById(R.id.gamesWonText)
+        gamesLost = findViewById(R.id.gamesLostText)
         recentGames = findViewById(R.id.recentGamesText)
         recentGamesRecyclerView = findViewById(R.id.recentGamesRecyclerView)
         logOutImage = findViewById<ImageView>(R.id.logoutImage)
@@ -53,46 +53,49 @@ class ProfileActivity : AppCompatActivity() {
 
 
     }
-    fun logout(){
+
+    fun logout() {
         auth.signOut()
         GlobalVariables.loggedInUser = null
         GlobalVariables.loggedIn = false
-        GlobalVariables.player=null
-        Log.d("!!!","Log out: ${GlobalVariables.player?.username}")
+        GlobalVariables.player = null
+        Log.d("!!!", "Log out: ${GlobalVariables.player?.username}")
 
         val intent = Intent(this, MainActivity::class.java)
         startActivity(intent)
     }
-    fun addLogoutAlertDialog(){
+
+    fun addLogoutAlertDialog() {
 
         val addLogoutDialog = AlertDialog.Builder(this)
             .setTitle("Log out")
             .setMessage("Do you want to log out?")
             .setIcon(R.drawable.pinkgameboard)
-            .setPositiveButton("Yes"){_, _->
+            .setPositiveButton("Yes") { _, _ ->
                 Toast.makeText(this, "You logged out!", Toast.LENGTH_SHORT).show()
                 logout()
                 intent = Intent(this, MainActivity::class.java)
                 startActivity(intent)
             }
-            .setNegativeButton("No"){_,_->
-                Toast.makeText(this,"You didn't log out", Toast.LENGTH_SHORT).show()
+            .setNegativeButton("No") { _, _ ->
+                Toast.makeText(this, "You didn't log out", Toast.LENGTH_SHORT).show()
 
             }.create()
 
-        logOutImage.setOnClickListener{
+        logOutImage.setOnClickListener {
             addLogoutDialog.show()
         }
     }
-    fun updateProfile(){
+
+    fun updateProfile() {
 
         //Which rank is missing eg. "#12" We need an function for that
         //And also the text for how many Games played, we need a attribute for that in the player class
 
-        if(GlobalVariables.player?.avatarImage!=null) {
+        if (GlobalVariables.player?.avatarImage != null) {
             profilePicture.setImageResource(GlobalVariables.player!!.avatarImage)
         }
-        if(GlobalVariables.player!=null) {
+        if (GlobalVariables.player != null) {
             profileUsername.text = GlobalVariables.player!!.username.capitalize()
             rankingScore.text = "Current Ranking Score: ${GlobalVariables.player!!.mmrScore}"
             gamesPlayed.text = "Games Played: ${GlobalVariables.player!!.gamesPlayed}"
@@ -100,7 +103,8 @@ class ProfileActivity : AppCompatActivity() {
             gamesLost.text = "Games Lost: ${GlobalVariables.player!!.lost}"
         }
     }
-    fun bottomNavListener(){
+
+    fun bottomNavListener() {
         val bottomNavView = findViewById<BottomNavigationView>(R.id.bottomNavView)
 
         bottomNavView.setOnItemSelectedListener { item ->
@@ -112,18 +116,21 @@ class ProfileActivity : AppCompatActivity() {
                     startActivity(intent)
                     true
                 }
+
                 R.id.navigation_leaderboard -> {
                     // Koden som körs när "leaderboard"-knappen klickas på
                     val intent = Intent(this, LeaderboardActivity::class.java)
                     startActivity(intent)
                     true
                 }
+
                 R.id.navigation_profile -> {
                     // Koden som körs när "profile"-knappen klickas på
                     val intent = Intent(this, ProfileActivity::class.java)
                     startActivity(intent)
                     true
                 }
+
                 else -> false
             }
         }

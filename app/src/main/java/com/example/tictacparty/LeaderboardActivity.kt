@@ -21,7 +21,7 @@ class LeaderboardActivity : AppCompatActivity() {
             val sortedHighscore = getHighscore()
 
             //Printing to log for debuging
-            for(item in sortedHighscore){
+            for (item in sortedHighscore) {
                 Log.d("!!!", "Name: ${item.first}, Score: ${item.second}")
             }
 
@@ -29,7 +29,7 @@ class LeaderboardActivity : AppCompatActivity() {
         bottomNavListener()
     }
 
-    suspend fun getHighscore() : List<Pair<String, Int>> {
+    suspend fun getHighscore(): List<Pair<String, Int>> {
         return suspendCoroutine { continuation ->
             val db = FirebaseFirestore.getInstance()
             val playersCollection = db.collection("players")
@@ -54,7 +54,7 @@ class LeaderboardActivity : AppCompatActivity() {
         }
     }
 
-    fun bottomNavListener(){
+    fun bottomNavListener() {
         val bottomNavView = findViewById<BottomNavigationView>(R.id.bottomNavView)
 
         bottomNavView.setOnItemSelectedListener { item ->
@@ -66,18 +66,21 @@ class LeaderboardActivity : AppCompatActivity() {
                     startActivity(intent)
                     true
                 }
+
                 R.id.navigation_leaderboard -> {
                     // Koden som körs när "leaderboard"-knappen klickas på
                     val intent = Intent(this, LeaderboardActivity::class.java)
                     startActivity(intent)
                     true
                 }
+
                 R.id.navigation_profile -> {
                     // Koden som körs när "profile"-knappen klickas på
                     val intent = Intent(this, ProfileActivity::class.java)
                     startActivity(intent)
                     true
                 }
+
                 else -> false
             }
         }
