@@ -16,10 +16,10 @@ import com.google.firebase.auth.auth
 
 class MainActivityFragment() : Fragment() {
 
-    lateinit var auth : FirebaseAuth
+    lateinit var auth: FirebaseAuth
 
     override fun onResume() {
-        if(!GlobalVariables.loggedIn){
+        if (!GlobalVariables.loggedIn) {
             val intent = Intent(requireActivity(), StartActivity::class.java)
             startActivity(intent)
         }
@@ -31,7 +31,7 @@ class MainActivityFragment() : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_mainactivity, container , false)
+        val view = inflater.inflate(R.layout.fragment_mainactivity, container, false)
         return view
     }
 
@@ -45,25 +45,29 @@ class MainActivityFragment() : Fragment() {
         playNowButton.setOnClickListener {
             val matchFragment = MatchMakingFragment()
             val transaction = activity?.supportFragmentManager?.beginTransaction()
-            transaction?.replace(R.id.fragmentContainer,matchFragment, "matchFragment")
+            transaction?.replace(R.id.fragmentContainer, matchFragment, "matchFragment")
             transaction?.commit()
         }
-        challengeAFriendButton.setOnClickListener{
-            val intent=Intent(context,GameActivity::class.java)
-            startActivity(intent)
-        }
-
-        val picture = view.findViewById<ImageView>(R.id.imageAvatar)
-        if(GlobalVariables.player?.avatarImage!=null) {
-            picture.setImageResource(GlobalVariables.player!!.avatarImage)
-            Log.d("!!!", "inMainActivity: ${GlobalVariables.player!!.avatarImage}")
-        }
-        picture.setOnClickListener{
+        challengeAFriendButton.setOnClickListener {
             val intent = Intent(context, GameActivity::class.java)
             startActivity(intent)
         }
 
-        if(GlobalVariables.player?.username != null) {
+        val picture = view.findViewById<ImageView>(R.id.imageAvatar)
+        if (GlobalVariables.player?.avatarImage != null) {
+            picture.setImageResource(GlobalVariables.player!!.avatarImage)
+            Log.d("!!!", "inMainActivity: ${GlobalVariables.player!!.avatarImage}")
+        }
+        picture.setOnClickListener {
+            val intent = Intent(context, GameActivity::class.java)
+            startActivity(intent)
+        }
+
+        Toast.makeText(
+            requireContext(),
+            "Welcome ${GlobalVariables.player?.username?.capitalize()}",
+            Toast.LENGTH_SHORT).show()
+        if (GlobalVariables.player?.username != null) {
             Toast.makeText(
                 requireContext(),
                 "Welcome ${GlobalVariables.player?.username?.capitalize()}",

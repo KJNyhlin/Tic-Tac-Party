@@ -182,7 +182,8 @@ class MatchMakingFragment() : Fragment() {
             dialog.show()
         }
     }
-        fun updateMatchMakingFragment() {
+
+    fun updateMatchMakingFragment() {
 
 
         spinningWheel.setBackgroundResource(R.drawable.animation_spinningwheel)

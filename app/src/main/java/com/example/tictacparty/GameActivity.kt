@@ -4,6 +4,8 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.widget.Button
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
@@ -12,9 +14,12 @@ import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat.startActivity
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.play.integrity.internal.i
+import com.google.firebase.firestore.FirebaseFirestore
 
 
-class GameActivity : AppCompatActivity() {
+class GameActivity : AppCompatActivity(), View.OnClickListener {
 
     lateinit var titleTextView: TextView
 
@@ -29,37 +34,68 @@ class GameActivity : AppCompatActivity() {
     lateinit var gamebutton7: ImageButton
     lateinit var gamebutton8: ImageButton
     lateinit var gamebutton9: ImageButton
+    lateinit var playAgainButton : FloatingActionButton
+    lateinit var playerOne: Player
+    lateinit var playerTwo: Player
+    lateinit var currentPlayer: Player
 
     lateinit var username1: TextView
     lateinit var username2: TextView
     lateinit var gameInfo: TextView
     lateinit var exitImage: ImageView
     lateinit var helpImage: ImageView
-
+    lateinit var game: Game
     var buttons = mutableListOf<ImageButton>()
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_game)
-        val playerOne =
-            Player("", "email@example.com", "Spelare 1", "id1", 0, 0, 0, 0, 0, false, 0, "cross")
-        val playerTwo =
-            Player("", "email2@example.com", "Spelare 2", "id2", 0, 0, 0, 0, 0, false, 0, "circle")
 
 
-        val game = Game(1, playerOne, playerTwo, 1, "ongoing")
+        if (GlobalVariables.player != null) {
+            playerOne = GlobalVariables.player!!
+            playerOne.symbol = "X"
+        }
+//        playerOne =
+//            Player("", "email@example.com", "Spelare 1", "id1", 0, 0, 0, 0, 0, false, 0, "X")
+        playerTwo =
+            Player(
+                "",
+                "email2@example.com",
+                "Skatergurl",
+                "id2",
+                0,
+                0,
+                0,
+                2131230849,
+                0,
+                false,
+                0,
+                "O"
+            )
+
+        currentPlayer = playerOne
+
+        game = Game(
+            1,
+            playerOne,
+            playerTwo,
+            1,
+            "ongoing",
+            mutableListOf("", "", "", "", "", "", "", "", "")
+        )
 
         iniatilizeViews()
+        showGameViews()
+        updateUI()
         addingClickListeners()
-
-        makeMove(game)
-
-
+        updateDatabase()
     }
 
     fun iniatilizeViews() {
         titleTextView = findViewById(R.id.titleTextView)
-        player1_avatar = findViewById(R.id.player2)
+        player1_avatar = findViewById(R.id.player1)
         player2_avatar = findViewById(R.id.player2)
         gamebutton1 = findViewById(R.id.gameButton1)
         gamebutton2 = findViewById(R.id.gameButton2)
@@ -70,29 +106,13 @@ class GameActivity : AppCompatActivity() {
         gamebutton7 = findViewById(R.id.gameButton7)
         gamebutton8 = findViewById(R.id.gameButton8)
         gamebutton9 = findViewById(R.id.gameButton9)
+        playAgainButton=findViewById(R.id.playAgainButton)
         username1 = findViewById(R.id.username1)
         username2 = findViewById(R.id.username2)
         gameInfo = findViewById(R.id.gameInfo)
         exitImage = findViewById(R.id.exitImage)
         helpImage = findViewById(R.id.helpImage)
-    }
 
-    fun addingClickListeners() {
-
-
-        helpImage.setOnClickListener {
-
-        }
-
-        addExitDialog()
-
-    }
-
-    fun determineWhoseTurnItIs(game: Game): Player {
-        return if (game.nextMove == 1) game.playerOne else game.playerTwo
-    }
-
-    private fun makeMove(game: Game) {
         buttons.add(gamebutton1)
         buttons.add(gamebutton2)
         buttons.add(gamebutton3)
@@ -102,34 +122,123 @@ class GameActivity : AppCompatActivity() {
         buttons.add(gamebutton7)
         buttons.add(gamebutton8)
         buttons.add(gamebutton9)
-
         for (button in buttons) {
-            button.setOnClickListener {
-                if (button.tag == null) {
-                    val currentPlayer = determineWhoseTurnItIs(game)
-                    if (currentPlayer.symbol == "cross") {
-                        button.setImageResource(R.drawable.profile_icon)
-                    } else {
-                        button.setImageResource(R.drawable.vector__1_)
-                    }
-                    button.tag = currentPlayer.symbol
-                    game.nextMove = if (game.nextMove == 1) 2 else 1
-                    updateDatabase(currentPlayer, game)
+            button.setOnClickListener(this)
+        }
+    }
+    fun addingClickListeners() {
 
-                } else {
-                    Toast.makeText(
-                        this@GameActivity,
-                        "This place is taken! 😅",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            }
+        helpImage.setOnClickListener {
 
+        }
 
+        addExitDialog()
+
+    }
+
+    fun switchPlayers() {
+        currentPlayer = if (currentPlayer == playerOne) {
+            playerTwo
+        } else {
+            playerOne
         }
     }
 
-    private fun updateDatabase(currentPlayer: Player, game: Game) {
+    override fun onClick(button: View?) {
+        Log.d("!!!", "current player on click${currentPlayer.username}")
+        game.apply {
+            //apply gör att man kan göra operationer direkt på ett objekt, i det här fallet game, så slipper man skriva game.filledPos
+
+            if (status != "ongoing") {
+                return
+            }
+            //gameButton1.tag=1, gameButton2.tag=2 osv...
+            //filledPos("","","","X","","","","","O"))
+            //filledPos[clickedPos] fylls i med currentPlayer.symbol = antingen "X" eller "O"
+            val clickedPos = (button?.tag as String).toInt() - 1
+            if (filledPos[clickedPos] == "") {
+                filledPos[clickedPos] = currentPlayer.symbol
+                switchPlayers()
+                updateUI()
+                checkForWinner()
+                updateDatabase()
+                Log.d("!!!", "$filledPos")
+            } else {
+                Toast.makeText(
+                    this@GameActivity,
+                    "This place is taken! 😅",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+    }
+
+    fun updateUI() {
+        //index = filledPos[index]
+        //Index(1, 2,  3  4  5  6  7  8  9
+        //     ("","","","","","","","",""))
+        // Value är vad det finns för värde i filledPos[index] t.ex "X" eller "O"
+        Log.d("!!!", "current player in ui${currentPlayer.username}")
+        game.apply {
+            for ((index, value) in filledPos.withIndex()) {
+                val button = buttons[index]
+                button.setImageResource(
+                    when (value) {
+                        "X" -> R.drawable.profile_icon
+                        "O" -> R.drawable.vector__1_
+                        else -> 0
+                    }
+                )
+            }
+            if(status=="ongoing"){
+                playAgainButton.visibility=View.INVISIBLE
+                gameInfo.text = "${currentPlayer.symbol} - ${currentPlayer.username.capitalize()}'s turn"
+            }
+        }
+        if(game.status=="finished"){
+            playAgainButton.visibility=View.VISIBLE
+            //startActivity(Intent(this,MatchMakingFragment::class.java))
+            playAgainButton.setOnClickListener{
+
+                //Temporary, should lead to matchmaking??
+                val intent= Intent(this,GameActivity::class.java)
+                startActivity(intent)
+
+            }
+        }
+    }
+    fun checkForWinner() {
+
+        val winningPos = arrayOf(
+            intArrayOf(0, 1, 2),
+            intArrayOf(3, 4, 5),
+            intArrayOf(6, 7, 8),
+            intArrayOf(0, 3, 6),
+            intArrayOf(1, 4, 7),
+            intArrayOf(2, 5, 8),
+            intArrayOf(0, 4, 8),
+            intArrayOf(2, 4, 6),
+
+            )
+        game.apply {
+            for (i in winningPos) {
+                if (
+                    filledPos[i[0]] == filledPos[i[1]] &&
+                    filledPos[i[1]] == filledPos[i[2]] &&
+                    filledPos[i[0]].isNotEmpty()
+                ) {
+                    status = "finished"
+                    gameInfo.text = "${currentPlayer.username.capitalize()} wins"
+                } else if (filledPos.none { it.isEmpty() }) {
+                    status = "finished"
+                    gameInfo.text = "Draw"
+                }
+            }
+        }
+        updateUI()
+    }
+
+    private fun updateDatabase() {
 
         val db = Firebase.firestore
 
@@ -142,7 +251,8 @@ class GameActivity : AppCompatActivity() {
             "playerOne" to game.playerOne.toHashMap(),
             "playerTwo" to game.playerTwo.toHashMap(),
             "nextMove" to game.nextMove,
-            "status" to game.status
+            "status" to game.status,
+            "filledPos" to game.filledPos
         )
 
         Log.d("UpdateDatabase", "updateDatabase startar")
@@ -193,15 +303,12 @@ class GameActivity : AppCompatActivity() {
         }
     }
 
-    fun updateNewGameViews() {
-        if (GlobalVariables.player?.avatarImage != null) {
-            player1_avatar.setImageResource(GlobalVariables.player!!.avatarImage)
-            Log.d("!!!", "inMainActivity: ${GlobalVariables.player!!.avatarImage}")
-        }
+    fun showGameViews() {
+        player1_avatar.setImageResource(playerOne.avatarImage)
+        username1.text = "${playerOne.username.capitalize()}"
 
-        if (GlobalVariables.player != null) {
-            username1.text = "${GlobalVariables.player!!.symbol} - ${GlobalVariables.player!!.username}"
-        }
+        player2_avatar.setImageResource(playerTwo.avatarImage)
+        username2.text = "${playerTwo.username.capitalize()}"
 
     }
 }
