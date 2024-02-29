@@ -5,20 +5,29 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
+data class LeaderboardPlayer(val username: String, val mmrScore: Int)
 class LeaderboardActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_leaderboard)
 
+        val recyclerView = findViewById<RecyclerView>(R.id.leaderboardRecycler)
+        recyclerView.layoutManager = LinearLayoutManager(this)
+
         lifecycleScope.launch {
             val sortedHighscore = getHighscore()
+            val leaderboardData = sortedHighscore.map { LeaderboardPlayer(it.first, it.second) }
+            recyclerView.adapter = LeaderboardAdapter(leaderboardData)
+
 
             //Printing to log for debuging
             for(item in sortedHighscore){
