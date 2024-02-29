@@ -5,7 +5,6 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.widget.Button
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
@@ -36,7 +35,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
     lateinit var gamebutton9: ImageButton
     lateinit var playAgainButton : FloatingActionButton
     lateinit var playerOne: Player
-    lateinit var playerTwo: Player
+     lateinit var playerTwo: Player
     lateinit var currentPlayer: Player
 
     lateinit var username1: TextView
@@ -53,44 +52,51 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
         setContentView(R.layout.activity_game)
 
 
+
+
+
+
+
+
         if (GlobalVariables.player != null) {
             playerOne = GlobalVariables.player!!
+
             playerOne.symbol = "X"
         }
-//        playerOne =
-//            Player("", "email@example.com", "Spelare 1", "id1", 0, 0, 0, 0, 0, false, 0, "X")
-        playerTwo =
-            Player(
-                "",
-                "email2@example.com",
-                "Skatergurl",
-                "id2",
-                0,
-                0,
-                0,
-                2131230849,
-                0,
-                false,
-                0,
-                "O"
-            )
-
         currentPlayer = playerOne
+        android.os.Handler().postDelayed({
 
-        game = Game(
-            1,
-            playerOne,
-            playerTwo,
-            1,
-            "ongoing",
-            mutableListOf("", "", "", "", "", "", "", "", "")
-        )
+            val opponentUsername: String? = intent.getStringExtra("opponentsUsername")
 
-        iniatilizeViews()
-        showGameViews()
-        updateUI()
-        addingClickListeners()
-        updateDatabase()
+            opponentUsername?.let { username ->
+                fetchPlayerByUsername(username) { player ->
+                    // Callback function to handle the result
+                    if (player != null) {
+                        // Player found, initialize playerTwo and proceed with the game setup
+                        playerTwo = player
+                        currentPlayer = playerOne
+                        game = Game(
+                            1,
+                            playerOne,
+                            playerTwo,
+                            1,
+                            "ongoing",
+                            mutableListOf("", "", "", "", "", "", "", "", "")
+                        )
+                        iniatilizeViews()
+                        showGameViews()
+                        updateUI()
+                        addingClickListeners()
+                        updateDatabase()
+                        Toast.makeText(this,"$opponentUsername", Toast.LENGTH_SHORT).show()
+                    } else {
+                        // Player not found, handle the error
+                        println("No player found with opponent username: $username")
+                    }
+                }
+            }
+
+        }, 500)
     }
 
     fun iniatilizeViews() {
@@ -266,19 +272,19 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
             }
     }
 
-    fun fetchPlayer(userId: String, callback: (Player) -> Unit) {
+    fun fetchPlayerByUsername(opponentUsername: String, callback: (Player?) -> Unit) {
         val db = Firebase.firestore
-        val docRef = db.collection("players").document(userId)
-        docRef.get()
-            .addOnSuccessListener { document ->
-                if (document != null) {
-                    val player = document.toObject(Player::class.java)
-                    if (player != null) {
-                        callback(player)
-                    }
-                } else {
-                    Log.d("FetchPlayer", "No such document")
-                }
+        val playersCollection = db.collection("players")
+
+        playersCollection.whereEqualTo("opponentUsername", opponentUsername)
+            .get()
+            .addOnSuccessListener { documents ->
+                val player = documents.toObjects(Player::class.java).firstOrNull()
+                callback(player)
+            }
+            .addOnFailureListener { exception ->
+                Log.e("fetchPlayerByUsername", "Error getting player by username", exception)
+                callback(null)
             }
     }
 

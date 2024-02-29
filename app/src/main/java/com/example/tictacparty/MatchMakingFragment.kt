@@ -154,6 +154,7 @@ class MatchMakingFragment() : Fragment() {
                                 opponentsUserName = document.get("username").toString()
                                 resetSearchingOpponent()
                             }
+
                         }
                     }
                 }
