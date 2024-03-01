@@ -1,5 +1,6 @@
 package com.example.tictacparty
 
+import android.content.ContentValues.TAG
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -16,7 +17,9 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat.startActivity
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.play.integrity.internal.i
+import com.google.firebase.firestore.DocumentId
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ktx.firestore
 
 
 class GameActivity : AppCompatActivity(), View.OnClickListener {
@@ -46,6 +49,8 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
     lateinit var helpImage: ImageView
     lateinit var game: Game
     var buttons = mutableListOf<ImageButton>()
+    val db = com.google.firebase.ktx.Firebase.firestore
+    val playersCollection = db.collection("players")
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -59,21 +64,53 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
         }
 //        playerOne =
 //            Player("", "email@example.com", "Spelare 1", "id1", 0, 0, 0, 0, 0, false, 0, "X")
-        playerTwo =
-            Player(
-                "",
-                "email2@example.com",
-                "Skatergurl",
-                "id2",
-                0,
-                0,
-                0,
-                2131230849,
-                0,
-                false,
-                0,
-                "O"
-            )
+
+        val opponentDocumentId = intent.getStringExtra("opponentDocumentId")
+        val documentId = opponentDocumentId
+        val opponent = playersCollection.document(documentId!!)
+
+        opponent.get()
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    // The document exists, create a new Player object and assign the document's fields to its attributes
+                    val opponentPlayerObject = Player(
+                        documentId,
+                        document.getString("email") ?: "",
+                        document.getString("username") ?: "",
+                        document.getString("userId") ?: "",
+                        document.getLong("wins")?.toInt() ?: 0,
+                        document.getLong("lost")?.toInt() ?: 0,
+                        document.getLong("gamesPlayed")?.toInt() ?: 0,
+                        document.getLong("avatarImage")?.toInt() ?: 0,
+                        document.getLong("mmrScore")?.toInt() ?: 0,
+                        document.getBoolean("searchingOpponent") ?: false,
+                        document.getLong("searchingOpponentStartTime") ?: 0,
+                        document.getString("symbol") ?: ""
+                    )
+                    playerTwo = opponentPlayerObject
+                } else {
+                    // do nothing ?
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.d("!!!", "Error getting document: ", exception)
+            }
+
+
+        //Player(
+            //    "",
+            //    "email2@example.com",
+            //    "Skatergurl",
+            //    "id2",
+            //    0,
+            //    0,
+            //    0,
+            //    2131230849,
+            //    0,
+            //    false,
+            //    0,
+            //    "O"
+            //)
 
         currentPlayer = playerOne
 
