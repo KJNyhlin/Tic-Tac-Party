@@ -1,5 +1,6 @@
 package com.example.tictacparty
 
+import android.content.ContentValues.TAG
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -18,6 +19,9 @@ import com.google.android.play.integrity.internal.i
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.toObject
+import com.google.firebase.firestore.DocumentId
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ktx.firestore
 
 
 class GameActivity : AppCompatActivity(), View.OnClickListener {
@@ -47,6 +51,8 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
     lateinit var helpImage: ImageView
     lateinit var game: Game
     var buttons = mutableListOf<ImageButton>()
+    val db = com.google.firebase.ktx.Firebase.firestore
+    val playersCollection = db.collection("players")
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
