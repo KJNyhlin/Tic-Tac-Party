@@ -12,7 +12,6 @@ import android.widget.ImageView
 import androidx.appcompat.app.AlertDialog
 import android.widget.TextView
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
@@ -31,9 +30,10 @@ class MatchMakingFragment() : Fragment() {
 
     val player = GlobalVariables.player
     val db = Firebase.firestore
-    val playersRef = db.collection("players")
+    val playersCollection = db.collection("players")
     var opponentFound = false
     var opponentsUserName: String = ""
+    var opponentDocumentId: String = ""
 
 
     override fun onResume() {
@@ -84,12 +84,6 @@ class MatchMakingFragment() : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        player?.searchingOpponent = true
-        player?.searchingOpponentStartTime = System.currentTimeMillis()
-        if (player != null) {
-            FirestoreHelper.updatePlayerInFirestore(player)
-        }
-
         opponentSearchTimer()
 
 
@@ -100,10 +94,16 @@ class MatchMakingFragment() : Fragment() {
         resetSearchingOpponent()
     }
 
-    //TODO när man trycker cancel i dialogrutan kommer man inte tillbaka till MainActivity (beror på hur fragmentet är uppbyggt...)
 
     fun opponentSearchTimer() {
         Log.d("!!!", "Nu körs opponentSearchTimer()") //debug print, remove before release
+        player?.searchingOpponent = true
+        player?.searchingOpponentStartTime = System.currentTimeMillis()
+        if (player != null) {
+            FirestoreHelper.updatePlayerInFirestore(player)
+        }
+        android.os.Handler().postDelayed({
+
         val timer = Timer()
         var seconds = 0
         timer.scheduleAtFixedRate(object : TimerTask() {
@@ -118,7 +118,8 @@ class MatchMakingFragment() : Fragment() {
                         Log.d("!!!", "Matched with opponent: $opponentsUserName")
                         //(maybe necessary to check that activity is not null before requireActivity)
                         val intent = Intent(requireActivity(), GameActivity::class.java)
-                        intent.putExtra("opponentsUsername", opponentsUserName)
+                        //changed to include docID in putExtra instead of username
+                        intent.putExtra("opponentDocumentId", opponentDocumentId)
                         startActivity(intent)
                         timer.cancel()
                     }
@@ -132,13 +133,47 @@ class MatchMakingFragment() : Fragment() {
                 }
             }
         }, 0, 1000)
+        }, 2000)
     }
 
+    //fun findOpponent(callback: (String) -> Unit) {
+    //    var lowestTimeMillis: Long = Long.MAX_VALUE // Initial value set to maximum possible value
+    //    var opponentsUserName: String = ""
+    //    var opponentFound = false // Flag to track if opponent is found
+    //    playersCollection.whereEqualTo("searchingOpponent", true).get()
+    //        .addOnSuccessListener { documents ->
+    //            for (document in documents) {
+    //                var currentDocumentsStartTime: Any? =
+    //                    document.get("searchingOpponentStartTime")
+    //                var currentDocumentsStartTimeAsLong: Long? =
+    //                    currentDocumentsStartTime as? Long
+    //                // checks that startTime is not the default value 0
+    //                if (currentDocumentsStartTimeAsLong != null && currentDocumentsStartTimeAsLong != 0.toLong()) {
+    //                    // Check if this player is not oneself
+    //                    if (document.get("username").toString() != player?.username) {
+    //                        // saves the username of the player object with the lowest searchingOpponentStartTime
+    //                        if (currentDocumentsStartTimeAsLong < lowestTimeMillis) {
+    //                            lowestTimeMillis = currentDocumentsStartTimeAsLong
+    //                            opponentsUserName = document.get("username").toString()
+    //                            // Reset searchingOpponent only when a match is found
+    //                            resetSearchingOpponent()
+    //                            opponentFound = true // Set flag to true when opponent is found
+    //                            // still runs through the for-loop to check if there is a better match
+    //                        }
+    //                    }
+    //                }
+    //            }
+    //            if (opponentFound) { // Only invoke callback if opponent is found
+    //                callback(opponentsUserName)
+    //            }
+    //        }
+    //}
+
+//new version that returns the opponent's documentID instead of username
     fun findOpponent(callback: (String) -> Unit) {
         var lowestTimeMillis: Long = Long.MAX_VALUE // Initial value set to maximum possible value
-        var opponentsUserName: String = ""
         var opponentFound = false // Flag to track if opponent is found
-        playersRef.whereEqualTo("searchingOpponent", true).get()
+        playersCollection.whereEqualTo("searchingOpponent", true).get()
             .addOnSuccessListener { documents ->
                 for (document in documents) {
                     var currentDocumentsStartTime: Any? =
@@ -149,10 +184,10 @@ class MatchMakingFragment() : Fragment() {
                     if (currentDocumentsStartTimeAsLong != null && currentDocumentsStartTimeAsLong != 0.toLong()) {
                         // Check if this player is not oneself
                         if (document.get("username").toString() != player?.username) {
-                            // saves the username of the player object with the lowest searchingOpponentStartTime
+                            // saves the document ID of the player object with the lowest searchingOpponentStartTime
                             if (currentDocumentsStartTimeAsLong < lowestTimeMillis) {
                                 lowestTimeMillis = currentDocumentsStartTimeAsLong
-                                opponentsUserName = document.get("username").toString()
+                                opponentDocumentId = document.id // Get the document ID
                                 // Reset searchingOpponent only when a match is found
                                 resetSearchingOpponent()
                                 opponentFound = true // Set flag to true when opponent is found
@@ -162,11 +197,10 @@ class MatchMakingFragment() : Fragment() {
                     }
                 }
                 if (opponentFound) { // Only invoke callback if opponent is found
-                    callback(opponentsUserName)
+                    callback(opponentDocumentId)
                 }
             }
     }
-
 
     fun showTimeoutDialog() {
         activity?.runOnUiThread {
