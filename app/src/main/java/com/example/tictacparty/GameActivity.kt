@@ -6,7 +6,6 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.widget.Button
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
@@ -17,6 +16,9 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat.startActivity
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.play.integrity.internal.i
+import com.google.firebase.firestore.DocumentReference
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.toObject
 import com.google.firebase.firestore.DocumentId
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
@@ -37,7 +39,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
     lateinit var gamebutton7: ImageButton
     lateinit var gamebutton8: ImageButton
     lateinit var gamebutton9: ImageButton
-    lateinit var playAgainButton : FloatingActionButton
+    lateinit var playAgainButton: FloatingActionButton
     lateinit var playerOne: Player
     lateinit var playerTwo: Player
     lateinit var currentPlayer: Player
@@ -58,76 +60,86 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
         setContentView(R.layout.activity_game)
 
 
+        iniatilizeViews()
+
         if (GlobalVariables.player != null) {
             playerOne = GlobalVariables.player!!
+
             playerOne.symbol = "X"
+            currentPlayer = playerOne
+
         }
-//        playerOne =
-//            Player("", "email@example.com", "Spelare 1", "id1", 0, 0, 0, 0, 0, false, 0, "X")
 
         val opponentDocumentId = intent.getStringExtra("opponentDocumentId")
-        val documentId = opponentDocumentId
-        val opponent = playersCollection.document(documentId!!)
 
-        opponent.get()
-            .addOnSuccessListener { document ->
-                if (document.exists()) {
-                    // The document exists, create a new Player object and assign the document's fields to its attributes
-                    val opponentPlayerObject = Player(
-                        documentId,
-                        document.getString("email") ?: "",
-                        document.getString("username") ?: "",
-                        document.getString("userId") ?: "",
-                        document.getLong("wins")?.toInt() ?: 0,
-                        document.getLong("lost")?.toInt() ?: 0,
-                        document.getLong("gamesPlayed")?.toInt() ?: 0,
-                        document.getLong("avatarImage")?.toInt() ?: 0,
-                        document.getLong("mmrScore")?.toInt() ?: 0,
-                        document.getBoolean("searchingOpponent") ?: false,
-                        document.getLong("searchingOpponentStartTime") ?: 0,
-                        document.getString("symbol") ?: ""
-                    )
-                    playerTwo = opponentPlayerObject
-                } else {
-                    // do nothing ?
-                }
+        fetchPlayerByDocumentId(opponentDocumentId!!) { player ->
+            if (player != null) {
+                // Player retrieved successfully, use the player object
+                playerTwo = player
+                playerTwo.symbol = "O"
+            } else {
+                playerTwo = Player("", "", "Blomkrukan", "", 0, 0, 0, 2131230844, 0, false, 0, "O")
             }
-            .addOnFailureListener { exception ->
-                Log.d("!!!", "Error getting document: ", exception)
-            }
+        }
 
-
-        //Player(
-            //    "",
-            //    "email2@example.com",
-            //    "Skatergurl",
-            //    "id2",
-            //    0,
-            //    0,
-            //    0,
-            //    2131230849,
-            //    0,
-            //    false,
-            //    0,
-            //    "O"
-            //)
-
+//        playerTwo = Player("", "", "Blomkrukan", "", 0, 0, 0, 2131230844, 0, false, 0, "O")
         currentPlayer = playerOne
+        android.os.Handler().postDelayed({
+            showGameViews()
+            uploadToFirestoreAndSnapshotListener()
+            updateDatabase(game)
+
+        }, 1000)
+
+
+    }
+
+    fun uploadToFirestoreAndSnapshotListener() {
+
+
+        val db = Firebase.firestore
+
+        if (!::playerOne.isInitialized || !::playerTwo.isInitialized) {
+            Log.d("!!!", "Players not initialized yet")
+            return
+        }
+
+        val documentRef = db.collection("games").document()
+        val documentId = documentRef.id
 
         game = Game(
-            1,
-            playerOne,
-            playerTwo,
-            1,
+            documentId,
+            playerOne.email,
+            playerTwo.email,
             "ongoing",
             mutableListOf("", "", "", "", "", "", "", "", "")
         )
 
-        iniatilizeViews()
-        showGameViews()
-        updateUI()
-        addingClickListeners()
-        updateDatabase()
+
+        documentRef.set(game)
+            .addOnSuccessListener {
+                Log.d("!!!", "\"Game added to Firestore with document ID: $documentId")
+            }
+            .addOnFailureListener { e ->
+                Log.d("!!!", " Error adding game to Firestore : ")
+            }
+        Log.d("!!!", "game.document : !: $documentId")
+
+        documentRef.addSnapshotListener { snapshot, e ->
+            if (e != null) {
+                Log.d("!!!", "Listen failed")
+                return@addSnapshotListener
+            }
+            if (snapshot != null && snapshot.exists()) {
+                val game = snapshot.toObject<Game>()
+                Log.d("!!!", game.toString())
+                if (game != null) {
+                    updateUI(game)
+                }
+            } else {
+                Log.d("!!!", "Current data: Null")
+            }
+        }
     }
 
     fun iniatilizeViews() {
@@ -143,12 +155,14 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
         gamebutton7 = findViewById(R.id.gameButton7)
         gamebutton8 = findViewById(R.id.gameButton8)
         gamebutton9 = findViewById(R.id.gameButton9)
-        playAgainButton=findViewById(R.id.playAgainButton)
+        playAgainButton = findViewById(R.id.playAgainButton)
         username1 = findViewById(R.id.username1)
         username2 = findViewById(R.id.username2)
         gameInfo = findViewById(R.id.gameInfo)
         exitImage = findViewById(R.id.exitImage)
         helpImage = findViewById(R.id.helpImage)
+
+
 
         buttons.add(gamebutton1)
         buttons.add(gamebutton2)
@@ -159,17 +173,17 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
         buttons.add(gamebutton7)
         buttons.add(gamebutton8)
         buttons.add(gamebutton9)
+
         for (button in buttons) {
             button.setOnClickListener(this)
         }
     }
+
     fun addingClickListeners() {
 
         helpImage.setOnClickListener {
 
         }
-
-        addExitDialog()
 
     }
 
@@ -185,20 +199,26 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
         Log.d("!!!", "current player on click${currentPlayer.username}")
         game.apply {
             //apply gör att man kan göra operationer direkt på ett objekt, i det här fallet game, så slipper man skriva game.filledPos
-
+            Log.d("!!!", "on click : {$filledPos]")
             if (status != "ongoing") {
                 return
             }
             //gameButton1.tag=1, gameButton2.tag=2 osv...
             //filledPos("","","","X","","","","","O"))
             //filledPos[clickedPos] fylls i med currentPlayer.symbol = antingen "X" eller "O"
+
+
             val clickedPos = (button?.tag as String).toInt() - 1
+            Log.d("!!!", "clicked Pos : $clickedPos")
             if (filledPos[clickedPos] == "") {
+                Log.d("!!!", "on click 2 : $filledPos]")
                 filledPos[clickedPos] = currentPlayer.symbol
                 switchPlayers()
-                updateUI()
+                updateUI(game)
+                updateDatabase(game)
+
                 checkForWinner()
-                updateDatabase()
+
                 Log.d("!!!", "$filledPos")
             } else {
                 Toast.makeText(
@@ -210,11 +230,12 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
         }
     }
 
-    fun updateUI() {
+    fun updateUI(game: Game) {
         //index = filledPos[index]
         //Index(1, 2,  3  4  5  6  7  8  9
         //     ("","","","","","","","",""))
         // Value är vad det finns för värde i filledPos[index] t.ex "X" eller "O"
+        Log.d("!!!", "updateUI()")
         Log.d("!!!", "current player in ui${currentPlayer.username}")
         game.apply {
             for ((index, value) in filledPos.withIndex()) {
@@ -227,23 +248,25 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
                     }
                 )
             }
-            if(status=="ongoing"){
-                playAgainButton.visibility=View.INVISIBLE
-                gameInfo.text = "${currentPlayer.symbol} - ${currentPlayer.username.capitalize()}'s turn"
+            if (status == "ongoing") {
+                playAgainButton.visibility = View.INVISIBLE
+                gameInfo.text =
+                    "${currentPlayer.symbol} - ${currentPlayer.username.capitalize()}'s turn"
             }
         }
-        if(game.status=="finished"){
-            playAgainButton.visibility=View.VISIBLE
+        if (game.status == "finished") {
+            playAgainButton.visibility = View.VISIBLE
             //startActivity(Intent(this,MatchMakingFragment::class.java))
-            playAgainButton.setOnClickListener{
+            playAgainButton.setOnClickListener {
 
                 //Temporary, should lead to matchmaking??
-                val intent= Intent(this,GameActivity::class.java)
+                val intent = Intent(this, GameActivity::class.java)
                 startActivity(intent)
 
             }
         }
     }
+
     fun checkForWinner() {
 
         val winningPos = arrayOf(
@@ -272,29 +295,28 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
                 }
             }
         }
-        updateUI()
+        updateUI(game)
     }
 
-    private fun updateDatabase() {
+    private fun updateDatabase(game: Game) {
 
         val db = Firebase.firestore
 
-
-        val gameRef = db.collection("games").document(game.id.toString())
-
+        Log.d("!!!", "in updatebase${game.filledPos}")
+        var documentRef = db.collection("games").document(game.documentId)
+        val documentId = documentRef.id
+        Log.d("!!!", "in update $documentId")
 
         val updates = hashMapOf<String, Any>(
-            "id" to game.id,
-            "playerOne" to game.playerOne.toHashMap(),
-            "playerTwo" to game.playerTwo.toHashMap(),
-            "nextMove" to game.nextMove,
+            "playerOne" to game.playerOne,
+            "playerTwo" to game.playerTwo,
             "status" to game.status,
             "filledPos" to game.filledPos
         )
 
         Log.d("UpdateDatabase", "updateDatabase startar")
 
-        gameRef.set(updates)
+        documentRef.set(updates)
             .addOnSuccessListener {
                 Log.d("UpdateDatabase", "Game successfully updated!")
             }
@@ -303,19 +325,54 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
             }
     }
 
-    fun fetchPlayer(userId: String, callback: (Player) -> Unit) {
+    fun fetchPlayerByUsername(opponentUsername: String, callback: (Player?) -> Unit) {
         val db = Firebase.firestore
-        val docRef = db.collection("players").document(userId)
-        docRef.get()
+        val playersCollection = db.collection("players")
+
+        playersCollection.whereEqualTo("opponentUsername", opponentUsername)
+            .get()
+            .addOnSuccessListener { documents ->
+                val player = documents.toObjects(Player::class.java).firstOrNull()
+                callback(player)
+            }
+            .addOnFailureListener { exception ->
+                Log.e("fetchPlayerByUsername", "Error getting player by username", exception)
+                callback(null)
+            }
+    }
+
+    fun fetchPlayerByDocumentId(opponentDocumentId: String, callback: (Player?) -> Unit) {
+        val db = Firebase.firestore
+        val playersCollection = db.collection("players")
+
+        val opponent = playersCollection.document(opponentDocumentId)
+
+        opponent.get()
             .addOnSuccessListener { document ->
-                if (document != null) {
-                    val player = document.toObject(Player::class.java)
-                    if (player != null) {
-                        callback(player)
-                    }
+                if (document.exists()) {
+                    // The document exists, create a new Player object and assign the document's fields to its attributes
+                    val opponentPlayerObject = Player(
+                        opponentDocumentId,
+                        document.getString("email") ?: "",
+                        document.getString("username") ?: "",
+                        document.getString("userId") ?: "",
+                        document.getLong("wins")?.toInt() ?: 0,
+                        document.getLong("lost")?.toInt() ?: 0,
+                        document.getLong("gamesPlayed")?.toInt() ?: 0,
+                        document.getLong("avatarImage")?.toInt() ?: 0,
+                        document.getLong("mmrScore")?.toInt() ?: 0,
+                        document.getBoolean("searchingOpponent") ?: false,
+                        document.getLong("searchingOpponentStartTime") ?: 0,
+                        document.getString("symbol") ?: ""
+                    )
+                    callback(opponentPlayerObject)
                 } else {
-                    Log.d("FetchPlayer", "No such document")
+                    callback(null)
                 }
+            }
+            .addOnFailureListener { exception ->
+                Log.e("fetchPlayerByDocumentId", "Error getting player by document ID", exception)
+                callback(null)
             }
     }
 
@@ -341,12 +398,14 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     fun showGameViews() {
-        player1_avatar.setImageResource(playerOne.avatarImage)
-        username1.text = "${playerOne.username.capitalize()}"
 
-        player2_avatar.setImageResource(playerTwo.avatarImage)
-        username2.text = "${playerTwo.username.capitalize()}"
+        if (playerOne != null && playerTwo != null) {
+            player1_avatar.setImageResource(playerOne.avatarImage)
+            username1.text = "${playerOne.username.capitalize()}"
 
+            player2_avatar.setImageResource(playerTwo.avatarImage)
+            username2.text = "${playerTwo.username.capitalize()}"
+        }
     }
 }
 
