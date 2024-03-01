@@ -1,11 +1,17 @@
 package com.example.tictacparty
 
+import com.google.firebase.firestore.DocumentId
+
 data class Game(
-    val id: Int,
-    val playerOne: Player,
-    val playerTwo: Player,
-    var nextMove: Int,
-    var status: String,
+    @DocumentId val documentId : String = "",
+    val playerOne: String="",
+    val playerTwo: String="",
+    var status: String="",
     var filledPos: MutableList<String> = mutableListOf("", "", "", "", "", "", "", "", "")
-) {
+)
+data class DavidsGame(
+    @DocumentId val documentId : String = "",
+    var filledPos: MutableList<String>?=null
+)
+{
 }

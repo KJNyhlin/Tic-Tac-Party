@@ -20,8 +20,8 @@ import java.util.logging.Handler
 object GlobalVariables {
     var loggedInUser: String? = null
     var loggedIn: Boolean = false
-    var player: Player? = null         //player one = inloggade spelaren
-    var opponentPlayer: Player? = null //player two = personen man matchas med
+    var player: Player? = null
+    var opponentPlayer: Player? = null
 }
 
 class MainActivity : AppCompatActivity() {

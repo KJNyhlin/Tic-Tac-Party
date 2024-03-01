@@ -15,7 +15,9 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat.startActivity
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.play.integrity.internal.i
+import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.toObject
 
 
 class GameActivity : AppCompatActivity(), View.OnClickListener {
@@ -35,7 +37,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
     lateinit var gamebutton9: ImageButton
     lateinit var playAgainButton : FloatingActionButton
     lateinit var playerOne: Player
-     lateinit var playerTwo: Player
+    lateinit var playerTwo: Player
     lateinit var currentPlayer: Player
 
     lateinit var username1: TextView
@@ -52,53 +54,105 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
         setContentView(R.layout.activity_game)
 
 
-
-
-
-
-
+        iniatilizeViews()
 
         if (GlobalVariables.player != null) {
             playerOne = GlobalVariables.player!!
 
             playerOne.symbol = "X"
+            currentPlayer = playerOne
+
         }
-        currentPlayer = playerOne
-        android.os.Handler().postDelayed({
 
-            val opponentUsername: String? = intent.getStringExtra("opponentsUsername")
+            playerTwo = Player("", "", "Blomkrukan", "", 0, 0, 0, 2131230844, 0, false, 0, "O")
+//            game = Game(
+//                "",
+//                playerOne.email,
+//                playerTwo.email,
+//                "ongoing",
+//                mutableListOf("", "", "", "", "", "", "", "", "")
+//            )
 
-            opponentUsername?.let { username ->
-                fetchPlayerByUsername(username) { player ->
-                    // Callback function to handle the result
-                    if (player != null) {
-                        // Player found, initialize playerTwo and proceed with the game setup
-                        playerTwo = player
-                        currentPlayer = playerOne
-                        game = Game(
-                            1,
-                            playerOne,
-                            playerTwo,
-                            1,
-                            "ongoing",
-                            mutableListOf("", "", "", "", "", "", "", "", "")
-                        )
-                        iniatilizeViews()
-                        showGameViews()
-                        updateUI()
-                        addingClickListeners()
-                        updateDatabase()
-                        Toast.makeText(this,"$opponentUsername", Toast.LENGTH_SHORT).show()
-                    } else {
-                        // Player not found, handle the error
-                        println("No player found with opponent username: $username")
+        showGameViews()
+        uploadToFirestoreAndSnapshotListener()
+        updateDatabase(game)
+
+
+            android.os.Handler().postDelayed({
+
+
+
+                val opponentUsername: String? = intent.getStringExtra("opponentsUsername")
+
+                opponentUsername?.let { username ->
+                    fetchPlayerByUsername(username) { player ->
+                        // Callback function to handle the result
+                        if (player != null) {
+                            // Player found, initialize playerTwo and proceed with the game setup
+                            //playerTwo = player
+//                            currentPlayer = playerOne
+
+
+                            Toast.makeText(this, "$opponentUsername", Toast.LENGTH_SHORT).show()
+                        } else {
+                            // Player not found, handle the error
+                            println("No player found with opponent username: $username")
+                        }
                     }
                 }
+
+            }, 1000)
+        }
+
+
+    fun uploadToFirestoreAndSnapshotListener(){
+
+
+
+        val db = Firebase.firestore
+
+        if (!::playerOne.isInitialized || !::playerTwo.isInitialized) {
+            Log.d("!!!", "Players not initialized yet")
+            return
+        }
+
+        val documentRef = db.collection("games").document()
+        val documentId = documentRef.id
+
+        game = Game(
+                documentId,
+                playerOne.email,
+                playerTwo.email,
+                "ongoing",
+                mutableListOf("", "", "", "", "", "", "", "", "")
+            )
+
+        updateDatabase(game)
+
+        documentRef.set(game)
+            .addOnSuccessListener{
+                Log.d("!!!", "\"Game added to Firestore with document ID: $documentId")  }
+            .addOnFailureListener {e->
+                Log.d("!!!", " Error adding game to Firestore : ")  }
+        Log.d("!!!", "game.document : !: $documentId")
+
+        documentRef.addSnapshotListener{snapshot,e->
+                if(e!=null){
+                    Log.d("!!!","Listen failed")
+                    return@addSnapshotListener
+                }
+                if(snapshot!=null && snapshot.exists()) {
+                    val game = snapshot.toObject<Game>()
+                    Log.d("!!!",game.toString())
+                    if(game!=null){
+                        updateUI()
+                    }
+                }
+                else{
+                    Log.d("!!!","Current data: Null")
+                }
             }
-
-        }, 500)
     }
-
     fun iniatilizeViews() {
         titleTextView = findViewById(R.id.titleTextView)
         player1_avatar = findViewById(R.id.player1)
@@ -119,6 +173,8 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
         exitImage = findViewById(R.id.exitImage)
         helpImage = findViewById(R.id.helpImage)
 
+
+
         buttons.add(gamebutton1)
         buttons.add(gamebutton2)
         buttons.add(gamebutton3)
@@ -128,6 +184,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
         buttons.add(gamebutton7)
         buttons.add(gamebutton8)
         buttons.add(gamebutton9)
+
         for (button in buttons) {
             button.setOnClickListener(this)
         }
@@ -137,8 +194,6 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
         helpImage.setOnClickListener {
 
         }
-
-        addExitDialog()
 
     }
 
@@ -154,20 +209,27 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
         Log.d("!!!", "current player on click${currentPlayer.username}")
         game.apply {
             //apply gör att man kan göra operationer direkt på ett objekt, i det här fallet game, så slipper man skriva game.filledPos
-
+            Log.d("!!!","on click : {$filledPos]")
             if (status != "ongoing") {
                 return
             }
             //gameButton1.tag=1, gameButton2.tag=2 osv...
             //filledPos("","","","X","","","","","O"))
             //filledPos[clickedPos] fylls i med currentPlayer.symbol = antingen "X" eller "O"
+
+
             val clickedPos = (button?.tag as String).toInt() - 1
+            Log.d("!!!","clicked Pos : $clickedPos")
             if (filledPos[clickedPos] == "") {
+                Log.d("!!!","on click 2 : $filledPos]")
                 filledPos[clickedPos] = currentPlayer.symbol
                 switchPlayers()
                 updateUI()
+                updateDatabase(game)
+
+//                updateUIdavid(game)
                 checkForWinner()
-                updateDatabase()
+
                 Log.d("!!!", "$filledPos")
             } else {
                 Toast.makeText(
@@ -178,7 +240,6 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
             }
         }
     }
-
     fun updateUI() {
         //index = filledPos[index]
         //Index(1, 2,  3  4  5  6  7  8  9
@@ -244,26 +305,25 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
         updateUI()
     }
 
-    private fun updateDatabase() {
+    private fun updateDatabase(game: Game) {
 
         val db = Firebase.firestore
 
-
-        val gameRef = db.collection("games").document(game.id.toString())
-
+        Log.d("!!!","in updatebase${game.filledPos}")
+        var documentRef = db.collection("games").document(game.documentId)
+        val documentId = documentRef.id
+        Log.d("!!!","in update $documentId")
 
         val updates = hashMapOf<String, Any>(
-            "id" to game.id,
-            "playerOne" to game.playerOne.toHashMap(),
-            "playerTwo" to game.playerTwo.toHashMap(),
-            "nextMove" to game.nextMove,
+            "playerOne" to game.playerOne,
+            "playerTwo" to game.playerTwo,
             "status" to game.status,
             "filledPos" to game.filledPos
         )
 
         Log.d("UpdateDatabase", "updateDatabase startar")
 
-        gameRef.set(updates)
+        documentRef.set(updates)
             .addOnSuccessListener {
                 Log.d("UpdateDatabase", "Game successfully updated!")
             }
@@ -310,12 +370,14 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     fun showGameViews() {
-        player1_avatar.setImageResource(playerOne.avatarImage)
-        username1.text = "${playerOne.username.capitalize()}"
 
-        player2_avatar.setImageResource(playerTwo.avatarImage)
-        username2.text = "${playerTwo.username.capitalize()}"
+        if(playerOne!=null && playerTwo!=null){
+            player1_avatar.setImageResource(playerOne.avatarImage)
+            username1.text = "${playerOne.username.capitalize()}"
 
+            player2_avatar.setImageResource(playerTwo.avatarImage)
+            username2.text = "${playerTwo.username.capitalize()}"
+        }
     }
 }
 

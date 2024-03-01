@@ -112,6 +112,7 @@ class MatchMakingFragment() : Fragment() {
                 findOpponent { opponent ->
                     if (opponent.isEmpty()) {
                         //ev text "Searching for opponent..."
+                        Log.d("!!!","opponent is empty")
                     } else {
                         opponentsUserName = opponent
                         opponentFound = true
