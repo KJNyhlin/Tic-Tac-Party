@@ -9,6 +9,7 @@ import android.widget.Button
 import android.widget.ImageButton
 import android.widget.Toast
 import androidx.core.content.ContextCompat.startActivity
+import com.example.tictacparty.GlobalVariables.player
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
@@ -144,6 +145,51 @@ class MainActivity : AppCompatActivity() {
             super.onBackPressed()
         }
     }
+    object FirestoreHelper {
+        private val db = FirebaseFirestore.getInstance()
+        private val playersCollection = db.collection("players")
 
+        fun updatePlayerInFirestore(player: Player) {
+            val playerRef = playersCollection.document(player.documentId)
+            val username = player.username
+
+            Log.d("!!!", "Nu körs updatePlayerInFirestore")
+            playerRef.get().addOnSuccessListener { documentSnapshot ->
+                if (documentSnapshot.exists()) {
+                    val existingPlayer = documentSnapshot.toObject(Player::class.java)
+                    existingPlayer?.let {
+                        it.searchingOpponent = player.searchingOpponent
+                        it.searchingOpponentStartTime = player.searchingOpponentStartTime
+
+                        playerRef.set(it)
+                            .addOnSuccessListener {
+                                Log.d("!!!","Dokument för $username uppdaterades framgångsrikt.")
+                            }
+                            .addOnFailureListener { exception ->
+                                Log.d("!!!","Fel vid uppdatering av dokument för $username: $exception")
+                            }
+                    }
+                } else {
+                    Log.d("!!!","Dokumentet för $username finns inte i databasen.")
+                }
+            }.addOnFailureListener { exception ->
+                Log.d("!!!","Fel vid hämtning av dokument för $username: $exception")
+            }
+        }
+    }
+
+    fun resetSearchingOpponent() {
+        player?.searchingOpponent = false
+        player?.searchingOpponentStartTime = 0
+        Log.d("!!!", "Nu anropas resetSearchingOpponent(). player.searchingOpponent är satt till ${player?.searchingOpponent}.")
+        if (player != null) {
+            FirestoreHelper.updatePlayerInFirestore(player!!)
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        resetSearchingOpponent()
+    }
 
 }
