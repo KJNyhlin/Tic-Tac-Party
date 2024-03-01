@@ -135,8 +135,9 @@ class MatchMakingFragment() : Fragment() {
     }
 
     fun findOpponent(callback: (String) -> Unit) {
-        var lowestTimeMillis: Long = System.currentTimeMillis()
+        var lowestTimeMillis: Long = Long.MAX_VALUE // Initial value set to maximum possible value
         var opponentsUserName: String = ""
+        var opponentFound = false // Flag to track if opponent is found
         playersRef.whereEqualTo("searchingOpponent", true).get()
             .addOnSuccessListener { documents ->
                 for (document in documents) {
@@ -146,20 +147,26 @@ class MatchMakingFragment() : Fragment() {
                         currentDocumentsStartTime as? Long
                     // checks that startTime is not the default value 0
                     if (currentDocumentsStartTimeAsLong != null && currentDocumentsStartTimeAsLong != 0.toLong()) {
-                        // saves the username of the player object with the lowest timemillis
-                        if (currentDocumentsStartTimeAsLong < lowestTimeMillis) {
-                            lowestTimeMillis = currentDocumentsStartTimeAsLong
-                            // checks that this player is not oneself
-                            if (document.get("username").toString() != player?.username) {
+                        // Check if this player is not oneself
+                        if (document.get("username").toString() != player?.username) {
+                            // saves the username of the player object with the lowest searchingOpponentStartTime
+                            if (currentDocumentsStartTimeAsLong < lowestTimeMillis) {
+                                lowestTimeMillis = currentDocumentsStartTimeAsLong
                                 opponentsUserName = document.get("username").toString()
+                                // Reset searchingOpponent only when a match is found
                                 resetSearchingOpponent()
+                                opponentFound = true // Set flag to true when opponent is found
+                                // still runs through the for-loop to check if there is a better match
                             }
                         }
                     }
                 }
-                callback(opponentsUserName)
+                if (opponentFound) { // Only invoke callback if opponent is found
+                    callback(opponentsUserName)
+                }
             }
     }
+
 
     fun showTimeoutDialog() {
         activity?.runOnUiThread {
