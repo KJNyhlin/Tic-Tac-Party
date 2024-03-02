@@ -14,11 +14,13 @@ import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat.startActivity
+import com.google.android.gms.tasks.Task
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.play.integrity.internal.i
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.toObject
 import com.google.firebase.firestore.DocumentId
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 
@@ -48,6 +50,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
     lateinit var gameInfo: TextView
     lateinit var exitImage: ImageView
     lateinit var helpImage: ImageView
+    var roomId:String?=""
     lateinit var game: Game
     var buttons = mutableListOf<ImageButton>()
     val db = com.google.firebase.ktx.Firebase.firestore
@@ -61,34 +64,79 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
 
         iniatilizeViews()
 
-        if (GlobalVariables.player != null) {
-            playerOne = GlobalVariables.player!!
+        roomId = intent.getStringExtra("roomId")
+        if(roomId!=null) {
+            fetchRoomAndPlayers(roomId!!)
+            
+            android.os.Handler().postDelayed({
 
-            playerOne.symbol = "X"
-            currentPlayer = playerOne
+                game = Game(
+                    roomId!!,
+                    playerOne.email,
+                    playerTwo.email,
+                    "ongoing",
+                    mutableListOf("", "", "", "", "", "", "", "", "")
+                )
+                uploadToFirestoreAndSnapshotListener(game)
 
+                currentPlayer = playerOne
+                showGameViews()
+                updateDatabase(game)
+
+            }, 1000)
+        }
+        else{
+            val intent = Intent(this, MatchMakingFragment::class.java)
+            startActivity(intent)
         }
 
-        val opponentDocumentId = intent.getStringExtra("opponentDocumentId")
+    }
+    fun fetchRoomAndPlayers(roomId: String) {
+        val db = FirebaseFirestore.getInstance()
+        val roomRef = db.collection("matchmaking_rooms").document(roomId)
 
-//        intent.putExtra("roomId", room.roomId)
-//        intent.putExtra("player1Id", room.player1Id)
-//        intent.putExtra("player2Id", room.player2Id)
-//        Log.d("!!!", "Room: $player1Id $player2Id")
-
-        playerTwo = Player("", "", "Blomkrukan", "", 0, 0, 0, 2131230844, 0, false, 0, "O")
-        currentPlayer = playerOne
-        android.os.Handler().postDelayed({
-            showGameViews()
-            uploadToFirestoreAndSnapshotListener()
-            updateDatabase(game)
-
-        }, 1000)
-
-
+        roomRef.get()
+            .addOnSuccessListener { documentSnapshot ->
+                if (documentSnapshot.exists()) {
+                    val room = documentSnapshot.toObject(MatchmakingRoom::class.java)
+                    if (room != null) {
+                        val player1Id = room.player1Id
+                        val player2Id = room.player2Id
+                        if (player1Id != null && player2Id != null) {
+                            fetchPlayer(player1Id) { player1 ->
+                                if (player1 != null) {
+                                    playerOne = player1
+                                    playerOne.symbol = "X"
+                                    // Player 1 fetched successfully
+                                } else {
+                                    Log.d("!!!", "Player 1 does not exist")
+                                }
+                            }
+                            fetchPlayer(player2Id) { player2 ->
+                                if (player2 != null) {
+                                    playerTwo = player2
+                                    playerTwo.symbol = "O"
+                                    // Player 2 fetched successfully
+                                } else {
+                                    Log.d("!!!", "Player 2 does not exist")
+                                }
+                            }
+                        } else {
+                            Log.d("!!!", "Player IDs are null in room document")
+                        }
+                    } else {
+                        Log.d("!!!", "Room document is null")
+                    }
+                } else {
+                    Log.d("!!!", "Room document does not exist")
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.d("!!!", "Failed to fetch room document: $e")
+            }
     }
 
-    fun uploadToFirestoreAndSnapshotListener() {
+    fun uploadToFirestoreAndSnapshotListener(game : Game) {
 
 
         val db = Firebase.firestore
@@ -101,14 +149,13 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
         val documentRef = db.collection("games").document()
         val documentId = documentRef.id
 
-        game = Game(
-            documentId,
-            playerOne.email,
-            playerTwo.email,
-            "ongoing",
-            mutableListOf("", "", "", "", "", "", "", "", "")
-        )
-
+//        game = Game(
+//            roomId,
+//            playerOne.email,
+//            playerTwo.email,
+//            "ongoing",
+//            mutableListOf("", "", "", "", "", "", "", "", "")
+//        )
 
         documentRef.set(game)
             .addOnSuccessListener {
@@ -249,12 +296,13 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
             }
         }
         if (game.status == "finished") {
+            removeFinishedGames(game)
             playAgainButton.visibility = View.VISIBLE
             //startActivity(Intent(this,MatchMakingFragment::class.java))
             playAgainButton.setOnClickListener {
 
                 //Temporary, should lead to matchmaking??
-                val intent = Intent(this, GameActivity::class.java)
+                val intent = Intent(this, MatchMakingFragment::class.java)
                 startActivity(intent)
 
             }
@@ -318,55 +366,35 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
                 Log.w("UpdateDatabase", "Error updating game", e)
             }
     }
+    fun removeFinishedGames(game : Game ){
+        val db = FirebaseFirestore.getInstance()
+        val gameRef = db.collection("games").document(game.documentId)
+        gameRef.delete()
+            .addOnSuccessListener {
 
-    fun fetchPlayerByUsername(opponentUsername: String, callback: (Player?) -> Unit) {
-        val db = Firebase.firestore
-        val playersCollection = db.collection("players")
+            }
+            .addOnFailureListener {
 
-        playersCollection.whereEqualTo("opponentUsername", opponentUsername)
-            .get()
-            .addOnSuccessListener { documents ->
-                val player = documents.toObjects(Player::class.java).firstOrNull()
-                callback(player)
             }
-            .addOnFailureListener { exception ->
-                Log.e("fetchPlayerByUsername", "Error getting player by username", exception)
-                callback(null)
-            }
+
     }
 
-    fun fetchPlayerByDocumentId(opponentDocumentId: String, callback: (Player?) -> Unit) {
-        val db = Firebase.firestore
-        val playersCollection = db.collection("players")
+    fun fetchPlayer(playerId: String, onComplete: (Player?) -> Unit) {
+        val db = FirebaseFirestore.getInstance()
 
-        val opponent = playersCollection.document(opponentDocumentId)
-
-        opponent.get()
-            .addOnSuccessListener { document ->
-                if (document.exists()) {
-                    // The document exists, create a new Player object and assign the document's fields to its attributes
-                    val opponentPlayerObject = Player(
-                        opponentDocumentId,
-                        document.getString("email") ?: "",
-                        document.getString("username") ?: "",
-                        document.getString("userId") ?: "",
-                        document.getLong("wins")?.toInt() ?: 0,
-                        document.getLong("lost")?.toInt() ?: 0,
-                        document.getLong("gamesPlayed")?.toInt() ?: 0,
-                        document.getLong("avatarImage")?.toInt() ?: 0,
-                        document.getLong("mmrScore")?.toInt() ?: 0,
-                        document.getBoolean("searchingOpponent") ?: false,
-                        document.getLong("searchingOpponentStartTime") ?: 0,
-                        document.getString("symbol") ?: ""
-                    )
-                    callback(opponentPlayerObject)
+        db.collection("players").document(playerId).get()
+            .addOnCompleteListener { task: Task<DocumentSnapshot> ->
+                if (task.isSuccessful) {
+                    val playerDocument = task.result
+                    if (playerDocument != null && playerDocument.exists()) {
+                        val player = playerDocument.toObject(Player::class.java)
+                        onComplete(player)
+                    } else {
+                        onComplete(null) // Player document does not exist
+                    }
                 } else {
-                    callback(null)
+                    onComplete(null) // Error occurred while fetching player document
                 }
-            }
-            .addOnFailureListener { exception ->
-                Log.e("fetchPlayerByDocumentId", "Error getting player by document ID", exception)
-                callback(null)
             }
     }
 

@@ -39,11 +39,12 @@ class MatchMakingFragment() : Fragment() {
     var opponentsUserName: String = ""
     var opponentDocumentId: String = ""
 
-    var roomId : String=""
+    var roomId: String = ""
 
-    var player1Id:String=""
-    var player2Id:String=""
-    lateinit var room:MatchmakingRoom
+    var player1Id: String = ""
+    var player2Id: String = ""
+    lateinit var room: MatchmakingRoom
+
 
     override fun onResume() {
         if (!GlobalVariables.loggedIn) {
@@ -86,7 +87,11 @@ class MatchMakingFragment() : Fragment() {
             Log.d("!!!", "MainActivityFragment finns inte i backstacken")
         }
 
-        createOrJoinRoom()
+        android.os.Handler().postDelayed({
+
+            createOrJoinRoom()
+
+        }, 1000)
 
         return view
     }
@@ -119,11 +124,14 @@ class MatchMakingFragment() : Fragment() {
                 // Handle failure to query rooms
             }
     }
+
     fun createRoom() {
         val db = FirebaseFirestore.getInstance()
         val roomsRef = db.collection("matchmaking_rooms")
 
-        val room = MatchmakingRoom("", player!!.documentId, "", "waiting")
+        if(player!=null){
+            room = MatchmakingRoom("", player.documentId?:"", "", "waiting")
+        }
 
         roomsRef.add(room)
             .addOnSuccessListener { documentReference ->
@@ -136,6 +144,7 @@ class MatchMakingFragment() : Fragment() {
                 // Handle failure to create room
             }
     }
+
     fun joinRoom(roomId: String) {
         val db = FirebaseFirestore.getInstance()
         val roomRef = db.collection("matchmaking_rooms").document(roomId)
@@ -150,6 +159,7 @@ class MatchMakingFragment() : Fragment() {
                 // Handle failure to update room
             }
     }
+
     fun monitorRoom(roomId: String) {
         val db = FirebaseFirestore.getInstance()
         val roomRef = db.collection("matchmaking_rooms").document(roomId)
@@ -170,15 +180,17 @@ class MatchMakingFragment() : Fragment() {
             }
         }
     }
+
     fun transitionToGameActivity(room: MatchmakingRoom) {
         // Transition to GameActivity using Intent
         val intent = Intent(requireActivity(), GameActivity::class.java)
         intent.putExtra("roomId", room.roomId)
         intent.putExtra("player1Id", room.player1Id)
         intent.putExtra("player2Id", room.player2Id)
-        Log.d("!!!", "Room: $player1Id $player2Id")
+        Log.d("!!!", "Room id : ${room.roomId}roomId: $player1Id $player2Id")
         startActivity(intent)
     }
+
     fun removeMatchmakingRoom(roomId: String) {
         val db = FirebaseFirestore.getInstance()
         val roomRef = db.collection("matchmaking_rooms").document(roomId)
@@ -191,7 +203,8 @@ class MatchMakingFragment() : Fragment() {
                 // Handle failure to delete room document
             }
     }
-    fun startTimer(roomId: String){
+
+    fun startTimer(roomId: String) {
         val timer = Timer()
         var seconds = 0
         timer.scheduleAtFixedRate(object : TimerTask() {
@@ -207,6 +220,7 @@ class MatchMakingFragment() : Fragment() {
             }
         }, 0, 1000)
     }
+
     fun showTimeoutDialog(roomId: String) {
         activity?.runOnUiThread {
             val builder = AlertDialog.Builder(requireActivity())
@@ -226,114 +240,11 @@ class MatchMakingFragment() : Fragment() {
             dialog.show()
         }
     }
+
     fun handleBackPressed() {
         // This is to handle what happens when the back button is pressed while findOpponent() is running
-        resetSearchingOpponent()
+        //removeMatchmakingRoom(roomId)
     }
-    fun opponentSearchTimer() {
-        Log.d("!!!", "Nu körs opponentSearchTimer()") //debug print, remove before release
-
-
-        player?.searchingOpponent = true
-        player?.searchingOpponentStartTime = System.currentTimeMillis()
-
-
-        if (player != null) {
-            FirestoreHelper.updatePlayerInFirestore(player)
-        }
-
-        android.os.Handler().postDelayed({
-        val timer = Timer()
-        var seconds = 0
-        timer.scheduleAtFixedRate(object : TimerTask() {
-            override fun run() {
-                Log.d("!!!", "Nu körs findOpponent() från opponentSearchTimer()")
-
-
-                findOpponent { opponent ->
-                    if (opponent.isEmpty()) {
-                        //ev text "Searching for opponent..."
-                        Log.d("!!!","opponent is empty")
-                    } else {
-                        opponentsUserName = opponent
-                        opponentFound = true
-                        Log.d("!!!", "Matched with opponent: $opponentsUserName")
-                        //(maybe necessary to check that activity is not null before requireActivity)
-                        val intent = Intent(requireActivity(), GameActivity::class.java)
-                        //changed to include docID in putExtra instead of username
-                        intent.putExtra("opponentDocumentId", opponentDocumentId)
-                        startActivity(intent)
-                        timer.cancel()
-                    }
-                }
-                seconds++
-                if (seconds > 59) {
-                    if (opponentFound == false) {
-                        //showTimeoutDialog()
-                    }
-                    timer.cancel()
-                }
-            }
-        }, 0, 1000)
-
-        }, 2000)
-    }
-
-//new version that returns the opponent's documentID instead of username
-    fun findOpponent(callback: (String) -> Unit) {
-        var lowestTimeMillis: Long = Long.MAX_VALUE // Initial value set to maximum possible value
-        var opponentFound = false // Flag to track if opponent is found
-        playersCollection.whereEqualTo("searchingOpponent", true).get()
-            .addOnSuccessListener { documents ->
-                for (document in documents) {
-                    var currentDocumentsStartTime: Any? =
-                        document.get("searchingOpponentStartTime")
-                    var currentDocumentsStartTimeAsLong: Long? =
-                        currentDocumentsStartTime as? Long
-                    // checks that startTime is not the default value 0
-                    if (currentDocumentsStartTimeAsLong != null && currentDocumentsStartTimeAsLong != 0.toLong()) {
-                        // Check if this player is not oneself
-                        if (document.get("username").toString() != player?.username) {
-                            // saves the document ID of the player object with the lowest searchingOpponentStartTime
-                            if (currentDocumentsStartTimeAsLong < lowestTimeMillis) {
-                                lowestTimeMillis = currentDocumentsStartTimeAsLong
-                                opponentDocumentId = document.id // Get the document ID
-                                // Reset searchingOpponent only when a match is found
-                                resetSearchingOpponent()
-                                opponentFound = true // Set flag to true when opponent is found
-                                // still runs through the for-loop to check if there is a better match
-                            }
-
-                        }
-                    }
-                }
-                if (opponentFound) { // Only invoke callback if opponent is found
-                    callback(opponentDocumentId)
-                }
-            }
-    }
-
-//    fun showTimeoutDialog() {
-//        activity?.runOnUiThread {
-//            val builder = AlertDialog.Builder(requireActivity())
-//            builder.setTitle("Timeout")
-//            builder.setMessage("No opponent was found.")
-//            builder.setPositiveButton("Try again") { _, _ ->
-//                opponentSearchTimer()
-//            }
-//            builder.setNegativeButton("Cancel") { _, _ ->
-//                resetSearchingOpponent()
-//                //activity?.supportFragmentManager?.popBackStack("mainFragment", FragmentManager.POP_BACK_STACK_INCLUSIVE)
-//                val intent = Intent(requireActivity(), MainActivity::class.java)
-//                startActivity(intent)
-//
-//            }
-//
-//
-//            val dialog: AlertDialog = builder.create()
-//            dialog.show()
-//        }
-//    }
 
     fun updateMatchMakingFragment() {
 
@@ -351,54 +262,11 @@ class MatchMakingFragment() : Fragment() {
         loggedInUsername.text = GlobalVariables.player?.username?.capitalize()
 
     }
-    object FirestoreHelper {
-        private val db = FirebaseFirestore.getInstance()
-        private val playersCollection = db.collection("players")
-
-        fun updatePlayerInFirestore(player: Player) {
-            val playerRef = playersCollection.document(player.documentId)
-            val username = player.username
-
-            Log.d("!!!", "Nu körs updatePlayerInFirestore")
-            playerRef.get().addOnSuccessListener { documentSnapshot ->
-                if (documentSnapshot.exists()) {
-                    val existingPlayer = documentSnapshot.toObject(Player::class.java)
-                    existingPlayer?.let {
-                        it.searchingOpponent = player.searchingOpponent
-                        it.searchingOpponentStartTime = player.searchingOpponentStartTime
-
-                        playerRef.set(it)
-                            .addOnSuccessListener {
-                                Log.d("!!!","Dokument för $username uppdaterades framgångsrikt.")
-                            }
-                            .addOnFailureListener { exception ->
-                                Log.d("!!!","Fel vid uppdatering av dokument för $username: $exception")
-                            }
-                    }
-                } else {
-                    Log.d("!!!","Dokumentet för $username finns inte i databasen.")
-                }
-            }.addOnFailureListener { exception ->
-                Log.d("!!!","Fel vid hämtning av dokument för $username: $exception")
-            }
-        }
-    }
-
-    fun resetSearchingOpponent() {
-        player?.searchingOpponent = false
-        player?.searchingOpponentStartTime = 0
-        Log.d("!!!", "Nu anropas resetSearchingOpponent(). player.searchingOpponent är satt till ${player?.searchingOpponent}.")
-        if (player != null) {
-            FirestoreHelper.updatePlayerInFirestore(player)
-        }
-    }
 
     override fun onDetach() {
         super.onDetach()
-        resetSearchingOpponent()
+        //removeMatchmakingRoom(roomId)
     }
-
-
 }
 
 
