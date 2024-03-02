@@ -63,17 +63,7 @@ class MainActivityFragment() : Fragment() {
             startActivity(intent)
         }
 
-        Toast.makeText(
-            requireContext(),
-            "Welcome ${GlobalVariables.player?.username?.capitalize()}",
-            Toast.LENGTH_SHORT).show()
-        if (GlobalVariables.player?.username != null) {
-            Toast.makeText(
-                requireContext(),
-                "Welcome ${GlobalVariables.player?.username?.capitalize()}",
-                Toast.LENGTH_SHORT
-            ).show()
-        }
+
         /*f(GlobalVariables.loggedIn == false){
             val intent = Intent(requireContext(), MainActivity::class.java)
             startActivity(intent)

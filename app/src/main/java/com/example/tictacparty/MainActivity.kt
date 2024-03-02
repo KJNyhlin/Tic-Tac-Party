@@ -1,5 +1,6 @@
 package com.example.tictacparty
 
+import Function.getPlayerObject
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -16,7 +17,11 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.util.logging.Handler
+import kotlin.concurrent.thread
 
 object GlobalVariables {
     var loggedInUser: String? = null
@@ -38,7 +43,13 @@ class MainActivity : AppCompatActivity() {
         if (auth.currentUser != null) {
             GlobalVariables.loggedIn = true
             GlobalVariables.loggedInUser = auth.currentUser?.email
-            getPlayerObject(auth.currentUser?.uid)
+            GlobalScope.launch {
+                val player = getPlayerObject(auth.currentUser?.uid)
+                player?.let {
+                    GlobalVariables.player = it
+                    toastWelcome()
+                }
+            }
         }
 
         if (!GlobalVariables.loggedIn) {
@@ -64,7 +75,6 @@ class MainActivity : AppCompatActivity() {
         } else {
             Log.d("MainActivity", "MainActivityFragment finns inte i backstacken")
         }
-
 
 
     }
@@ -109,34 +119,7 @@ class MainActivity : AppCompatActivity() {
         transaction.commit()
     }
 
-    fun getPlayerObject(userId: String?) {
-        if (userId != null) {
-            val playersCollection = db.collection("players")
-            var player: Player? = null
-            playersCollection
-                .whereEqualTo("userId", userId)
-                .get()
-                .addOnSuccessListener { documents ->
-                    for (document in documents) {
-                        // Convert the document data to a Player object
-                        player = document.toObject(Player::class.java)
-                        // Use the player object as needed
-                        Log.d("!!!", "Player: $player")
-                        if (player != null) {
-                            GlobalVariables.player = player
-                        }
-                    }
-                    GlobalVariables.loggedInUser = auth.currentUser?.email
-                    GlobalVariables.loggedIn = true
-                    Log.d("!!!", "Authentication succeeded.")
-                    // Proceed to next activity or handle authentication success
 
-                }
-                .addOnFailureListener { exception ->
-                    Log.w("!!!", "Error getting documents: ", exception)
-                }
-        }
-    }
     override fun onBackPressed() {
         val fragment = supportFragmentManager.findFragmentById(R.id.fragmentContainer)
         if (fragment is MatchMakingFragment) {
@@ -190,6 +173,23 @@ class MainActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         resetSearchingOpponent()
+    }
+
+    fun toastWelcome() {
+        runOnUiThread {
+            Toast.makeText(
+                this,
+                "Welcome ${GlobalVariables.player?.username?.capitalize()}",
+                Toast.LENGTH_SHORT
+            ).show()
+            /*if (GlobalVariables.player?.username != null) {
+                Toast.makeText(
+                    this,
+                    "Welcome ${GlobalVariables.player?.username?.capitalize()}",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }*/
+        }
     }
 
 }
