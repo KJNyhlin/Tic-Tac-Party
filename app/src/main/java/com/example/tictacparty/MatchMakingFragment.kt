@@ -14,6 +14,8 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat.startActivity
 import androidx.fragment.app.Fragment
 import com.example.tictacparty.GlobalVariables.player
+import com.google.android.play.integrity.internal.c
+import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
@@ -37,6 +39,11 @@ class MatchMakingFragment() : Fragment() {
     var opponentsUserName: String = ""
     var opponentDocumentId: String = ""
 
+    var roomId : String=""
+
+    var player1Id:String=""
+    var player2Id:String=""
+    lateinit var room:MatchmakingRoom
 
     override fun onResume() {
         if (!GlobalVariables.loggedIn) {
@@ -79,6 +86,7 @@ class MatchMakingFragment() : Fragment() {
             Log.d("!!!", "MainActivityFragment finns inte i backstacken")
         }
 
+        createOrJoinRoom()
 
         return view
     }
@@ -86,17 +94,142 @@ class MatchMakingFragment() : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        opponentSearchTimer()
-
 
     }
 
+    fun createOrJoinRoom() {
+        val db = FirebaseFirestore.getInstance()
+        val roomsRef = db.collection("matchmaking_rooms")
+
+        // Check for available rooms with only one player
+        roomsRef.whereEqualTo("status", "waiting").get()
+            .addOnSuccessListener { documents ->
+                for (document in documents) {
+                    room = document.toObject(MatchmakingRoom::class.java)
+                    if (room.player2Id.isEmpty()) {
+                        // Found an available room with only one player, join this room
+                        joinRoom(document.id)
+                        return@addOnSuccessListener
+                    }
+                }
+                // No available rooms found, create a new room
+                createRoom()
+            }
+            .addOnFailureListener { e ->
+                // Handle failure to query rooms
+            }
+    }
+    fun createRoom() {
+        val db = FirebaseFirestore.getInstance()
+        val roomsRef = db.collection("matchmaking_rooms")
+
+        val room = MatchmakingRoom("", player!!.documentId, "", "waiting")
+
+        roomsRef.add(room)
+            .addOnSuccessListener { documentReference ->
+                // Room created successfully
+                val roomId = documentReference.id
+                monitorRoom(roomId)
+                startTimer(roomId)
+            }
+            .addOnFailureListener { e ->
+                // Handle failure to create room
+            }
+    }
+    fun joinRoom(roomId: String) {
+        val db = FirebaseFirestore.getInstance()
+        val roomRef = db.collection("matchmaking_rooms").document(roomId)
+
+        // Update the existing room document to include Player 2's ID
+        roomRef.update("player2Id", player!!.documentId, "status", "matched")
+            .addOnSuccessListener {
+                // Room updated successfully, transition to game activity
+                transitionToGameActivity(room)
+            }
+            .addOnFailureListener { e ->
+                // Handle failure to update room
+            }
+    }
+    fun monitorRoom(roomId: String) {
+        val db = FirebaseFirestore.getInstance()
+        val roomRef = db.collection("matchmaking_rooms").document(roomId)
+
+        roomRef.addSnapshotListener { snapshot, e ->
+            if (e != null) {
+                // Handle errors
+                return@addSnapshotListener
+            }
+
+            if (snapshot != null && snapshot.exists()) {
+                val room = snapshot.toObject(MatchmakingRoom::class.java)
+                if (room != null && room.player2Id.isNotEmpty()) {
+                    // Both players have joined the room, transition to game activity
+                    Log.d("!!!", "Room: $player1Id $player2Id")
+                    transitionToGameActivity(room)
+                }
+            }
+        }
+    }
+    fun transitionToGameActivity(room: MatchmakingRoom) {
+        // Transition to GameActivity using Intent
+        val intent = Intent(requireActivity(), GameActivity::class.java)
+        intent.putExtra("roomId", room.roomId)
+        intent.putExtra("player1Id", room.player1Id)
+        intent.putExtra("player2Id", room.player2Id)
+        Log.d("!!!", "Room: $player1Id $player2Id")
+        startActivity(intent)
+    }
+    fun removeMatchmakingRoom(roomId: String) {
+        val db = FirebaseFirestore.getInstance()
+        val roomRef = db.collection("matchmaking_rooms").document(roomId)
+
+        roomRef.delete()
+            .addOnSuccessListener {
+                // Room document deleted successfully
+            }
+            .addOnFailureListener { e ->
+                // Handle failure to delete room document
+            }
+    }
+    fun startTimer(roomId: String){
+        val timer = Timer()
+        var seconds = 0
+        timer.scheduleAtFixedRate(object : TimerTask() {
+            override fun run() {
+                seconds++
+                if (seconds > 59) {
+
+                    showTimeoutDialog(roomId)
+                    removeMatchmakingRoom(roomId)
+
+                    timer.cancel()
+                }
+            }
+        }, 0, 1000)
+    }
+    fun showTimeoutDialog(roomId: String) {
+        activity?.runOnUiThread {
+            val builder = AlertDialog.Builder(requireActivity())
+            builder.setTitle("Timeout")
+            builder.setMessage("No opponent was found.")
+            builder.setPositiveButton("Try again") { _, _ ->
+                createOrJoinRoom()
+            }
+            builder.setNegativeButton("Cancel") { _, _ ->
+                removeMatchmakingRoom(roomId)
+                //activity?.supportFragmentManager?.popBackStack("mainFragment", FragmentManager.POP_BACK_STACK_INCLUSIVE)
+                val intent = Intent(requireActivity(), MainActivity::class.java)
+                startActivity(intent)
+
+            }
+            val dialog: AlertDialog = builder.create()
+            dialog.show()
+        }
+    }
     fun handleBackPressed() {
         // This is to handle what happens when the back button is pressed while findOpponent() is running
         resetSearchingOpponent()
     }
-
-
     fun opponentSearchTimer() {
         Log.d("!!!", "Nu körs opponentSearchTimer()") //debug print, remove before release
 
@@ -116,7 +249,6 @@ class MatchMakingFragment() : Fragment() {
             override fun run() {
                 Log.d("!!!", "Nu körs findOpponent() från opponentSearchTimer()")
 
-//                android.os.Handler().postDelayed({
 
                 findOpponent { opponent ->
                     if (opponent.isEmpty()) {
@@ -134,12 +266,10 @@ class MatchMakingFragment() : Fragment() {
                         timer.cancel()
                     }
                 }
-
-
                 seconds++
                 if (seconds > 59) {
                     if (opponentFound == false) {
-                        showTimeoutDialog()
+                        //showTimeoutDialog()
                     }
                     timer.cancel()
                 }
@@ -148,39 +278,6 @@ class MatchMakingFragment() : Fragment() {
 
         }, 2000)
     }
-
-//    fun findOpponent(callback: (String) -> Unit) {
-//        var lowestTimeMillis: Long = Long.MAX_VALUE // Initial value set to maximum possible value
-//        var opponentsUserName: String = ""
-//        var opponentFound = false // Flag to track if opponent is found
-//        playersCollection.whereEqualTo("searchingOpponent", true).get()
-//            .addOnSuccessListener { documents ->
-//                for (document in documents) {
-//                    var currentDocumentsStartTime: Any? =
-//                        document.get("searchingOpponentStartTime")
-//                    var currentDocumentsStartTimeAsLong: Long? =
-//                        currentDocumentsStartTime as? Long
-//                    // checks that startTime is not the default value 0
-//                    if (currentDocumentsStartTimeAsLong != null && currentDocumentsStartTimeAsLong != 0.toLong()) {
-//                        // Check if this player is not oneself
-//                        if (document.get("username").toString() != player?.username) {
-//                            // saves the username of the player object with the lowest searchingOpponentStartTime
-//                            if (currentDocumentsStartTimeAsLong < lowestTimeMillis) {
-//                                lowestTimeMillis = currentDocumentsStartTimeAsLong
-//                                opponentsUserName = document.get("username").toString()
-//                                // Reset searchingOpponent only when a match is found
-//                                resetSearchingOpponent()
-//                                opponentFound = true // Set flag to true when opponent is found
-//                                // still runs through the for-loop to check if there is a better match
-//                            }
-//                        }
-//                    }
-//                }
-//                if (opponentFound) { // Only invoke callback if opponent is found
-//                    callback(opponentsUserName)
-//                }
-//            }
-//    }
 
 //new version that returns the opponent's documentID instead of username
     fun findOpponent(callback: (String) -> Unit) {
@@ -216,27 +313,27 @@ class MatchMakingFragment() : Fragment() {
             }
     }
 
-    fun showTimeoutDialog() {
-        activity?.runOnUiThread {
-            val builder = AlertDialog.Builder(requireActivity())
-            builder.setTitle("Timeout")
-            builder.setMessage("No opponent was found.")
-            builder.setPositiveButton("Try again") { _, _ ->
-                opponentSearchTimer()
-            }
-            builder.setNegativeButton("Cancel") { _, _ ->
-                resetSearchingOpponent()
-                //activity?.supportFragmentManager?.popBackStack("mainFragment", FragmentManager.POP_BACK_STACK_INCLUSIVE)
-                val intent = Intent(requireActivity(), MainActivity::class.java)
-                startActivity(intent)
-
-            }
-
-
-            val dialog: AlertDialog = builder.create()
-            dialog.show()
-        }
-    }
+//    fun showTimeoutDialog() {
+//        activity?.runOnUiThread {
+//            val builder = AlertDialog.Builder(requireActivity())
+//            builder.setTitle("Timeout")
+//            builder.setMessage("No opponent was found.")
+//            builder.setPositiveButton("Try again") { _, _ ->
+//                opponentSearchTimer()
+//            }
+//            builder.setNegativeButton("Cancel") { _, _ ->
+//                resetSearchingOpponent()
+//                //activity?.supportFragmentManager?.popBackStack("mainFragment", FragmentManager.POP_BACK_STACK_INCLUSIVE)
+//                val intent = Intent(requireActivity(), MainActivity::class.java)
+//                startActivity(intent)
+//
+//            }
+//
+//
+//            val dialog: AlertDialog = builder.create()
+//            dialog.show()
+//        }
+//    }
 
     fun updateMatchMakingFragment() {
 

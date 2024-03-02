@@ -17,7 +17,6 @@ import androidx.core.content.ContextCompat.startActivity
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.play.integrity.internal.i
 import com.google.firebase.firestore.DocumentReference
-import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.toObject
 import com.google.firebase.firestore.DocumentId
 import com.google.firebase.firestore.FirebaseFirestore
@@ -72,17 +71,12 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
 
         val opponentDocumentId = intent.getStringExtra("opponentDocumentId")
 
-        fetchPlayerByDocumentId(opponentDocumentId!!) { player ->
-            if (player != null) {
-                // Player retrieved successfully, use the player object
-                playerTwo = player
-                playerTwo.symbol = "O"
-            } else {
-                playerTwo = Player("", "", "Blomkrukan", "", 0, 0, 0, 2131230844, 0, false, 0, "O")
-            }
-        }
+//        intent.putExtra("roomId", room.roomId)
+//        intent.putExtra("player1Id", room.player1Id)
+//        intent.putExtra("player2Id", room.player2Id)
+//        Log.d("!!!", "Room: $player1Id $player2Id")
 
-//        playerTwo = Player("", "", "Blomkrukan", "", 0, 0, 0, 2131230844, 0, false, 0, "O")
+        playerTwo = Player("", "", "Blomkrukan", "", 0, 0, 0, 2131230844, 0, false, 0, "O")
         currentPlayer = playerOne
         android.os.Handler().postDelayed({
             showGameViews()
