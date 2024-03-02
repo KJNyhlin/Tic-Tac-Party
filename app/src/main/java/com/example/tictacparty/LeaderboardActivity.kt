@@ -1,5 +1,6 @@
 package com.example.tictacparty
 
+import Function.getHighscore
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -29,30 +30,7 @@ class LeaderboardActivity : AppCompatActivity() {
         bottomNavListener()
     }
 
-    suspend fun getHighscore(): List<Pair<String, Int>> {
-        return suspendCoroutine { continuation ->
-            val db = FirebaseFirestore.getInstance()
-            val playersCollection = db.collection("players")
-            playersCollection
-                .get()
-                .addOnSuccessListener { documents ->
-                    val highScore = mutableListOf<Pair<String, Int>>()
-                    for (document in documents) {
-                        // Convert the document data to a Player object
-                        val userName = document.getString("username") ?: ""
-                        val mmrScore = document.getLong("mmrScore")?.toInt() ?: 0
-                        val userPair = Pair(userName, mmrScore)
-                        highScore.add(userPair)
-                    }
-                    val sortedList = highScore.sortedByDescending { it.second }
-                    continuation.resume(sortedList)
-                }
-                .addOnFailureListener { exception ->
-                    Log.w("!!!", "Error getting documents: ", exception)
-                    continuation.resumeWith(Result.failure(exception))
-                }
-        }
-    }
+
 
     fun bottomNavListener() {
         val bottomNavView = findViewById<BottomNavigationView>(R.id.bottomNavView)

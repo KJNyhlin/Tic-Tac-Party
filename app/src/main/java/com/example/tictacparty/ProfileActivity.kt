@@ -1,5 +1,7 @@
 package com.example.tictacparty
 
+import Function.getHighscore
+import Function.getPlayerObject
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -10,12 +12,18 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
+import com.example.tictacparty.GlobalVariables.player
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 class ProfileActivity : AppCompatActivity() {
 
@@ -54,6 +62,8 @@ class ProfileActivity : AppCompatActivity() {
 
     }
 
+
+
     fun logout() {
         auth.signOut()
         GlobalVariables.loggedInUser = null
@@ -64,6 +74,8 @@ class ProfileActivity : AppCompatActivity() {
         val intent = Intent(this, MainActivity::class.java)
         startActivity(intent)
     }
+
+
 
     fun addLogoutAlertDialog() {
 
@@ -91,16 +103,25 @@ class ProfileActivity : AppCompatActivity() {
 
         //Which rank is missing eg. "#12" We need an function for that
         //And also the text for how many Games played, we need a attribute for that in the player class
-
         if (GlobalVariables.player?.avatarImage != null) {
             profilePicture.setImageResource(GlobalVariables.player!!.avatarImage)
         }
         if (GlobalVariables.player != null) {
+            lifecycleScope.launch {
+                getPlayerObject(player?.userId)
+            }
+
             profileUsername.text = GlobalVariables.player!!.username.capitalize()
             rankingScore.text = "Current Ranking Score: ${GlobalVariables.player!!.mmrScore}"
             gamesPlayed.text = "Games Played: ${GlobalVariables.player!!.gamesPlayed}"
             gamesWon.text = "Games Won: ${GlobalVariables.player!!.wins}"
             gamesLost.text = "Games Lost: ${GlobalVariables.player!!.lost}"
+            lifecycleScope.launch {
+                val sortedScores = getHighscore()
+                var myIndex = sortedScores.indexOfFirst { it.first == GlobalVariables.player?.username }
+                myIndex++
+                whichRank.text = myIndex.toString()
+            }
         }
     }
 
@@ -134,6 +155,8 @@ class ProfileActivity : AppCompatActivity() {
                 else -> false
             }
         }
+
+
 
     }
 }
