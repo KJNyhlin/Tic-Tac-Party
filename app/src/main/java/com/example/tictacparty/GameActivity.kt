@@ -14,13 +14,8 @@ import android.widget.Toast
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
 import androidx.appcompat.app.AlertDialog
-import androidx.core.content.ContextCompat.startActivity
 import com.google.android.gms.tasks.Task
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.android.play.integrity.internal.i
-import com.google.firebase.firestore.DocumentReference
-import com.google.firebase.firestore.toObject
-import com.google.firebase.firestore.DocumentId
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
@@ -57,46 +52,9 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
     val db = com.google.firebase.ktx.Firebase.firestore
     val playersCollection = db.collection("players")
 
-
-    /*override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_game)
-
-
-        iniatilizeViews()
-
-        roomId = intent.getStringExtra("roomId")
-        if(roomId!=null) {
-            fetchRoomAndPlayers(roomId!!)
-            
-            android.os.Handler().postDelayed({
-
-                game = Game(
-                    roomId!!,
-                    playerOne.email,
-                    playerTwo.email,
-                    "ongoing",
-                    mutableListOf("", "", "", "", "", "", "", "", "")
-                )
-                uploadToFirestoreAndSnapshotListener(game)
-
-                currentPlayer = playerOne
-                showGameViews()
-                updateDatabase(game)
-
-            }, 1000)
-
-        }
-        else{
-            val intent = Intent(this, MatchMakingFragment::class.java)
-            startActivity(intent)
-        }
-
-    }*/
-
-    private fun listenForGameUpdates(documentId: String) {
+    private fun setupGameSnapshotListener(roomId: String) {
         val db = Firebase.firestore
-        val gameRef = db.collection("games").document(documentId)
+        val gameRef = db.collection("games").document(roomId)
 
         gameRef.addSnapshotListener { snapshot, e ->
             if (e != null) {
@@ -105,11 +63,9 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
             }
 
             if (snapshot != null && snapshot.exists()) {
-                val updatedGame = snapshot.toObject(Game::class.java)
-                if (updatedGame != null) {
-                    game = updatedGame
+                val game = snapshot.toObject(Game::class.java)
+                if (game != null) {
                     updateUI(game) // Update the UI with the updated game state
-
                 } else {
                     Log.d(TAG, "Current data: null")
                 }
@@ -118,6 +74,28 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
             }
         }
     }
+
+    private fun uploadGameToFirestore(game: Game) {
+        val db = Firebase.firestore
+
+        if (!::playerOne.isInitialized || !::playerTwo.isInitialized) {
+            Log.d("!!!", "Players not initialized yet")
+            return
+        }
+
+        val documentRef = db.collection("games").document(game.documentId)
+
+        documentRef.set(game)
+            .addOnSuccessListener {
+                Log.d("!!!", "Game added to Firestore with document ID: ${game.documentId}")
+                setupGameSnapshotListener(game.documentId)
+            }
+            .addOnFailureListener { e ->
+                Log.d("!!!", "Error adding game to Firestore: $e")
+            }
+    }
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_game)
@@ -135,54 +113,6 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
         }
     }
 
-    /*fun fetchRoomAndPlayers(roomId: String) {
-        val db = FirebaseFirestore.getInstance()
-        val roomRef = db.collection("matchmaking_rooms").document(roomId)
-
-        roomRef.get()
-            .addOnSuccessListener { documentSnapshot ->
-                if (documentSnapshot.exists()) {
-                    val room = documentSnapshot.toObject(MatchmakingRoom::class.java)
-                    if (room != null) {
-                        val player1Id = room.player1Id
-                        val player2Id = room.player2Id
-                        if (player1Id != null && player2Id != null) {
-                            fetchPlayer(player1Id) { player1 ->
-                                if (player1 != null) {
-                                    playerOne = player1
-                                    playerOne.symbol = "X"
-                                    // Player 1 fetched successfully
-                                } else {
-                                    Log.d("!!!", "Player 1 does not exist")
-                                }
-                            }
-                            fetchPlayer(player2Id) { player2 ->
-                                if (player2 != null) {
-                                    playerTwo = player2
-                                    playerTwo.symbol = "O"
-                                    // Player 2 fetched successfully
-                                    //var tempRoomId = roomId
-                                    //if(roomId != null) {
-                                        removeMatchmakingRoom(roomId)
-                                    //}
-                                } else {
-                                    Log.d("!!!", "Player 2 does not exist")
-                                }
-                            }
-                        } else {
-                            Log.d("!!!", "Player IDs are null in room document")
-                        }
-                    } else {
-                        Log.d("!!!", "Room document is null")
-                    }
-                } else {
-                    Log.d("!!!", "Room document does not exist")
-                }
-            }
-            .addOnFailureListener { e ->
-                Log.d("!!!", "Failed to fetch room document: $e")
-            }
-    }*/
 
     fun fetchRoomAndPlayers(roomId: String) {
         val db = FirebaseFirestore.getInstance()
@@ -212,53 +142,6 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
             }
     }
 
-
-    fun uploadToFirestoreAndSnapshotListener(game : Game) {
-
-
-        val db = Firebase.firestore
-
-        if (!::playerOne.isInitialized || !::playerTwo.isInitialized) {
-            Log.d("!!!", "Players not initialized yet")
-            return
-        }
-
-        val documentRef = db.collection("games").document()
-        val documentId = documentRef.id
-
-//        game = Game(
-//            roomId,
-//            playerOne.email,
-//            playerTwo.email,
-//            "ongoing",
-//            mutableListOf("", "", "", "", "", "", "", "", "")
-//        )
-
-        documentRef.set(game)
-            .addOnSuccessListener {
-                Log.d("!!!", "\"Game added to Firestore with document ID: $documentId")
-            }
-            .addOnFailureListener { e ->
-                Log.d("!!!", " Error adding game to Firestore : ")
-            }
-        Log.d("!!!", "game.document : !: $documentId")
-
-        documentRef.addSnapshotListener { snapshot, e ->
-            if (e != null) {
-                Log.d("!!!", "Listen failed")
-                return@addSnapshotListener
-            }
-            if (snapshot != null && snapshot.exists()) {
-                val game = snapshot.toObject<Game>()
-                Log.d("!!!", game.toString())
-                if (game != null) {
-                    updateUI(game)
-                }
-            } else {
-                Log.d("!!!", "Current data: Null")
-            }
-        }
-    }
 
     fun iniatilizeViews() {
         titleTextView = findViewById(R.id.titleTextView)
@@ -306,7 +189,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     fun switchPlayers() {
-        currentPlayer = if (currentPlayer == playerOne) {
+        currentPlayer = if (currentPlayer.email == playerOne.email) {
             playerTwo
         } else {
             playerOne
@@ -316,30 +199,29 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
     override fun onClick(button: View?) {
         Log.d("!!!", "current player on click${currentPlayer.username}")
         game.apply {
-            //apply gör att man kan göra operationer direkt på ett objekt, i det här fallet game, så slipper man skriva game.filledPos
-            Log.d("!!!", "on click : {$filledPos]")
-            if (status != "ongoing") {
+           if (currentPlayer.email != game.playerOneId && currentPlayer.email != game.playerTwoId) {
+                // If it's not the currentPlayer's turn, exit early and don't process the click
                 return
             }
-            //gameButton1.tag=1, gameButton2.tag=2 osv...
-            //filledPos("","","","X","","","","","O"))
-            //filledPos[clickedPos] fylls i med currentPlayer.symbol = antingen "X" eller "O"
 
+
+            //apply gör att man kan göra operationer direkt på ett objekt, i det här fallet game, så slipper man skriva game.filledPos
+            Log.d("!!!", "on click : {$filledPos]")
 
             val clickedPos = (button?.tag as String).toInt() - 1
-            Log.d("!!!", "clicked Pos : $clickedPos")
-            //if (filledPos[clickedPos] == "") {
             if (filledPos[clickedPos].isEmpty()) {
-                Log.d("!!!", "on click 2 : $filledPos]")
+                nextTurnPlayer = if (currentPlayer.email == playerOneId) playerTwoId else playerOneId
+                Log.d("!!!","CurrentPlayer Email: ${currentPlayer.email}")
+                Log.d("!!!","Player One ID ${playerOneId}")
+                Log.d("!!!","Player Two ID ${playerTwoId}")
+
                 filledPos[clickedPos] = currentPlayer.symbol
-                switchPlayers()
-                updateUI(game)
-                //updateDatabase(game)
-                updateFilledPosInDatabase(game.documentId, clickedPos, filledPos[clickedPos], nextTurnPlayer)
-
                 checkForWinner()
-
-                Log.d("!!!", "$filledPos")
+                if (status == "ongoing") {
+                    switchPlayers() // Move switchPlayers() inside this block
+                }
+                updateUI(game)
+                updateFilledPosInDatabase(game.documentId, clickedPos, filledPos[clickedPos])
             } else {
                 Toast.makeText(
                     this@GameActivity,
@@ -351,7 +233,17 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     fun updateUI(game: Game) {
-        gameInfo.text = game.nextTurnPlayer
+        var userName : String
+        if(game.nextTurnPlayer == playerOne.email){
+            userName = playerOne.username
+        }
+        else if (game.nextTurnPlayer == playerTwo.email){
+            userName = playerTwo.username
+        }
+        else{
+            userName = game.nextTurnPlayer
+        }
+        gameInfo.text = "${currentPlayer.symbol} - ${userName.capitalize()}'s turn"
         //index = filledPos[index]
         //Index(1, 2,  3  4  5  6  7  8  9
         //     ("","","","","","","","",""))
@@ -371,8 +263,8 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
             }
             if (status == "ongoing") {
                 playAgainButton.visibility = View.INVISIBLE
-                gameInfo.text =
-                    "${currentPlayer.symbol} - ${currentPlayer.username.capitalize()}'s turn"
+                //gameInfo.text =
+                  //  "${currentPlayer.symbol} - ${currentPlayer.username.capitalize()}'s turn"
             }
         }
         if (game.status == "finished") {
@@ -430,10 +322,11 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
         Log.d("!!!", "in update $documentId")
 
         val updates = hashMapOf<String, Any>(
-            "playerOne" to game.playerOne,
-            "playerTwo" to game.playerTwo,
+            "playerOne" to game.playerOneId,
+            "playerTwo" to game.playerTwoId,
             "status" to game.status,
-            "filledPos" to game.filledPos
+            "filledPos" to game.filledPos,
+            "nextTurnPlayer" to game.nextTurnPlayer
         )
 
         Log.d("UpdateDatabase", "updateDatabase startar")
@@ -543,44 +436,54 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
             mutableListOf("", "", "", "", "", "", "", "", ""),
             playerOne.username
         )
-        uploadToFirestoreAndSnapshotListener(game)
         currentPlayer = playerOne
         showGameViews()
-        updateDatabase(game)
-        listenForGameUpdates(game.documentId)
+        uploadGameToFirestore(game)
+
+        setupGameSnapshotListener(game.documentId)
         updateUI(game)
+        updateDatabase(game)
+
     }
 
-    fun updateFilledPosInDatabase(documentId: String, index: Int, newValue: String, nextTurnPlayer : String) {
+    fun updateFilledPosInDatabase(documentId: String, index: Int, newValue: String) {
         val db = Firebase.firestore
         val documentRef = db.collection("games").document(documentId)
 
         documentRef.get().addOnSuccessListener { documentSnapshot ->
             if (documentSnapshot.exists()) {
                 val game = documentSnapshot.toObject(Game::class.java)
-                val filledPos = game?.filledPos ?: mutableListOf() // Provide a default value if filledPos is null
-                //filledPos.set(index, newValue) // Update the specific index with the new value
-                filledPos[index] = newValue
+                if (game != null) {
+                    val filledPos = game.filledPos ?: mutableListOf() // Provide a default value if filledPos is null
+                    filledPos[index] = newValue
 
-                val nextTurnPlayer = if (game?.nextTurnPlayer == game?.playerOne) game?.playerTwo else game?.playerOne ?: ""
+                    // Determine the next turn player
+                    val nextTurnPlayer = if (game.nextTurnPlayer == game.playerOneId) game.playerTwoId else game.playerOneId ?: ""
 
-                val updates = hashMapOf<String, Any>(
-                    "filledPos" to filledPos,
-                    "nextTurnPlayer" to (nextTurnPlayer ?: "")
-                )
+                    val updates = hashMapOf<String, Any>(
+                        "filledPos" to filledPos,
+                        "nextTurnPlayer" to nextTurnPlayer
+                    )
 
-                documentRef.update(updates)
-                    .addOnSuccessListener {
-                        Log.d("UpdateFilledPos", "FilledPos successfully updated!")
-                    }
-                    .addOnFailureListener { e ->
-                        Log.w("UpdateFilledPos", "Error updating filledPos", e)
-                    }
+                    documentRef.update(updates)
+                        .addOnSuccessListener {
+                            Log.d("UpdateFilledPos", "FilledPos successfully updated!")
+                        }
+                        .addOnFailureListener { e ->
+                            Log.w("UpdateFilledPos", "Error updating filledPos", e)
+                        }
+                } else {
+                    Log.d("UpdateFilledPos", "Failed to convert document snapshot to Game object")
+                }
             } else {
                 Log.d("UpdateFilledPos", "Document does not exist")
             }
+        }.addOnFailureListener { e ->
+            Log.d("UpdateFilledPos", "Failed to get document snapshot: $e")
         }
     }
+
+
 
 
 }
