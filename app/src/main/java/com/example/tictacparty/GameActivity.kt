@@ -188,46 +188,37 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
 
     }
 
-    fun switchPlayers() {
-        currentPlayer = if (currentPlayer.email == playerOne.email) {
-            playerTwo
-        } else {
-            playerOne
-        }
-    }
-
     override fun onClick(button: View?) {
         Log.d("!!!", "current player on click${currentPlayer.username}")
-        game.apply {
-           if (currentPlayer.email != game.playerOneId && currentPlayer.email != game.playerTwoId) {
-                // If it's not the currentPlayer's turn, exit early and don't process the click
-                return
-            }
+        if(currentPlayer.username == GlobalVariables.player?.username) {
+            game.apply {
+               //if (currentPlayer.email != game.playerOneId && currentPlayer.email != game.playerTwoId) {
+                    // If it's not the currentPlayer's turn, exit early and don't process the click
+                 //   return
+                //}
 
 
-            //apply gör att man kan göra operationer direkt på ett objekt, i det här fallet game, så slipper man skriva game.filledPos
-            Log.d("!!!", "on click : {$filledPos]")
+                //apply gör att man kan göra operationer direkt på ett objekt, i det här fallet game, så slipper man skriva game.filledPos
+                Log.d("!!!", "on click : {$filledPos]")
 
-            val clickedPos = (button?.tag as String).toInt() - 1
-            if (filledPos[clickedPos].isEmpty()) {
-                nextTurnPlayer = if (currentPlayer.email == playerOneId) playerTwoId else playerOneId
-                Log.d("!!!","CurrentPlayer Email: ${currentPlayer.email}")
-                Log.d("!!!","Player One ID ${playerOneId}")
-                Log.d("!!!","Player Two ID ${playerTwoId}")
+                val clickedPos = (button?.tag as String).toInt() - 1
+                if (filledPos[clickedPos].isEmpty()) {
+                    nextTurnPlayer = if (currentPlayer.email == playerOneId) playerTwoId else playerOneId
+                    Log.d("!!!","CurrentPlayer Email: ${currentPlayer.email}")
+                    Log.d("!!!","Player One ID ${playerOneId}")
+                    Log.d("!!!","Player Two ID ${playerTwoId}")
 
-                filledPos[clickedPos] = currentPlayer.symbol
-                checkForWinner()
-                if (status == "ongoing") {
-                    switchPlayers() // Move switchPlayers() inside this block
+                    filledPos[clickedPos] = currentPlayer.symbol
+                    checkForWinner()
+                    updateUI(game)
+                    updateFilledPosInDatabase(game.documentId, clickedPos, filledPos[clickedPos], nextTurnPlayer)
+                } else {
+                    Toast.makeText(
+                        this@GameActivity,
+                        "This place is taken! 😅",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
-                updateUI(game)
-                updateFilledPosInDatabase(game.documentId, clickedPos, filledPos[clickedPos])
-            } else {
-                Toast.makeText(
-                    this@GameActivity,
-                    "This place is taken! 😅",
-                    Toast.LENGTH_SHORT
-                ).show()
             }
         }
     }
@@ -243,6 +234,12 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
         else{
             userName = game.nextTurnPlayer
         }
+        currentPlayer = if (game.nextTurnPlayer == playerOne.email) {
+            playerOne
+        } else {
+            playerTwo
+        }
+
         gameInfo.text = "${currentPlayer.symbol} - ${userName.capitalize()}'s turn"
         //index = filledPos[index]
         //Index(1, 2,  3  4  5  6  7  8  9
@@ -270,11 +267,12 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
         if (game.status == "finished") {
             removeFinishedGames(game)
             playAgainButton.visibility = View.VISIBLE
+            updateUI(game)
             //startActivity(Intent(this,MatchMakingFragment::class.java))
             playAgainButton.setOnClickListener {
 
                 //Temporary, should lead to matchmaking??
-                val intent = Intent(this, MatchMakingFragment::class.java)
+                val intent = Intent(this, MainActivityFragment::class.java)
                 startActivity(intent)
 
             }
@@ -434,7 +432,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
             playerTwo.email,
             "ongoing",
             mutableListOf("", "", "", "", "", "", "", "", ""),
-            playerOne.username
+            playerOne.email
         )
         currentPlayer = playerOne
         showGameViews()
@@ -446,7 +444,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
 
     }
 
-    fun updateFilledPosInDatabase(documentId: String, index: Int, newValue: String) {
+    fun updateFilledPosInDatabase(documentId: String, index: Int, newValue: String, nextTurnPlayer : String) {
         val db = Firebase.firestore
         val documentRef = db.collection("games").document(documentId)
 
@@ -458,7 +456,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
                     filledPos[index] = newValue
 
                     // Determine the next turn player
-                    val nextTurnPlayer = if (game.nextTurnPlayer == game.playerOneId) game.playerTwoId else game.playerOneId ?: ""
+                    //val nextTurnPlayer = if (game.nextTurnPlayer == game.playerOneId) game.playerTwoId else game.playerOneId ?: ""
 
                     val updates = hashMapOf<String, Any>(
                         "filledPos" to filledPos,
