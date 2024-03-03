@@ -52,6 +52,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
     val db = com.google.firebase.ktx.Firebase.firestore
     val playersCollection = db.collection("players")
 
+
     private fun setupGameSnapshotListener(roomId: String) {
         val db = Firebase.firestore
         val gameRef = db.collection("games").document(roomId)
@@ -211,6 +212,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
             val clickedPos = (button?.tag as String).toInt() - 1
             if (filledPos[clickedPos].isEmpty()) {
                 nextTurnPlayer = if (currentPlayer.email == playerOneId) playerTwoId else playerOneId
+                Log.d("!!!","on click ${game.nextTurnPlayer}")
                 Log.d("!!!","CurrentPlayer Email: ${currentPlayer.email}")
                 Log.d("!!!","Player One ID ${playerOneId}")
                 Log.d("!!!","Player Two ID ${playerTwoId}")
@@ -218,7 +220,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
                 filledPos[clickedPos] = currentPlayer.symbol
                 checkForWinner()
                 if (status == "ongoing") {
-                    switchPlayers() // Move switchPlayers() inside this block
+                    switchPlayers() // Move switchPlayers() inside aathis block
                 }
                 updateUI(game)
                 updateFilledPosInDatabase(game.documentId, clickedPos, filledPos[clickedPos])
@@ -244,6 +246,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
             userName = game.nextTurnPlayer
         }
         gameInfo.text = "${currentPlayer.symbol} - ${userName.capitalize()}'s turn"
+        Log.d("!!!","update UI : next turn ${game.nextTurnPlayer}")
         //index = filledPos[index]
         //Index(1, 2,  3  4  5  6  7  8  9
         //     ("","","","","","","","",""))
@@ -268,20 +271,25 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
             }
         }
         if (game.status == "finished") {
+            if(checkForWinner()){
+                gameInfo.text = "${currentPlayer.username.capitalize()} wins"
+            }
+            else if (checkForDraw()){
+                gameInfo.text = "Draw"
+            }
             removeFinishedGames(game)
             playAgainButton.visibility = View.VISIBLE
             //startActivity(Intent(this,MatchMakingFragment::class.java))
             playAgainButton.setOnClickListener {
 
                 //Temporary, should lead to matchmaking??
-                val intent = Intent(this, MatchMakingFragment::class.java)
+                val intent = Intent(this, MainActivity::class.java)
                 startActivity(intent)
-
             }
         }
     }
 
-    fun checkForWinner() {
+    fun checkForWinner() : Boolean {
 
         val winningPos = arrayOf(
             intArrayOf(0, 1, 2),
@@ -302,14 +310,22 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
                     filledPos[i[0]].isNotEmpty()
                 ) {
                     status = "finished"
-                    gameInfo.text = "${currentPlayer.username.capitalize()} wins"
-                } else if (filledPos.none { it.isEmpty() }) {
-                    status = "finished"
-                    gameInfo.text = "Draw"
+                    updateUI(game)
+                    return true
                 }
             }
         }
-        updateUI(game)
+        return false
+    }
+    fun checkForDraw() : Boolean{
+
+        game.apply {  if (filledPos.none { it.isEmpty() }) {
+            status = "finished"
+            return true
+        }
+        return false
+
+        }
     }
 
     private fun updateDatabase(game: Game) {
@@ -329,6 +345,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
             "nextTurnPlayer" to game.nextTurnPlayer
         )
 
+        Log.d("!!!","in updateDatabase ${game.nextTurnPlayer}")
         Log.d("UpdateDatabase", "updateDatabase startar")
 
         documentRef.set(updates)
@@ -434,7 +451,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
             playerTwo.email,
             "ongoing",
             mutableListOf("", "", "", "", "", "", "", "", ""),
-            playerOne.username
+            playerOne.email
         )
         currentPlayer = playerOne
         showGameViews()
@@ -460,6 +477,8 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
                     // Determine the next turn player
                     val nextTurnPlayer = if (game.nextTurnPlayer == game.playerOneId) game.playerTwoId else game.playerOneId ?: ""
 
+                    Log.d("!!!","in updateFilledPos $nextTurnPlayer")
+
                     val updates = hashMapOf<String, Any>(
                         "filledPos" to filledPos,
                         "nextTurnPlayer" to nextTurnPlayer
@@ -482,9 +501,5 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
             Log.d("UpdateFilledPos", "Failed to get document snapshot: $e")
         }
     }
-
-
-
-
 }
 
