@@ -52,6 +52,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
     val db = com.google.firebase.ktx.Firebase.firestore
     val playersCollection = db.collection("players")
 
+
     private fun setupGameSnapshotListener(roomId: String) {
         val db = Firebase.firestore
         val gameRef = db.collection("games").document(roomId)
@@ -190,6 +191,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
 
     override fun onClick(button: View?) {
         Log.d("!!!", "current player on click${currentPlayer.username}")
+
         if(currentPlayer.username == GlobalVariables.player?.username) {
             game.apply {
                //if (currentPlayer.email != game.playerOneId && currentPlayer.email != game.playerTwoId) {
@@ -218,6 +220,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
                         "This place is taken! 😅",
                         Toast.LENGTH_SHORT
                     ).show()
+
                 }
             }
         }
@@ -241,6 +244,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
         }
 
         gameInfo.text = "${currentPlayer.symbol} - ${userName.capitalize()}'s turn"
+        Log.d("!!!","update UI : next turn ${game.nextTurnPlayer}")
         //index = filledPos[index]
         //Index(1, 2,  3  4  5  6  7  8  9
         //     ("","","","","","","","",""))
@@ -265,6 +269,12 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
             }
         }
         if (game.status == "finished") {
+            if(checkForWinner()){
+                gameInfo.text = "${currentPlayer.username.capitalize()} wins"
+            }
+            else if (checkForDraw()){
+                gameInfo.text = "Draw"
+            }
             removeFinishedGames(game)
             playAgainButton.visibility = View.VISIBLE
             updateUI(game)
@@ -272,14 +282,15 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
             playAgainButton.setOnClickListener {
 
                 //Temporary, should lead to matchmaking??
-                val intent = Intent(this, MainActivityFragment::class.java)
-                startActivity(intent)
 
+                val intent = Intent(this, MainActivity::class.java)
+
+                startActivity(intent)
             }
         }
     }
 
-    fun checkForWinner() {
+    fun checkForWinner() : Boolean {
 
         val winningPos = arrayOf(
             intArrayOf(0, 1, 2),
@@ -300,14 +311,22 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
                     filledPos[i[0]].isNotEmpty()
                 ) {
                     status = "finished"
-                    gameInfo.text = "${currentPlayer.username.capitalize()} wins"
-                } else if (filledPos.none { it.isEmpty() }) {
-                    status = "finished"
-                    gameInfo.text = "Draw"
+                    updateUI(game)
+                    return true
                 }
             }
         }
-        updateUI(game)
+        return false
+    }
+    fun checkForDraw() : Boolean{
+
+        game.apply {  if (filledPos.none { it.isEmpty() }) {
+            status = "finished"
+            return true
+        }
+        return false
+
+        }
     }
 
     private fun updateDatabase(game: Game) {
@@ -327,6 +346,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
             "nextTurnPlayer" to game.nextTurnPlayer
         )
 
+        Log.d("!!!","in updateDatabase ${game.nextTurnPlayer}")
         Log.d("UpdateDatabase", "updateDatabase startar")
 
         documentRef.set(updates)
@@ -458,6 +478,8 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
                     // Determine the next turn player
                     //val nextTurnPlayer = if (game.nextTurnPlayer == game.playerOneId) game.playerTwoId else game.playerOneId ?: ""
 
+                    Log.d("!!!","in updateFilledPos $nextTurnPlayer")
+
                     val updates = hashMapOf<String, Any>(
                         "filledPos" to filledPos,
                         "nextTurnPlayer" to nextTurnPlayer
@@ -480,9 +502,5 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
             Log.d("UpdateFilledPos", "Failed to get document snapshot: $e")
         }
     }
-
-
-
-
 }
 
