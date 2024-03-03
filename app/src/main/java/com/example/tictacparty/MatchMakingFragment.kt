@@ -1,5 +1,6 @@
 package com.example.tictacparty
 
+import Function.removeMatchmakingRoom
 import android.content.Intent
 import android.graphics.drawable.AnimationDrawable
 import android.os.Bundle
@@ -182,26 +183,18 @@ class MatchMakingFragment() : Fragment() {
     }
 
     fun transitionToGameActivity(room: MatchmakingRoom) {
-        // Transition to GameActivity using Intent
-        val intent = Intent(requireActivity(), GameActivity::class.java)
-        intent.putExtra("roomId", room.roomId)
-        intent.putExtra("player1Id", room.player1Id)
-        intent.putExtra("player2Id", room.player2Id)
-        Log.d("!!!", "Room id : ${room.roomId}roomId: $player1Id $player2Id")
-        startActivity(intent)
-    }
-
-    fun removeMatchmakingRoom(roomId: String) {
-        val db = FirebaseFirestore.getInstance()
-        val roomRef = db.collection("matchmaking_rooms").document(roomId)
-
-        roomRef.delete()
-            .addOnSuccessListener {
-                // Room document deleted successfully
-            }
-            .addOnFailureListener { e ->
-                // Handle failure to delete room document
-            }
+        if(room != null) {
+            // Transition to GameActivity using Intent
+            val intent = Intent(requireActivity(), GameActivity::class.java)
+            intent.putExtra("roomId", room.roomId)
+            intent.putExtra("player1Id", room.player1Id)
+            intent.putExtra("player2Id", room.player2Id)
+            Log.d("!!!", "Room id : ${room.roomId}roomId: $player1Id $player2Id")
+            startActivity(intent)
+        }
+        else {
+            Log.e("Error", "Room is null")
+        }
     }
 
     fun startTimer(roomId: String) {

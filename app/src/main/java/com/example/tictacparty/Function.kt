@@ -77,4 +77,17 @@ import com.google.firebase.firestore.FirebaseFirestore
                 }
             }
         }
+
+        fun removeMatchmakingRoom(roomId: String) {
+            val db = FirebaseFirestore.getInstance()
+            val roomRef = db.collection("matchmaking_rooms").document(roomId)
+
+            roomRef.delete()
+                .addOnSuccessListener {
+                    // Room document deleted successfully
+                }
+                .addOnFailureListener { e ->
+                    // Handle failure to delete room document
+                }
+        }
     }

@@ -1,5 +1,6 @@
 package com.example.tictacparty
 
+import Function.removeMatchmakingRoom
 import android.content.ContentValues.TAG
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
@@ -57,7 +58,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
     val playersCollection = db.collection("players")
 
 
-    override fun onCreate(savedInstanceState: Bundle?) {
+    /*override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_game)
 
@@ -84,14 +85,57 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
                 updateDatabase(game)
 
             }, 1000)
+
         }
         else{
             val intent = Intent(this, MatchMakingFragment::class.java)
             startActivity(intent)
         }
 
+    }*/
+
+    private fun listenForGameUpdates(documentId: String) {
+        val db = Firebase.firestore
+        val gameRef = db.collection("games").document(documentId)
+
+        gameRef.addSnapshotListener { snapshot, e ->
+            if (e != null) {
+                Log.w(TAG, "Listen failed", e)
+                return@addSnapshotListener
+            }
+
+            if (snapshot != null && snapshot.exists()) {
+                val updatedGame = snapshot.toObject(Game::class.java)
+                if (updatedGame != null) {
+                    game = updatedGame
+                    updateUI(game) // Update the UI with the updated game state
+
+                } else {
+                    Log.d(TAG, "Current data: null")
+                }
+            } else {
+                Log.d(TAG, "Current data: null")
+            }
+        }
     }
-    fun fetchRoomAndPlayers(roomId: String) {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_game)
+
+        iniatilizeViews()
+
+        roomId = intent.getStringExtra("roomId")
+        if (roomId != null) {
+            fetchRoomAndPlayers(roomId!!)
+        } else {
+            val intent = Intent(this, MatchMakingFragment::class.java)
+            startActivity(intent)
+            finish() // Finish the current activity to prevent further execution
+            return
+        }
+    }
+
+    /*fun fetchRoomAndPlayers(roomId: String) {
         val db = FirebaseFirestore.getInstance()
         val roomRef = db.collection("matchmaking_rooms").document(roomId)
 
@@ -117,6 +161,10 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
                                     playerTwo = player2
                                     playerTwo.symbol = "O"
                                     // Player 2 fetched successfully
+                                    //var tempRoomId = roomId
+                                    //if(roomId != null) {
+                                        removeMatchmakingRoom(roomId)
+                                    //}
                                 } else {
                                     Log.d("!!!", "Player 2 does not exist")
                                 }
@@ -134,7 +182,36 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
             .addOnFailureListener { e ->
                 Log.d("!!!", "Failed to fetch room document: $e")
             }
+    }*/
+
+    fun fetchRoomAndPlayers(roomId: String) {
+        val db = FirebaseFirestore.getInstance()
+        val roomRef = db.collection("matchmaking_rooms").document(roomId)
+
+        roomRef.get()
+            .addOnSuccessListener { documentSnapshot ->
+                if (documentSnapshot.exists()) {
+                    val room = documentSnapshot.toObject(MatchmakingRoom::class.java)
+                    if (room != null) {
+                        val player1Id = room.player1Id
+                        val player2Id = room.player2Id
+                        if (player1Id != null && player2Id != null) {
+                            fetchPlayers(player1Id, player2Id)
+                        } else {
+                            Log.d("!!!", "Player IDs are null in room document")
+                        }
+                    } else {
+                        Log.d("!!!", "Room document is null")
+                    }
+                } else {
+                    Log.d("!!!", "Room document does not exist")
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.d("!!!", "Failed to fetch room document: $e")
+            }
     }
+
 
     fun uploadToFirestoreAndSnapshotListener(game : Game) {
 
@@ -251,12 +328,14 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
 
             val clickedPos = (button?.tag as String).toInt() - 1
             Log.d("!!!", "clicked Pos : $clickedPos")
-            if (filledPos[clickedPos] == "") {
+            //if (filledPos[clickedPos] == "") {
+            if (filledPos[clickedPos].isEmpty()) {
                 Log.d("!!!", "on click 2 : $filledPos]")
                 filledPos[clickedPos] = currentPlayer.symbol
                 switchPlayers()
                 updateUI(game)
-                updateDatabase(game)
+                //updateDatabase(game)
+                updateFilledPosInDatabase(game.documentId, clickedPos, filledPos[clickedPos], nextTurnPlayer)
 
                 checkForWinner()
 
@@ -272,6 +351,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     fun updateUI(game: Game) {
+        gameInfo.text = game.nextTurnPlayer
         //index = filledPos[index]
         //Index(1, 2,  3  4  5  6  7  8  9
         //     ("","","","","","","","",""))
@@ -429,5 +509,79 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
             username2.text = "${playerTwo.username.capitalize()}"
         }
     }
+
+    fun fetchPlayers(player1Id: String, player2Id: String) {
+        fetchPlayer(player1Id) { player1 ->
+            if (player1 != null) {
+                playerOne = player1
+                playerOne.symbol = "X"
+                fetchPlayer(player2Id) { player2 ->
+                    if (player2 != null) {
+                        playerTwo = player2
+                        playerTwo.symbol = "O"
+                        val tempRoomId = roomId
+                        if(tempRoomId != null) {
+                            removeMatchmakingRoom(tempRoomId)
+                        }
+                        initializeGame()
+                    } else {
+                        Log.d("!!!", "Player 2 does not exist")
+                    }
+                }
+            } else {
+                Log.d("!!!", "Player 1 does not exist")
+            }
+        }
+    }
+
+    fun initializeGame() {
+        game = Game(
+            roomId!!,
+            playerOne.email,
+            playerTwo.email,
+            "ongoing",
+            mutableListOf("", "", "", "", "", "", "", "", ""),
+            playerOne.username
+        )
+        uploadToFirestoreAndSnapshotListener(game)
+        currentPlayer = playerOne
+        showGameViews()
+        updateDatabase(game)
+        listenForGameUpdates(game.documentId)
+        updateUI(game)
+    }
+
+    fun updateFilledPosInDatabase(documentId: String, index: Int, newValue: String, nextTurnPlayer : String) {
+        val db = Firebase.firestore
+        val documentRef = db.collection("games").document(documentId)
+
+        documentRef.get().addOnSuccessListener { documentSnapshot ->
+            if (documentSnapshot.exists()) {
+                val game = documentSnapshot.toObject(Game::class.java)
+                val filledPos = game?.filledPos ?: mutableListOf() // Provide a default value if filledPos is null
+                //filledPos.set(index, newValue) // Update the specific index with the new value
+                filledPos[index] = newValue
+
+                val nextTurnPlayer = if (game?.nextTurnPlayer == game?.playerOne) game?.playerTwo else game?.playerOne ?: ""
+
+                val updates = hashMapOf<String, Any>(
+                    "filledPos" to filledPos,
+                    "nextTurnPlayer" to (nextTurnPlayer ?: "")
+                )
+
+                documentRef.update(updates)
+                    .addOnSuccessListener {
+                        Log.d("UpdateFilledPos", "FilledPos successfully updated!")
+                    }
+                    .addOnFailureListener { e ->
+                        Log.w("UpdateFilledPos", "Error updating filledPos", e)
+                    }
+            } else {
+                Log.d("UpdateFilledPos", "Document does not exist")
+            }
+        }
+    }
+
+
 }
 

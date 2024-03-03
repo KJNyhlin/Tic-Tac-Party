@@ -7,7 +7,9 @@ data class Game(
     val playerOne: String="",
     val playerTwo: String="",
     var status: String="",
-    var filledPos: MutableList<String> = mutableListOf("", "", "", "", "", "", "", "", "")
+    var filledPos: MutableList<String> = mutableListOf("", "", "", "", "", "", "", "", ""),
+    var nextTurnPlayer: String = ""
+
 )
 data class DavidsGame(
     @DocumentId val documentId : String = "",
