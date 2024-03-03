@@ -28,6 +28,7 @@ object GlobalVariables {
     var loggedIn: Boolean = false
     var player: Player? = null
     var opponentPlayer: Player? = null
+    var sayHello : Boolean = true
 }
 
 class MainActivity : AppCompatActivity() {
@@ -135,19 +136,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun toastWelcome() {
+        if(GlobalVariables.sayHello)
         runOnUiThread {
             Toast.makeText(
                 this,
                 "Welcome ${GlobalVariables.player?.username?.capitalize()}",
                 Toast.LENGTH_SHORT
             ).show()
-            /*if (GlobalVariables.player?.username != null) {
-                Toast.makeText(
-                    this,
-                    "Welcome ${GlobalVariables.player?.username?.capitalize()}",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }*/
+            GlobalVariables.sayHello = false
         }
     }
 
