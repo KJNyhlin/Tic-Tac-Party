@@ -58,7 +58,6 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
     val db = com.google.firebase.ktx.Firebase.firestore
     val playersCollection = db.collection("players")
 
-
     override fun onBackPressed() {
         //do nothing
     }
@@ -202,6 +201,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
 
     override fun onClick(button: View?) {
         Log.d("!!!", "current player on click${currentPlayer.username}")
+
         if(currentPlayer.username == GlobalVariables.player?.username) {
             game.apply {
              //apply gör att man kan göra operationer direkt på ett objekt, i det här fallet game, så slipper man skriva game.filledPos
@@ -224,6 +224,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
                         "This place is taken! 😅",
                         Toast.LENGTH_SHORT
                     ).show()
+
                 }
             }
         }
@@ -246,6 +247,14 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
 
         gameInfo.text = "${currentPlayer.symbol} - ${userName.capitalize()}'s turn"
 
+        Log.d("!!!","update UI : next turn ${game.nextTurnPlayer}")
+        //index = filledPos[index]
+        //Index(1, 2,  3  4  5  6  7  8  9
+        //     ("","","","","","","","",""))
+        // Value är vad det finns för värde i filledPos[index] t.ex "X" eller "O"
+        Log.d("!!!", "updateUI()")
+        Log.d("!!!", "current player in ui${currentPlayer.username}")
+
         game.apply {
             for ((index, value) in filledPos.withIndex()) {
                 val button = buttons[index]
@@ -262,8 +271,18 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
             }
         }
         if (game.status == "finished") {
+
+            if(checkForWinner()){
+                gameInfo.text = "${currentPlayer.username.capitalize()} wins"
+            }
+            else if (checkForDraw()){
+                gameInfo.text = "Draw"
+            }
+            removeFinishedGames(game)
+
             playAgainButton.visibility = View.VISIBLE
             playAgainButton.setOnClickListener {
+
                 val intent = Intent(this, MainActivity::class.java)
                 startActivity(intent)
             }
@@ -299,6 +318,18 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     fun checkForWinner() {
+
+                //Temporary, should lead to matchmaking??
+
+                val intent = Intent(this, MainActivity::class.java)
+
+                startActivity(intent)
+            }
+        }
+    }
+
+    fun checkForWinner() : Boolean {
+
 
         val winningPos = arrayOf(
             intArrayOf(0, 1, 2),
@@ -339,6 +370,16 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
             updateUI(game)
         }
     }
+    fun checkForDraw() : Boolean{
+
+        game.apply {  if (filledPos.none { it.isEmpty() }) {
+            status = "finished"
+            return true
+        }
+        return false
+
+        }
+    }
 
     private fun updateDatabase(game: Game) {
 
@@ -357,6 +398,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
             "nextTurnPlayer" to game.nextTurnPlayer
         )
 
+        Log.d("!!!","in updateDatabase ${game.nextTurnPlayer}")
         Log.d("UpdateDatabase", "updateDatabase startar")
 
         documentRef.set(game)
@@ -488,6 +530,8 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
                     val filledPos = game.filledPos ?: mutableListOf() // Provide a default value if filledPos is null
                     filledPos[index] = newValue
 
+
+                    Log.d("!!!","in updateFilledPos $nextTurnPlayer")
                     val updates = hashMapOf<String, Any>(
                         "filledPos" to filledPos,
                         "nextTurnPlayer" to nextTurnPlayer
