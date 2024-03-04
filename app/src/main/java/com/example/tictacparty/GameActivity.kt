@@ -16,6 +16,7 @@ import android.widget.Toast
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat.startActivity
 import com.google.android.gms.tasks.Task
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.firestore.DocumentSnapshot
@@ -58,9 +59,9 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
     val db = com.google.firebase.ktx.Firebase.firestore
     val playersCollection = db.collection("players")
 
-    override fun onBackPressed() {
-        //do nothing
-    }
+//    override fun onBackPressed() {
+//        //do nothing
+//    }
     private fun setupGameSnapshotListener(roomId: String) {
         val db = Firebase.firestore
         val gameRef = db.collection("games").document(roomId)
@@ -278,7 +279,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
             else if (checkForDraw()){
                 gameInfo.text = "Draw"
             }
-            removeFinishedGames(game)
+
 
             playAgainButton.visibility = View.VISIBLE
             playAgainButton.setOnClickListener {
@@ -317,17 +318,6 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
             }
     }
 
-    fun checkForWinner() {
-
-                //Temporary, should lead to matchmaking??
-
-                val intent = Intent(this, MainActivity::class.java)
-
-                startActivity(intent)
-            }
-        }
-    }
-
     fun checkForWinner() : Boolean {
 
 
@@ -354,6 +344,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
                     status = "finished"
                     gameInfo.text = "${currentPlayer.username.capitalize()} wins"
                     gameFinished = true
+                    return true
                     break
                 }
             }
@@ -362,6 +353,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
                 status = "finished"
                 gameInfo.text = "Draw"
                 gameFinished = true
+                return false
             }
         }
 
@@ -369,6 +361,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
             updateDatabase(game)
             updateUI(game)
         }
+        return false
     }
     fun checkForDraw() : Boolean{
 
