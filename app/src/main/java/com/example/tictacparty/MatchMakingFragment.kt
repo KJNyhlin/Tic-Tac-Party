@@ -114,6 +114,7 @@ class MatchMakingFragment() : Fragment() {
                     room = document.toObject(MatchmakingRoom::class.java)
                     if (room.player2Id.isEmpty()) {
                         // Found an available room with only one player, join this room
+
                         joinRoom(document.id)
                         return@addOnSuccessListener
                     }

@@ -36,8 +36,7 @@ class ProfileActivity : AppCompatActivity() {
     lateinit var gamesPlayed: TextView
     lateinit var gamesWon: TextView
     lateinit var gamesLost: TextView
-    lateinit var recentGames: TextView
-    lateinit var recentGamesRecyclerView: RecyclerView
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         auth = Firebase.auth

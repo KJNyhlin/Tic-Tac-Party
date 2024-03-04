@@ -136,14 +136,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun toastWelcome() {
-        if(GlobalVariables.sayHello)
-        runOnUiThread {
-            Toast.makeText(
-                this,
-                "Welcome ${GlobalVariables.player?.username?.capitalize()}",
-                Toast.LENGTH_SHORT
-            ).show()
-            GlobalVariables.sayHello = false
+        if(GlobalVariables.sayHello){
+            runOnUiThread {
+                Toast.makeText(
+                    this,
+                    "Welcome ${GlobalVariables.player?.username?.capitalize()}",
+                    Toast.LENGTH_SHORT
+                ).show()
+                GlobalVariables.sayHello = false
+            }
         }
     }
 
