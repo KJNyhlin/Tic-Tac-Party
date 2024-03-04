@@ -29,9 +29,6 @@ class LeaderboardActivity : AppCompatActivity() {
         }
         bottomNavListener()
     }
-
-
-
     fun bottomNavListener() {
         val bottomNavView = findViewById<BottomNavigationView>(R.id.bottomNavView)
 
@@ -44,7 +41,6 @@ class LeaderboardActivity : AppCompatActivity() {
                     startActivity(intent)
                     true
                 }
-
                 R.id.navigation_leaderboard -> {
                     // Koden som körs när "leaderboard"-knappen klickas på
                     val intent = Intent(this, LeaderboardActivity::class.java)
@@ -62,6 +58,5 @@ class LeaderboardActivity : AppCompatActivity() {
                 else -> false
             }
         }
-
     }
 }

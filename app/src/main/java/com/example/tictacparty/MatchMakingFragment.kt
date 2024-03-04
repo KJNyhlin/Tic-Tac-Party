@@ -100,7 +100,7 @@ class MatchMakingFragment() : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-
+        createOrJoinRoom()
     }
 
     fun createOrJoinRoom() {
