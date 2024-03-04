@@ -261,7 +261,12 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
             playerTwo
         }
 
-        gameInfo.text = "${currentPlayer.symbol} - ${userName.capitalize()}'s turn"
+        if(currentPlayer.username==GlobalVariables.player?.username)
+        {
+            gameInfo.text = "${currentPlayer.symbol} - Your turn"
+
+        }
+        else {gameInfo.text = "${currentPlayer.symbol} - ${userName.capitalize()}'s turn"}
 
         game.apply {
             for ((index, value) in filledPos.withIndex()) {
@@ -295,10 +300,10 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
             }
             removeFinishedGames(game){
                 updateUIAfterGameFinished(game)
+//                startTimerGoToMainActivity()
             }
         }
     }
-
 
     fun updateUIAfterGameFinished(game: Game) {
         val db = FirebaseFirestore.getInstance()
@@ -323,7 +328,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
                 Log.d(TAG, "Failed to get document snapshot: $e")
             }
     }
-
+    
     fun checkForWinner() {
 
         val winningPos = arrayOf(
@@ -460,14 +465,26 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
     fun showGameViews() {
 
         if (playerOne != null && playerTwo != null) {
-            player1_avatar.setImageResource(playerOne.avatarImage)
-            username1.text = "${playerOne.username.capitalize()}"
-
-            player2_avatar.setImageResource(playerTwo.avatarImage)
-            username2.text = "${playerTwo.username.capitalize()}"
+//            player1_avatar.setImageResource(playerOne.avatarImage)
+//            username1.text = "${playerOne.username.capitalize()}"
+//
+//            player2_avatar.setImageResource(playerTwo.avatarImage)
+//            username2.text = "${playerTwo.username.capitalize()}"
+            if(GlobalVariables!=null) {
+                if (GlobalVariables.player!!.email == game.playerOneId) {
+                    player1_avatar.setImageResource(playerOne.avatarImage)
+                    username1.text = "${playerOne.username.capitalize()}"
+                    player2_avatar.setImageResource(playerTwo.avatarImage)
+                    username2.text = "${playerTwo.username.capitalize()}"
+                } else if (GlobalVariables.player!!.email == game.playerTwoId) {
+                    player1_avatar.setImageResource(playerTwo.avatarImage)
+                    username1.text = "${playerTwo.username.capitalize()}"
+                    player2_avatar.setImageResource(playerOne.avatarImage)
+                    username2.text = "${playerOne.username.capitalize()}"
+                }
+            }
         }
     }
-
     fun fetchPlayers(player1Id: String, player2Id: String) {
         fetchPlayer(player1Id) { player1 ->
             if (player1 != null) {
