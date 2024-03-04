@@ -51,8 +51,6 @@ class ProfileActivity : AppCompatActivity() {
         gamesPlayed = findViewById(R.id.gamesPlayedText)
         gamesWon = findViewById(R.id.gamesWonText)
         gamesLost = findViewById(R.id.gamesLostText)
-        recentGames = findViewById(R.id.recentGamesText)
-        recentGamesRecyclerView = findViewById(R.id.recentGamesRecyclerView)
         logOutImage = findViewById<ImageView>(R.id.logoutImage)
 
         updateProfile()

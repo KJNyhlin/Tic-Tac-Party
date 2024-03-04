@@ -35,8 +35,8 @@
             android:layout_height="563dp">
 
             <FrameLayout
-                android:layout_width="341dp"
-                android:layout_height="536dp"
+                android:layout_width="332dp"
+                android:layout_height="460dp"
                 android:background="@drawable/rounded_button"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -46,16 +46,17 @@
                 app:layout_constraintVertical_bias="1.0">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="322dp"
-                    android:layout_height="590dp">
+                    android:layout_width="313dp"
+                    android:layout_height="545dp">
 
                     <TextView
                         android:id="@+id/profileUsername"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="80dp"
+                        android:layout_width="148dp"
+                        android:layout_height="38dp"
+                        android:layout_marginTop="50dp"
                         android:fontFamily="@font/roboto"
                         android:text="Coraline"
+                        android:textAlignment="center"
                         android:textSize="20sp"
                         android:textStyle="bold"
                         app:layout_constraintEnd_toEndOf="parent"
@@ -65,8 +66,9 @@
 
                     <ImageView
                         android:id="@+id/crownPicture"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_width="70dp"
+                        android:layout_height="70dp"
+                        android:layout_marginStart="10dp"
                         android:layout_marginTop="10dp"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@+id/profileUsername"
@@ -80,7 +82,7 @@
                         android:layout_marginTop="10dp"
                         android:fontFamily="@font/roboto"
                         android:text="#1"
-                        android:textSize="24sp"
+                        android:textSize="20sp"
                         android:textStyle="bold"
                         app:layout_constraintStart_toEndOf="@+id/crownPicture"
                         app:layout_constraintTop_toBottomOf="@+id/profileUsername" />
@@ -93,7 +95,7 @@
                         android:layout_marginTop="8dp"
                         android:fontFamily="@font/roboto"
                         android:text="World Rank"
-                        android:textSize="16sp"
+                        android:textSize="20sp"
                         android:textStyle="bold"
                         app:layout_constraintStart_toEndOf="@+id/crownPicture"
                         app:layout_constraintTop_toBottomOf="@+id/whichRank" />
@@ -102,8 +104,8 @@
                         android:id="@+id/rankingScoreText"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:layout_marginTop="16dp"
+                        android:layout_marginStart="12dp"
+                        android:layout_marginTop="20dp"
                         android:fontFamily="@font/roboto"
                         android:text="Current Ranking Score: 250 "
                         android:textSize="16sp"
@@ -115,8 +117,8 @@
                         android:id="@+id/gamesPlayedText"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:layout_marginTop="12dp"
+                        android:layout_marginStart="12dp"
+                        android:layout_marginTop="30dp"
                         android:fontFamily="@font/roboto"
                         android:text="Games Played: 100"
                         android:textSize="16sp"
@@ -127,8 +129,8 @@
                         android:id="@+id/gamesWonText"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:layout_marginTop="12dp"
+                        android:layout_marginStart="12dp"
+                        android:layout_marginTop="30dp"
                         android:fontFamily="@font/roboto"
                         android:text="Games Won: 60"
                         android:textSize="16sp"
@@ -139,48 +141,27 @@
                         android:id="@+id/gamesLostText"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:layout_marginTop="12dp"
+                        android:layout_marginStart="12dp"
+                        android:layout_marginTop="30dp"
                         android:fontFamily="@font/roboto"
                         android:text="Games Lost: 10"
                         android:textSize="16sp"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@+id/gamesWonText" />
 
-                    <TextView
-                        android:id="@+id/recentGamesText"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:layout_marginTop="20dp"
-                        android:fontFamily="@font/roboto"
-                        android:text="Last 5 Games"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/gamesLostText" />
-
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/recentGamesRecyclerView"
-                        android:layout_width="299dp"
-                        android:layout_height="145dp"
-                        android:layout_marginEnd="3dp"
-                        android:layout_marginBottom="80dp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintHorizontal_bias="0.0"
-                        app:layout_constraintStart_toStartOf="@+id/recentGamesText" />
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </FrameLayout>
 
             <ImageView
                 android:id="@+id/profilePicture"
-                android:layout_width="123dp"
-                android:layout_height="109dp"
+                android:layout_width="150dp"
+                android:layout_height="125dp"
+                android:layout_marginTop="28dp"
                 android:elevation="100dp"
                 android:outlineAmbientShadowColor="#000000"
                 android:outlineSpotShadowColor="#000000"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.497"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:srcCompat="@drawable/avatar_9" />

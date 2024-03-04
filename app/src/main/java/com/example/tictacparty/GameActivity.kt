@@ -480,9 +480,5 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
             Log.d("UpdateFilledPos", "Failed to get document snapshot: $e")
         }
     }
-
-
-
-
 }
 
