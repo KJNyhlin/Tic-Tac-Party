@@ -34,6 +34,7 @@ class LeaderboardAdapter(private val leaderboardData: List<Any>) :
         } else if (data is LeaderboardPlayer) {
             holder.usernameTextView.text = data.username
             holder.mmrTextView.text = data.mmrScore.toString()
+            holder.profileImageView.setImageResource(data.avatarImage)
         }
         holder.rankingTextView.text = (position + 1).toString()
     }

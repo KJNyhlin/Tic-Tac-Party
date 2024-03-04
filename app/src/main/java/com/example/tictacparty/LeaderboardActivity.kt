@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
-data class LeaderboardPlayer(val username: String, val mmrScore: Int)
+data class LeaderboardPlayer(val username: String, val mmrScore: Int, val avatarImage: Int)
 class LeaderboardActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -25,32 +25,33 @@ class LeaderboardActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             val sortedHighscore = getHighscore()
-            val leaderboardData = sortedHighscore.map { LeaderboardPlayer(it.first, it.second) }
+            val leaderboardData = sortedHighscore.map { LeaderboardPlayer(it.first, it.second, it.third) }
             recyclerView.adapter = LeaderboardAdapter(leaderboardData)
 
 
             //Printing to log for debuging
             for(item in sortedHighscore){
-                Log.d("!!!", "Name: ${item.first}, Score: ${item.second}")
+                Log.d("!!!", "Name: ${item.first}, Score: ${item.second}, Avatar: ${item.third}")
             }
 
         }
         bottomNavListener()
     }
 
-    suspend fun getHighscore() : List<Pair<String, Int>> {
+    suspend fun getHighscore() : List<Triple<String, Int, Int>> {
         return suspendCoroutine { continuation ->
             val db = FirebaseFirestore.getInstance()
             val playersCollection = db.collection("players")
             playersCollection
                 .get()
                 .addOnSuccessListener { documents ->
-                    val highScore = mutableListOf<Pair<String, Int>>()
+                    val highScore = mutableListOf<Triple<String, Int, Int>>()
                     for (document in documents) {
                         // Convert the document data to a Player object
                         val userName = document.getString("username") ?: ""
                         val mmrScore = document.getLong("mmrScore")?.toInt() ?: 0
-                        val userPair = Pair(userName, mmrScore)
+                        val avatarImage = document.getLong("avatarImage")?.toInt() ?: 0
+                        val userPair = Triple(userName, mmrScore, avatarImage)
                         highScore.add(userPair)
                     }
                     val sortedList = highScore.sortedByDescending { it.second }
