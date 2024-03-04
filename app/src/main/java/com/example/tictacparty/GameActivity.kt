@@ -1,6 +1,7 @@
 package com.example.tictacparty
 
 import Function.removeMatchmakingRoom
+import android.annotation.SuppressLint
 import android.content.ContentValues.TAG
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
@@ -59,9 +60,10 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
     val db = com.google.firebase.ktx.Firebase.firestore
     val playersCollection = db.collection("players")
 
-//    override fun onBackPressed() {
-//        //do nothing
-//    }
+    @SuppressLint("MissingSuperCall")
+    override fun onBackPressed() {
+        //do nothing
+    }
     private fun setupGameSnapshotListener(roomId: String) {
         val db = Firebase.firestore
         val gameRef = db.collection("games").document(roomId)
