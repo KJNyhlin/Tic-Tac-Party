@@ -11,9 +11,5 @@ data class Game(
     var nextTurnPlayer: String = ""
 
 )
-data class DavidsGame(
-    @DocumentId val documentId : String = "",
-    var filledPos: MutableList<String>?=null
-)
 {
 }
