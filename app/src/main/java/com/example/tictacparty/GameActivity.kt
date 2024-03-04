@@ -53,6 +53,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
     lateinit var gameInfo: TextView
     lateinit var exitImage: ImageView
     lateinit var helpImage: ImageView
+    var gameResult = ""
     var roomId:String?=""
     lateinit var game: Game
     var buttons = mutableListOf<ImageButton>()
@@ -232,13 +233,17 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     fun updateUI(game: Game) {
+        var nonActivePlayerUsername : String
         var userName: String
         if (game.nextTurnPlayer == playerOne.email) {
             userName = playerOne.username
+            nonActivePlayerUsername= playerTwo.username
         } else if (game.nextTurnPlayer == playerTwo.email) {
             userName = playerTwo.username
+            nonActivePlayerUsername= playerOne.username
         } else {
             userName = game.nextTurnPlayer
+            nonActivePlayerUsername = "Unknown"
         }
         currentPlayer = if (game.nextTurnPlayer == playerOne.email) {
             playerOne
@@ -265,6 +270,11 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
         }
         if (game.status == "finished") {
             playAgainButton.visibility = View.VISIBLE
+            if(gameResult == "Draw"){
+                gameInfo.text = "Game over, its draw"
+            } else {
+                gameInfo.text = "${nonActivePlayerUsername} win!"
+            }
             playAgainButton.setOnClickListener {
                 val intent = Intent(this, MainActivity::class.java)
                 startActivity(intent)
@@ -324,6 +334,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
                 ) {
                     status = "finished"
                     gameInfo.text = "${currentPlayer.username.capitalize()} wins"
+                    gameResult = "Win"
                     gameFinished = true
                     break
                 }
@@ -331,6 +342,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
 
             if (!gameFinished && filledPos.none { it.isEmpty() }) {
                 status = "finished"
+                gameResult = "Draw"
                 gameInfo.text = "Draw"
                 gameFinished = true
             }
