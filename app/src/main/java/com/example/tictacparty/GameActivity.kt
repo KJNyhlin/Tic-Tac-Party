@@ -27,6 +27,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.util.Timer
+import java.util.TimerTask
 
 
 class GameActivity : AppCompatActivity(), View.OnClickListener {
@@ -282,7 +284,6 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
                 gameInfo.text = "Draw"
             }
 
-
             playAgainButton.visibility = View.VISIBLE
             playAgainButton.setOnClickListener {
 
@@ -319,6 +320,21 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
                 Log.d(TAG, "Failed to get document snapshot: $e")
             }
     }
+//    fun startTimerGoToMainActivity(){
+//        val timer = Timer()
+//        var seconds = 0
+//        timer.scheduleAtFixedRate(object : TimerTask() {
+//            override fun run() {
+//                seconds++
+//                if (seconds > 5) {
+//                     val intent = Intent(this@GameActivity, MainActivity::class.java)
+//                    startActivity(intent)
+//                    timer.cancel()
+//                }
+//            }
+//        }, 0, 1000)
+//    }
+
 
     fun checkForWinner() : Boolean {
 
@@ -346,7 +362,6 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
                     status = "finished"
                     gameInfo.text = "${currentPlayer.username.capitalize()} wins"
                     gameFinished = true
-                    return true
                     break
                 }
             }
@@ -360,6 +375,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
         }
 
         if (gameFinished) {
+            return true
             updateDatabase(game)
             updateUI(game)
         }
@@ -415,9 +431,8 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
                 }
             }
             .addOnFailureListener {
-                Log.e(TAG, "Failed to remove game from Firestore", it)
+                Log.e("!!!", "Failed to remove game from Firestore", it)
             }
-
     }
 
     fun fetchPlayer(playerId: String, onComplete: (Player?) -> Unit) {
@@ -468,6 +483,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
 
             player2_avatar.setImageResource(playerTwo.avatarImage)
             username2.text = "${playerTwo.username.capitalize()}"
+
         }
     }
 
