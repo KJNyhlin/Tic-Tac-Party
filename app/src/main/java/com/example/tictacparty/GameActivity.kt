@@ -4,6 +4,7 @@ import Function.removeMatchmakingRoom
 import android.annotation.SuppressLint
 import android.content.ContentValues.TAG
 import android.content.Intent
+import android.graphics.Typeface
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
@@ -17,7 +18,7 @@ import android.widget.Toast
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
 import androidx.appcompat.app.AlertDialog
-import androidx.core.content.ContextCompat.startActivity
+import androidx.core.content.ContextCompat
 import com.google.android.gms.tasks.Task
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.firestore.DocumentSnapshot
@@ -27,8 +28,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.util.Timer
-import java.util.TimerTask
 
 
 class GameActivity : AppCompatActivity(), View.OnClickListener {
@@ -56,16 +55,25 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
     lateinit var gameInfo: TextView
     lateinit var exitImage: ImageView
     lateinit var helpImage: ImageView
+    var gameResult = ""
     var roomId:String?=""
     lateinit var game: Game
     var buttons = mutableListOf<ImageButton>()
     val db = com.google.firebase.ktx.Firebase.firestore
     val playersCollection = db.collection("players")
 
+
     @SuppressLint("MissingSuperCall")
     override fun onBackPressed() {
         //do nothing
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        // Nullify the game variable to release its memory
+        game = Game()
+    }
+
     private fun setupGameSnapshotListener(roomId: String) {
         val db = Firebase.firestore
         val gameRef = db.collection("games").document(roomId)
@@ -82,6 +90,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
                     game = updatedGame
                     updateUI(game) // Update the UI with the updated game state
                     Log.d("!!!", "updateUI is run in snapshotListener")
+                    checkForWinner()
                 } else {
                     Log.d(TAG, "Current data: null")
                 }
@@ -206,10 +215,9 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
 
     override fun onClick(button: View?) {
         Log.d("!!!", "current player on click${currentPlayer.username}")
-
         if(currentPlayer.username == GlobalVariables.player?.username) {
             game.apply {
-             //apply gör att man kan göra operationer direkt på ett objekt, i det här fallet game, så slipper man skriva game.filledPos
+                //apply gör att man kan göra operationer direkt på ett objekt, i det här fallet game, så slipper man skriva game.filledPos
                 Log.d("!!!", "on click : {$filledPos]")
 
                 val clickedPos = (button?.tag as String).toInt() - 1
@@ -229,20 +237,23 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
                         "This place is taken! 😅",
                         Toast.LENGTH_SHORT
                     ).show()
-
                 }
             }
         }
     }
 
     fun updateUI(game: Game) {
+        var nonActivePlayerUsername : String
         var userName: String
         if (game.nextTurnPlayer == playerOne.email) {
             userName = playerOne.username
+            nonActivePlayerUsername= playerTwo.username
         } else if (game.nextTurnPlayer == playerTwo.email) {
             userName = playerTwo.username
+            nonActivePlayerUsername= playerOne.username
         } else {
             userName = game.nextTurnPlayer
+            nonActivePlayerUsername = "Unknown"
         }
         currentPlayer = if (game.nextTurnPlayer == playerOne.email) {
             playerOne
@@ -256,14 +267,6 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
 
         }
         else {gameInfo.text = "${currentPlayer.symbol} - ${userName.capitalize()}'s turn"}
-
-        Log.d("!!!","update UI : next turn ${game.nextTurnPlayer}")
-        //index = filledPos[index]
-        //Index(1, 2,  3  4  5  6  7  8  9
-        //     ("","","","","","","","",""))
-        // Value är vad det finns för värde i filledPos[index] t.ex "X" eller "O"
-        Log.d("!!!", "updateUI()")
-        Log.d("!!!", "current player in ui${currentPlayer.username}")
 
         game.apply {
             for ((index, value) in filledPos.withIndex()) {
@@ -281,19 +284,19 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
             }
         }
         if (game.status == "finished") {
-
-            if(checkForWinner()){
-                gameInfo.text = "${currentPlayer.username.capitalize()} wins"
+            //playAgainButton.visibility = View.VISIBLE
+            if(gameResult == "Draw"){
+                gameInfo.text = "Game over, its draw"
+            } else {
+                gameInfo.text = "${nonActivePlayerUsername} win!"
             }
-            else if (checkForDraw()){
-                gameInfo.text = "Draw"
-            }
+            gameInfo.setTextColor(ContextCompat.getColor(this, android.R.color.holo_red_dark))
+            gameInfo.setTypeface(null, Typeface.BOLD)
 
-            playAgainButton.visibility = View.VISIBLE
             playAgainButton.setOnClickListener {
-
                 val intent = Intent(this, MainActivity::class.java)
                 startActivity(intent)
+                finish()
             }
             removeFinishedGames(game){
                 updateUIAfterGameFinished(game)
@@ -325,24 +328,8 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
                 Log.d(TAG, "Failed to get document snapshot: $e")
             }
     }
-//    fun startTimerGoToMainActivity(){
-//        val timer = Timer()
-//        var seconds = 0
-//        timer.scheduleAtFixedRate(object : TimerTask() {
-//            override fun run() {
-//                seconds++
-//                if (seconds > 3) {
-//                     val intent = Intent(this@GameActivity, MainActivity::class.java)
-//                    startActivity(intent)
-//                    timer.cancel()
-//                }
-//            }
-//        }, 0, 1000)
-//    }
-
-
-    fun checkForWinner() : Boolean {
-
+    
+    fun checkForWinner() {
 
         val winningPos = arrayOf(
             intArrayOf(0, 1, 2),
@@ -353,7 +340,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
             intArrayOf(2, 5, 8),
             intArrayOf(0, 4, 8),
             intArrayOf(2, 4, 6),
-            )
+        )
 
         var gameFinished = false
 
@@ -366,6 +353,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
                 ) {
                     status = "finished"
                     gameInfo.text = "${currentPlayer.username.capitalize()} wins"
+                    gameResult = "Win"
                     gameFinished = true
                     break
                 }
@@ -373,27 +361,15 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
 
             if (!gameFinished && filledPos.none { it.isEmpty() }) {
                 status = "finished"
+                gameResult = "Draw"
                 gameInfo.text = "Draw"
                 gameFinished = true
-                return false
             }
         }
 
         if (gameFinished) {
-            return true
             updateDatabase(game)
             updateUI(game)
-        }
-        return false
-    }
-    fun checkForDraw() : Boolean{
-
-        game.apply {  if (filledPos.none { it.isEmpty() }) {
-            status = "finished"
-            return true
-        }
-        return false
-
         }
     }
 
@@ -414,7 +390,6 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
             "nextTurnPlayer" to game.nextTurnPlayer
         )
 
-        Log.d("!!!","in updateDatabase ${game.nextTurnPlayer}")
         Log.d("UpdateDatabase", "updateDatabase startar")
 
         documentRef.set(game)
@@ -433,11 +408,18 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
                 CoroutineScope(Dispatchers.Main).launch {
                     delay(5000) // Delay execution for 5 seconds
                     onComplete()
+                    startMainActivity()
                 }
             }
             .addOnFailureListener {
-                Log.e("!!!", "Failed to remove game from Firestore", it)
+                Log.e(TAG, "Failed to remove game from Firestore", it)
             }
+
+    }
+
+    private fun startMainActivity() {
+        val intent = Intent(this, MainActivity::class.java)
+        startActivity(intent)
     }
 
     fun fetchPlayer(playerId: String, onComplete: (Player?) -> Unit) {
@@ -557,8 +539,6 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
                     val filledPos = game.filledPos ?: mutableListOf() // Provide a default value if filledPos is null
                     filledPos[index] = newValue
 
-
-                    Log.d("!!!","in updateFilledPos $nextTurnPlayer")
                     val updates = hashMapOf<String, Any>(
                         "filledPos" to filledPos,
                         "nextTurnPlayer" to nextTurnPlayer
@@ -582,4 +562,3 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
         }
     }
 }
-
