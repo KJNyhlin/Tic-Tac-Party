@@ -5,6 +5,8 @@ import android.content.ContentValues.TAG
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.View
 import android.widget.ImageButton
@@ -19,6 +21,10 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 
 class GameActivity : AppCompatActivity(), View.OnClickListener {
@@ -52,7 +58,9 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
     val db = com.google.firebase.ktx.Firebase.firestore
     val playersCollection = db.collection("players")
 
-
+    override fun onBackPressed() {
+        //do nothing
+    }
     private fun setupGameSnapshotListener(roomId: String) {
         val db = Firebase.firestore
         val gameRef = db.collection("games").document(roomId)
@@ -64,9 +72,11 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
             }
 
             if (snapshot != null && snapshot.exists()) {
-                val game = snapshot.toObject(Game::class.java)
-                if (game != null) {
+                val updatedGame = snapshot.toObject(Game::class.java)
+                if (updatedGame != null) {
+                    game = updatedGame
                     updateUI(game) // Update the UI with the updated game state
+                    Log.d("!!!", "updateUI is run in snapshotListener")
                 } else {
                     Log.d(TAG, "Current data: null")
                 }
@@ -194,13 +204,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
 
         if(currentPlayer.username == GlobalVariables.player?.username) {
             game.apply {
-               //if (currentPlayer.email != game.playerOneId && currentPlayer.email != game.playerTwoId) {
-                    // If it's not the currentPlayer's turn, exit early and don't process the click
-                 //   return
-                //}
-
-
-                //apply gör att man kan göra operationer direkt på ett objekt, i det här fallet game, så slipper man skriva game.filledPos
+             //apply gör att man kan göra operationer direkt på ett objekt, i det här fallet game, så slipper man skriva game.filledPos
                 Log.d("!!!", "on click : {$filledPos]")
 
                 val clickedPos = (button?.tag as String).toInt() - 1
@@ -227,14 +231,12 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     fun updateUI(game: Game) {
-        var userName : String
-        if(game.nextTurnPlayer == playerOne.email){
+        var userName: String
+        if (game.nextTurnPlayer == playerOne.email) {
             userName = playerOne.username
-        }
-        else if (game.nextTurnPlayer == playerTwo.email){
+        } else if (game.nextTurnPlayer == playerTwo.email) {
             userName = playerTwo.username
-        }
-        else{
+        } else {
             userName = game.nextTurnPlayer
         }
         currentPlayer = if (game.nextTurnPlayer == playerOne.email) {
@@ -244,6 +246,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
         }
 
         gameInfo.text = "${currentPlayer.symbol} - ${userName.capitalize()}'s turn"
+
         Log.d("!!!","update UI : next turn ${game.nextTurnPlayer}")
         //index = filledPos[index]
         //Index(1, 2,  3  4  5  6  7  8  9
@@ -251,6 +254,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
         // Value är vad det finns för värde i filledPos[index] t.ex "X" eller "O"
         Log.d("!!!", "updateUI()")
         Log.d("!!!", "current player in ui${currentPlayer.username}")
+
         game.apply {
             for ((index, value) in filledPos.withIndex()) {
                 val button = buttons[index]
@@ -264,11 +268,10 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
             }
             if (status == "ongoing") {
                 playAgainButton.visibility = View.INVISIBLE
-                //gameInfo.text =
-                  //  "${currentPlayer.symbol} - ${currentPlayer.username.capitalize()}'s turn"
             }
         }
         if (game.status == "finished") {
+
             if(checkForWinner()){
                 gameInfo.text = "${currentPlayer.username.capitalize()} wins"
             }
@@ -276,10 +279,45 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
                 gameInfo.text = "Draw"
             }
             removeFinishedGames(game)
+
             playAgainButton.visibility = View.VISIBLE
-            updateUI(game)
-            //startActivity(Intent(this,MatchMakingFragment::class.java))
             playAgainButton.setOnClickListener {
+
+                val intent = Intent(this, MainActivity::class.java)
+                startActivity(intent)
+            }
+            removeFinishedGames(game){
+                updateUIAfterGameFinished(game)
+            }
+        }
+    }
+
+
+    fun updateUIAfterGameFinished(game: Game) {
+        val db = FirebaseFirestore.getInstance()
+        val gameRef = db.collection("games").document(game.documentId)
+
+        gameRef.get()
+            .addOnSuccessListener { documentSnapshot ->
+                if (documentSnapshot.exists()) {
+                    val updatedGame = documentSnapshot.toObject(Game::class.java)
+                    if (updatedGame != null) {
+                        if (updatedGame.status == "finished") {
+                            if (gameInfo.text.isEmpty()) {
+                                gameInfo.text = "Game Over"
+                            }
+                        }
+                    }
+                } else {
+                    Log.d(TAG, "Document does not exist")
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.d(TAG, "Failed to get document snapshot: $e")
+            }
+    }
+
+    fun checkForWinner() {
 
                 //Temporary, should lead to matchmaking??
 
@@ -292,6 +330,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
 
     fun checkForWinner() : Boolean {
 
+
         val winningPos = arrayOf(
             intArrayOf(0, 1, 2),
             intArrayOf(3, 4, 5),
@@ -301,8 +340,10 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
             intArrayOf(2, 5, 8),
             intArrayOf(0, 4, 8),
             intArrayOf(2, 4, 6),
-
             )
+
+        var gameFinished = false
+
         game.apply {
             for (i in winningPos) {
                 if (
@@ -311,12 +352,23 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
                     filledPos[i[0]].isNotEmpty()
                 ) {
                     status = "finished"
-                    updateUI(game)
-                    return true
+                    gameInfo.text = "${currentPlayer.username.capitalize()} wins"
+                    gameFinished = true
+                    break
                 }
             }
+
+            if (!gameFinished && filledPos.none { it.isEmpty() }) {
+                status = "finished"
+                gameInfo.text = "Draw"
+                gameFinished = true
+            }
         }
-        return false
+
+        if (gameFinished) {
+            updateDatabase(game)
+            updateUI(game)
+        }
     }
     fun checkForDraw() : Boolean{
 
@@ -349,7 +401,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
         Log.d("!!!","in updateDatabase ${game.nextTurnPlayer}")
         Log.d("UpdateDatabase", "updateDatabase startar")
 
-        documentRef.set(updates)
+        documentRef.set(game)
             .addOnSuccessListener {
                 Log.d("UpdateDatabase", "Game successfully updated!")
             }
@@ -357,15 +409,18 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
                 Log.w("UpdateDatabase", "Error updating game", e)
             }
     }
-    fun removeFinishedGames(game : Game ){
+    fun removeFinishedGames(game: Game, onComplete: () -> Unit) {
         val db = FirebaseFirestore.getInstance()
         val gameRef = db.collection("games").document(game.documentId)
         gameRef.delete()
             .addOnSuccessListener {
-
+                CoroutineScope(Dispatchers.Main).launch {
+                    delay(5000) // Delay execution for 5 seconds
+                    onComplete()
+                }
             }
             .addOnFailureListener {
-
+                Log.e(TAG, "Failed to remove game from Firestore", it)
             }
 
     }
@@ -475,11 +530,8 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
                     val filledPos = game.filledPos ?: mutableListOf() // Provide a default value if filledPos is null
                     filledPos[index] = newValue
 
-                    // Determine the next turn player
-                    //val nextTurnPlayer = if (game.nextTurnPlayer == game.playerOneId) game.playerTwoId else game.playerOneId ?: ""
 
                     Log.d("!!!","in updateFilledPos $nextTurnPlayer")
-
                     val updates = hashMapOf<String, Any>(
                         "filledPos" to filledPos,
                         "nextTurnPlayer" to nextTurnPlayer
