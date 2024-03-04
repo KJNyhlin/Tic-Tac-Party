@@ -4,6 +4,7 @@ import Function.removeMatchmakingRoom
 import android.annotation.SuppressLint
 import android.content.ContentValues.TAG
 import android.content.Intent
+import android.graphics.Typeface
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
@@ -17,6 +18,7 @@ import android.widget.Toast
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
 import com.google.android.gms.tasks.Task
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.firestore.DocumentSnapshot
@@ -65,6 +67,13 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
     override fun onBackPressed() {
         //do nothing
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        // Nullify the game variable to release its memory
+        game = Game()
+    }
+
     private fun setupGameSnapshotListener(roomId: String) {
         val db = Firebase.firestore
         val gameRef = db.collection("games").document(roomId)
@@ -81,6 +90,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
                     game = updatedGame
                     updateUI(game) // Update the UI with the updated game state
                     Log.d("!!!", "updateUI is run in snapshotListener")
+                    checkForWinner()
                 } else {
                     Log.d(TAG, "Current data: null")
                 }
@@ -269,15 +279,19 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
             }
         }
         if (game.status == "finished") {
-            playAgainButton.visibility = View.VISIBLE
+            //playAgainButton.visibility = View.VISIBLE
             if(gameResult == "Draw"){
                 gameInfo.text = "Game over, its draw"
             } else {
                 gameInfo.text = "${nonActivePlayerUsername} win!"
             }
+            gameInfo.setTextColor(ContextCompat.getColor(this, android.R.color.holo_red_dark))
+            gameInfo.setTypeface(null, Typeface.BOLD)
+
             playAgainButton.setOnClickListener {
                 val intent = Intent(this, MainActivity::class.java)
                 startActivity(intent)
+                finish()
             }
             removeFinishedGames(game){
                 updateUIAfterGameFinished(game)
@@ -389,12 +403,18 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
                 CoroutineScope(Dispatchers.Main).launch {
                     delay(5000) // Delay execution for 5 seconds
                     onComplete()
+                    startMainActivity()
                 }
             }
             .addOnFailureListener {
                 Log.e(TAG, "Failed to remove game from Firestore", it)
             }
 
+    }
+
+    private fun startMainActivity() {
+        val intent = Intent(this, MainActivity::class.java)
+        startActivity(intent)
     }
 
     fun fetchPlayer(playerId: String, onComplete: (Player?) -> Unit) {
