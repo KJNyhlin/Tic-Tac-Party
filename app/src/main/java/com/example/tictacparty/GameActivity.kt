@@ -7,8 +7,6 @@ import android.content.Intent
 import android.graphics.Typeface
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
 import android.view.View
 import android.widget.ImageButton
@@ -49,6 +47,8 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
     lateinit var playerOne: Player
     lateinit var playerTwo: Player
     lateinit var currentPlayer: Player
+    lateinit var opponent: Player
+    var localPlayer = GlobalVariables.player
 
     lateinit var username1: TextView
     lateinit var username2: TextView
@@ -56,11 +56,13 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
     lateinit var exitImage: ImageView
     lateinit var helpImage: ImageView
     var gameResult = ""
+    var localPlayerGivesUp : Boolean = false
     var roomId:String?=""
     lateinit var game: Game
     var buttons = mutableListOf<ImageButton>()
     val db = com.google.firebase.ktx.Firebase.firestore
     val playersCollection = db.collection("players")
+
 
 
     @SuppressLint("MissingSuperCall")
@@ -242,6 +244,72 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
         }
     }
 
+    private fun updateMMRScore(gameResult: String) {
+        /*
+        Vinst mot bättre spelare : 25+ mmr score
+        Förlust mot bättre spelare: 0 mmr score
+        Vinst mot sämre spelare : 10+ mmr score
+        Förlust mot sämre spelare : -5mmr score
+        Oavgjort mot bättre spelare: +1 mmr
+        Oavgjort mot sämre spelare: 0
+        Om man avslutar match: samma som förlust
+        OBS! Likvärdig motspelare = samma som bättre motspelare
+         */
+        if (gameResult == "Draw") {
+            if (opponent.mmrScore >= localPlayer?.mmrScore!!) {
+                localPlayer?.mmrScore = localPlayer?.mmrScore!! + 1
+                Log.d("!!!", "Draw. Opponent is higher ranked, +1 MMR")
+            } else {
+                Log.d("!!!", "Draw. Opponent is lower ranked. ±0")
+            }
+        }
+        else if (gameResult == "Win") {
+            if (currentPlayer.username == localPlayer?.username || localPlayerGivesUp) {
+                // opponent made the last move, ie opponent wins
+                // or local player has quit the game (given up) = opponent wins
+                localPlayer?.lost = localPlayer?.lost!! + 1
+                if (opponent.mmrScore < localPlayer?.mmrScore!!) {
+                    Log.d("!!!", "You lost against an inferior player. -5 MMR")
+                    localPlayer?.mmrScore = localPlayer?.mmrScore!! - 5
+                }
+            } else {
+                // local player wins
+                localPlayer?.wins = localPlayer?.wins!! + 1
+                if (opponent.mmrScore >= localPlayer?.mmrScore!!) {
+                    Log.d("!!!", "You won against a superior player. +25 MMR")
+                    localPlayer?.mmrScore = localPlayer?.mmrScore!! + 25
+                } else {
+                    Log.d("!!!", "You won against an inferior player. +10 MMR")
+                    localPlayer?.mmrScore = localPlayer?.mmrScore!! + 10
+                }
+                }
+            }
+        localPlayer?.gamesPlayed = localPlayer?.gamesPlayed!! + 1
+        val playerCopy = localPlayer!!.copy()
+        updatePlayerInFirestore(playerCopy)
+
+    }
+
+    fun updatePlayerInFirestore(player: Player) {
+        val playerRef = playersCollection.document(player.documentId)
+
+        // Skapa en HashMap med de nya värdena för spelaren
+        val updatedValues = player.toHashMap()
+
+        // Uppdatera dokumentet i Firestore med de nya värdena
+        playerRef.update(updatedValues)
+            .addOnSuccessListener {
+                // Uppdateringen lyckades
+                Log.d("!!!", "Player updated successfully")
+            }
+            .addOnFailureListener { exception ->
+                // Uppdateringen misslyckades, logga felet
+                Log.d("!!!", "Error updating player", exception)
+            }
+    }
+
+
+
     fun updateUI(game: Game) {
         var nonActivePlayerUsername : String
         var userName: String
@@ -286,9 +354,9 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
         if (game.status == "finished") {
             playAgainButton.visibility = View.VISIBLE
             if(gameResult == "Draw"){
-                gameInfo.text = "Game over, its draw"
+                gameInfo.text = "Game over, its a draw"
             } else {
-                gameInfo.text = "${nonActivePlayerUsername} win!"
+                gameInfo.text = "${nonActivePlayerUsername} wins!"
             }
             gameInfo.setTextColor(ContextCompat.getColor(this, android.R.color.holo_red_dark))
             gameInfo.setTypeface(null, Typeface.BOLD)
@@ -351,8 +419,10 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
                     filledPos[i[1]] == filledPos[i[2]] &&
                     filledPos[i[0]].isNotEmpty()
                 ) {
+                    Log.d("!!!", "Den senaste spelaren vinner.")
                     status = "finished"
-                    gameInfo.text = "${currentPlayer.username.capitalize()} wins"
+                    //gameInfo.text = "${currentPlayer.username.capitalize()} wins"
+                    // ovanstående rad visas aldrig för texten uppdateras igen i updateUI
                     gameResult = "Win"
                     gameFinished = true
                     break
@@ -360,9 +430,10 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
             }
 
             if (!gameFinished && filledPos.none { it.isEmpty() }) {
+                Log.d("!!!", "Det blev oavgjort.")
                 status = "finished"
                 gameResult = "Draw"
-                gameInfo.text = "Draw"
+                //gameInfo.text = "Draw" //visas aldrig för texten uppdateras igen i updateUI
                 gameFinished = true
             }
         }
@@ -370,6 +441,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
         if (gameFinished) {
             updateDatabase(game)
             updateUI(game)
+            updateMMRScore(gameResult)
         }
     }
 
@@ -449,6 +521,9 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
             .setIcon(R.drawable.gameboard)
             .setPositiveButton("Yes") { _, _ ->
                 Toast.makeText(this, "You exited!", Toast.LENGTH_SHORT).show()
+                localPlayerGivesUp=true
+                updateMMRScore("Win") // "Win" because it's not a draw
+                //TODO viktigt att avsluta nuvarande game! removeFinishedGame()?
                 val intent = Intent(this, MainActivity::class.java)
                 startActivity(intent)
             }
@@ -494,6 +569,12 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
                     if (player2 != null) {
                         playerTwo = player2
                         playerTwo.symbol = "O"
+                        //checking here which player is the opponent
+                        opponent = if (playerOne.username == GlobalVariables.player?.username) {
+                            playerTwo
+                        } else {
+                            playerOne
+                        }
                         val tempRoomId = roomId
                         if(tempRoomId != null) {
                             removeMatchmakingRoom(tempRoomId)
@@ -522,6 +603,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
         showGameViews()
         uploadGameToFirestore(game)
 
+        addExitDialog()
         setupGameSnapshotListener(game.documentId)
         updateUI(game)
         updateDatabase(game)

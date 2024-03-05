@@ -35,4 +35,35 @@ class Player(
             "symbol" to symbol
         )
     }
+
+    fun copy(
+        documentId: String = this.documentId,
+        email: String = this.email,
+        username: String = this.username,
+        userId: String = this.userId,
+        wins: Int = this.wins,
+        lost: Int = this.lost,
+        gamesPlayed: Int = this.gamesPlayed,
+        avatarImage: Int = this.avatarImage,
+        mmrScore: Int = this.mmrScore,
+        searchingOpponent: Boolean = this.searchingOpponent,
+        searchingOpponentStartTime: Long = this.searchingOpponentStartTime,
+        symbol: String = this.symbol
+    ): Player {
+        return Player(
+            documentId,
+            email,
+            username,
+            userId,
+            wins,
+            lost,
+            gamesPlayed,
+            avatarImage,
+            mmrScore,
+            searchingOpponent,
+            searchingOpponentStartTime,
+            symbol
+        )
+    }
+
 }
