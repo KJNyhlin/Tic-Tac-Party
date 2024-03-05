@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "777015727612",
-    "project_id": "tic-tac-party",
-    "storage_bucket": "tic-tac-party.appspot.com"
+    "project_number": "640714761106",
+    "project_id": "tic-tac-party-31e49",
+    "storage_bucket": "tic-tac-party-31e49.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:777015727612:android:96ee54d0b320863c320e79",
+        "mobilesdk_app_id": "1:640714761106:android:f37bd75cfac1ccf11b174b",
         "android_client_info": {
           "package_name": "com.example.tictacparty"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyCKqOPYYMEfJaygt1LfGJKBeB_VTRCFtUU"
+          "current_key": "AIzaSyB5pDAon3paKJigofiFbDj8IxtV0-YX0vw"
         }
       ],
       "services": {
