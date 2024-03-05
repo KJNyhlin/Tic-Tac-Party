@@ -284,7 +284,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
             }
         }
         if (game.status == "finished") {
-            //playAgainButton.visibility = View.VISIBLE
+            playAgainButton.visibility = View.VISIBLE
             if(gameResult == "Draw"){
                 gameInfo.text = "Game over, its draw"
             } else {
@@ -408,7 +408,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
                 CoroutineScope(Dispatchers.Main).launch {
                     delay(5000) // Delay execution for 5 seconds
                     onComplete()
-                    startMainActivity()
+                    //startMainActivity()
                 }
             }
             .addOnFailureListener {
