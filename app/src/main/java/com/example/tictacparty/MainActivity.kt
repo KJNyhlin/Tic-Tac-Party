@@ -37,51 +37,13 @@ class MainActivity : AppCompatActivity() {
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+
         db = FirebaseFirestore.getInstance()
-        auth = Firebase.auth
-        // Check if the user is logged in
-        if (!GlobalVariables.loggedIn) {
-            if(auth.currentUser == null){
-                val currentActivity = this::class.java.simpleName
-                if (currentActivity != "StartActivity") { // Check if not already in StartActivity
-                    val intent = Intent(this, StartActivity::class.java)
-                    startActivity(intent)
-                    finish() // Finish current activity to prevent returning to it
-                    return // Return to avoid further execution
-                }
-
-            }
-            else {
-                GlobalVariables.loggedIn = true
-                GlobalVariables.loggedInUser = auth.currentUser?.email
-
-                GlobalScope.launch {
-                    val player = getPlayerObject(auth.currentUser?.uid)
-                    player?.let {
-                        GlobalVariables.player = it
-                        toastWelcome()
-                    }
-                }
-            }
-        }
-
-        // Continue with MainActivity initialization
-        val db = Firebase.firestore
-
-        bottomNavListener()
-
-        android.os.Handler().postDelayed({
-            addMainFragment()
-        }, 500)
-        /*db = FirebaseFirestore.getInstance()
         auth = Firebase.auth
 
         if (auth.currentUser != null) {
             GlobalVariables.loggedIn = true
             GlobalVariables.loggedInUser = auth.currentUser?.email
-
             GlobalScope.launch {
                 val player = getPlayerObject(auth.currentUser?.uid)
                 player?.let {
@@ -91,8 +53,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        else //(!GlobalVariables.loggedIn)
-             {
+        if (!GlobalVariables.loggedIn) {
             val intent = Intent(this, StartActivity::class.java)
             startActivity(intent)
         }
@@ -116,7 +77,7 @@ class MainActivity : AppCompatActivity() {
             Log.d("MainActivity", "MainActivityFragment finns inte i backstacken")
         }
 
-*/
+
     }
 
     fun bottomNavListener() {
@@ -157,7 +118,6 @@ class MainActivity : AppCompatActivity() {
         transaction.addToBackStack("mainFragment")
 
         transaction.commit()
-        fragmentManager.executePendingTransactions()
     }
 
 
@@ -176,7 +136,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun toastWelcome() {
-        if(GlobalVariables.sayHello)
+        if(GlobalVariables.sayHello){
             runOnUiThread {
                 Toast.makeText(
                     this,
@@ -185,6 +145,7 @@ class MainActivity : AppCompatActivity() {
                 ).show()
                 GlobalVariables.sayHello = false
             }
+        }
     }
 
 }
