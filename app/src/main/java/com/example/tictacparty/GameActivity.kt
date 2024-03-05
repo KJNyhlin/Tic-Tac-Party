@@ -66,12 +66,30 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
     @SuppressLint("MissingSuperCall")
     override fun onBackPressed() {
         //do nothing
+        showExitDialog()
+    }
+
+    fun showExitDialog(){
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Exit game")
+        builder.setMessage("Are you sure you want to exit the game?")
+        builder.setPositiveButton("Yes") {dialog, _ ->
+            finish()
+        }
+        builder.setNegativeButton("No") {dialog, _ ->
+            dialog.dismiss()
+        }
+        val dialog: AlertDialog = builder.create()
+        dialog.show()
     }
 
     override fun onDestroy() {
         super.onDestroy()
         // Nullify the game variable to release its memory
         game = Game()
+        playerOne = Player()
+        playerTwo = Player()
+        currentPlayer = Player()
     }
 
     private fun setupGameSnapshotListener(roomId: String) {
@@ -284,7 +302,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
             }
         }
         if (game.status == "finished") {
-            playAgainButton.visibility = View.VISIBLE
+            //playAgainButton.visibility = View.VISIBLE
             if(gameResult == "Draw"){
                 gameInfo.text = "Game over, its draw"
             } else {
@@ -408,6 +426,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
                 CoroutineScope(Dispatchers.Main).launch {
                     delay(5000) // Delay execution for 5 seconds
                     onComplete()
+                    playAgainButton.visibility = View.VISIBLE
                     //startMainActivity()
                 }
             }

@@ -48,6 +48,7 @@ class MainActivity : AppCompatActivity() {
                 val player = getPlayerObject(auth.currentUser?.uid)
                 player?.let {
                     GlobalVariables.player = it
+                    Log.d("!!!", "HERE: ${GlobalVariables.player?.documentId}")
                     toastWelcome()
                 }
             }
