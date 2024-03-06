@@ -1,9 +1,9 @@
 package com.example.tictacparty
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -25,12 +25,13 @@ class LeaderboardActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             val sortedHighscore = getHighscore()
-            val leaderboardData = sortedHighscore.map { LeaderboardPlayer(it.first, it.second, it.third) }
+            val leaderboardData =
+                sortedHighscore.map { LeaderboardPlayer(it.first, it.second, it.third) }
             recyclerView.adapter = LeaderboardAdapter(leaderboardData)
 
 
             //Printing to log for debuging
-            for(item in sortedHighscore){
+            for (item in sortedHighscore) {
                 Log.d("!!!", "Name: ${item.first}, Score: ${item.second}, Avatar: ${item.third}")
             }
 
@@ -38,7 +39,7 @@ class LeaderboardActivity : AppCompatActivity() {
         bottomNavListener()
     }
 
-    suspend fun getHighscore() : List<Triple<String, Int, Int>> {
+    suspend fun getHighscore(): List<Triple<String, Int, Int>> {
         return suspendCoroutine { continuation ->
             val db = FirebaseFirestore.getInstance()
             val playersCollection = db.collection("players")
@@ -64,33 +65,34 @@ class LeaderboardActivity : AppCompatActivity() {
         }
     }
 
-    fun bottomNavListener(){
+    fun bottomNavListener() {
         val bottomNavView = findViewById<BottomNavigationView>(R.id.bottomNavView)
 
         bottomNavView.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.navigation_play_game -> {
                     // Koden som körs när "Play game"-knappen klickas på
-                    //temporary solution for testing, should lead to: ???
                     val intent = Intent(this, MainActivity::class.java)
                     startActivity(intent)
                     true
                 }
+
                 R.id.navigation_leaderboard -> {
                     // Koden som körs när "leaderboard"-knappen klickas på
                     val intent = Intent(this, LeaderboardActivity::class.java)
                     startActivity(intent)
                     true
                 }
+
                 R.id.navigation_profile -> {
                     // Koden som körs när "profile"-knappen klickas på
                     val intent = Intent(this, ProfileActivity::class.java)
                     startActivity(intent)
                     true
                 }
+
                 else -> false
             }
         }
-
     }
 }
