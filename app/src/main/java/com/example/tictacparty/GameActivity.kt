@@ -4,7 +4,10 @@ import Function.removeMatchmakingRoom
 import android.annotation.SuppressLint
 import android.content.ContentValues.TAG
 import android.content.Intent
+import android.graphics.Color
 import android.graphics.Typeface
+import android.graphics.drawable.GradientDrawable
+import android.graphics.drawable.LayerDrawable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -338,12 +341,19 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
             playerTwo
         }
 
-        if(currentPlayer.username==GlobalVariables.player?.username)
-        {
+
+        if(currentPlayer.username==GlobalVariables.player?.username) {
+
             gameInfo.text = "${currentPlayer.symbol} - Your turn"
+            setColorPink(player1_avatar)
+            player2_avatar.background=null
 
         }
-        else {gameInfo.text = "${currentPlayer.symbol} - ${userName.capitalize()}'s turn"}
+        else {
+            gameInfo.text = "${currentPlayer.symbol} - ${userName.capitalize()}'s turn"
+            setColorPink(player2_avatar)
+            player1_avatar.background=null
+        }
 
         game.apply {
             for ((index, value) in filledPos.withIndex()) {
@@ -357,26 +367,33 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
                 )
             }
             if (status == "ongoing") {
-                playAgainButton.visibility = View.INVISIBLE
+//                playAgainButton.visibility = View.INVISIBLE
             }
         }
         if (game.status == "finished") {
+//            playAgainButton.visibility = View.VISIBLE
             //Log.d("???", "Rad 362 inuti if (game.status == finished)")
-            playAgainButton.visibility = View.VISIBLE
             if(gameResult == "Draw"){
                 gameInfo.text = "Game over, its a draw"
             } else {
-                gameInfo.text = "${nonActivePlayerUsername} wins!"
+                if(GlobalVariables.player?.username==nonActivePlayerUsername){
+                    gameInfo.text = "You win!"
+                }
+                else{
+                    gameInfo.text = "${nonActivePlayerUsername.capitalize()} wins!"
+                }
+                //gameInfo.text = "${nonActivePlayerUsername.capitalize()} wins!"
             }
             gameInfo.setTextColor(ContextCompat.getColor(this, android.R.color.holo_red_dark))
             gameInfo.setTypeface(null, Typeface.BOLD)
 
-            playAgainButton.setOnClickListener {
-                updateMMRScore(gameResult)
-                val intent = Intent(this, MainActivity::class.java)
-                startActivity(intent)
-                finish()
-            }
+
+//            playAgainButton.setOnClickListener {
+//                val intent = Intent(this, MainActivity::class.java)
+//                startActivity(intent)
+//                finish()
+//            }
+
             //removeFinishedGames(game){
                 updateUIAfterGameFinished(game)
 //                startTimerGoToMainActivity()
@@ -555,7 +572,26 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
                 .setNegativeButton("No") { _, _ ->
                     Toast.makeText(this, "You didn't exit.", Toast.LENGTH_SHORT).show()
 
-                }.create()
+/*
+        val addContactDialog = AlertDialog.Builder(this)
+            .setTitle(" Exit game?")
+            .setMessage("Do you want to exit the game? You will lose points by exiting")
+            .setIcon(R.drawable.gameboard)
+            .setPositiveButton("Yes") { _, _ ->
+                Toast.makeText(this, "You exited!", Toast.LENGTH_SHORT).show()
+                localPlayerGivesUp=true
+                updateMMRScore("Win") // "Win" because it's not a draw
+                //TODO viktigt att avsluta nuvarande game! removeFinishedGame()?
+                val intent = Intent(this, MainActivity::class.java)
+                startActivity(intent)
+                finish()
+            }
+            .setNegativeButton("No") { _, _ ->
+                Toast.makeText(this, "You didn't exit.", Toast.LENGTH_SHORT).show()
+*/
+            }.create()
+
+
 
             exitImage.setOnClickListener {
                 addContactDialog.show()
@@ -583,8 +619,37 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
                     player2_avatar.setImageResource(playerOne.avatarImage)
                     username2.text = "${playerOne.username.capitalize()}"
                 }
+                //setColorPink(player1_avatar)
             }
         }
+    }
+    fun setColorPink(imageView: ImageView) {
+
+            val borderColor = Color.parseColor("#691669")
+            val borderWidth = 10 // Bredden på kanten
+            val paddingSize = 10
+            val border = GradientDrawable()
+            border.setColor(Color.TRANSPARENT) // Bakgrundsfärgen
+            border.setStroke(borderWidth, borderColor)
+            imageView.setPadding(paddingSize, paddingSize, paddingSize,paddingSize)// Kantfärgen och bredden
+
+            imageView.background = border
+
+    }
+    fun setColorPurple(imageView: ImageView) {
+
+        val borderColor = Color.parseColor("#691669")
+        val borderWidth = 10 // Bredden på kanten
+
+        val paddingSize = 10
+
+        val border = GradientDrawable()
+        border.setColor(Color.TRANSPARENT) // Bakgrundsfärgen
+        border.setStroke(borderWidth, borderColor)
+        imageView.setPadding(paddingSize, paddingSize, paddingSize,paddingSize) // Kantfärgen och bredden
+
+        imageView.background = border
+
     }
     fun fetchPlayers(player1Id: String, player2Id: String) {
         fetchPlayer(player1Id) { player1 ->
@@ -601,6 +666,8 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
                         } else {
                             playerOne
                         }
+
+
                         val tempRoomId = roomId
                         if(tempRoomId != null) {
                             removeMatchmakingRoom(tempRoomId)

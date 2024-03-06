@@ -1,6 +1,8 @@
 package com.example.tictacparty
 
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
@@ -180,6 +182,8 @@ class CreateAccountActivity : AppCompatActivity() {
 
     fun addAvatarImageListeners() {
 
+        var selectedImageView: ImageView? = null
+
         val avatars = listOf(
             Pair(findViewById<ImageView>(R.id.avatar1), R.drawable.avatar_1),
             Pair(findViewById<ImageView>(R.id.avatar2), R.drawable.avatar_2),
@@ -198,11 +202,29 @@ class CreateAccountActivity : AppCompatActivity() {
                 newPlayer.avatarImage = resId
                 Log.d("!!!", "inAvatarListener - New avatarImage: ${newPlayer.avatarImage}")
 
+                selectedImageView?.let { deselectAvatar(it) }
+                selectedImageView=imageView
+
+                selectAvatar(imageView)
                 //Added an animation, so that user "knows" that the avatar is clicked
                 val scaleAnimation = ScaleAnimation(0.8f, 1.0f, 0.8f, 1.0f)
                 scaleAnimation.duration = 500
                 imageView.startAnimation(scaleAnimation)
+
             }
         }
+    }
+    private fun deselectAvatar(imageView: ImageView) {
+        imageView.background = null // Ta bort kanten genom att sätta bakgrund till null
+    }
+    fun selectAvatar(imageView: ImageView) {
+        val borderColor = Color.BLUE // Byt ut Color.RED mot önskad färg
+        val borderWidth = 5 // Bredden på kanten
+
+        val border = GradientDrawable()
+        border.setColor(Color.TRANSPARENT) // Bakgrundsfärgen
+        border.setStroke(borderWidth, borderColor) // Kantfärgen och bredden
+
+        imageView.background = border // Sätt kanten som bakgrund för imageView
     }
 }
