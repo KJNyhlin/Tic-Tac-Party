@@ -16,6 +16,13 @@ import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.FirebaseFirestore
+import android.app.Activity
+import android.content.Context
+import android.view.MotionEvent
+import android.view.View
+import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
+import androidx.constraintlayout.widget.ConstraintLayout
 
 
 class CreateAccountActivity : AppCompatActivity() {
@@ -24,10 +31,38 @@ class CreateAccountActivity : AppCompatActivity() {
     val db = FirebaseFirestore.getInstance()
     var newPlayer = Player()
 
+    private fun setupUI(view: View) {
+        // Set up touch listener for non-text box views to hide keyboard
+        if (view !is EditText) {
+            view.setOnTouchListener { _, _ ->
+                hideKeyboard(this@CreateAccountActivity)
+                false
+            }
+        }
 
+        // If a layout container, iterate over children and seed recursion
+        if (view is ViewGroup) {
+            for (i in 0 until view.childCount) {
+                val innerView: View = view.getChildAt(i)
+                setupUI(innerView)
+            }
+        }
+    }
+
+    private fun hideKeyboard(activity: Activity) {
+        val imm = activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        val view = activity.currentFocus
+        if (view != null) {
+            imm.hideSoftInputFromWindow(view.windowToken, 0)
+        }
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_create_account)
+
+
+        val rootLayout = findViewById<ConstraintLayout>(R.id.rootLayout)
+        setupUI(rootLayout)
 
         val editName = findViewById<EditText>(R.id.editTextText)
         val editPassword = findViewById<EditText>(R.id.editTextTextPassword)
