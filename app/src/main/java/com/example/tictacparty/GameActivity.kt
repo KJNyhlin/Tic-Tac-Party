@@ -548,14 +548,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     fun addExitDialog() {
-        if(gameFinished){
-            updateMMRScore(gameResult)
-            gameResult = "" //TEMP för säkerhets skull, så att den inte ligger kvar som Win el Draw
-            //TODO viktigt att avsluta nuvarande game! removeFinishedGame()?
-            val intent = Intent(this, MainActivity::class.java)
-            startActivity(intent)
-        }
-        else { // if game is not finished
+         // if game is not finished
             val addExitDialog = AlertDialog.Builder(this)
                 .setTitle(" Exit game?")
                 .setMessage("Do you want to exit the game? You will lose points by exiting")
@@ -577,9 +570,18 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
 
 
             exitImage.setOnClickListener {
-                addExitDialog.show()
+                if(gameFinished){
+                    updateMMRScore(gameResult)
+                    gameResult = "" //TEMP för säkerhets skull, så att den inte ligger kvar som Win el Draw
+                    //TODO viktigt att avsluta nuvarande game! removeFinishedGame()?
+                    val intent = Intent(this, MainActivity::class.java)
+                    startActivity(intent)
+                }
+                else {
+                    addExitDialog.show()
+                }
             }
-        }
+
     }
 
     fun showGameViews() {
