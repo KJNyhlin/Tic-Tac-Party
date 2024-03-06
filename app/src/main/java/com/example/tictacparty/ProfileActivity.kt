@@ -3,13 +3,13 @@ package com.example.tictacparty
 import Function.getHighscore
 import Function.getPlayerObject
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.tictacparty.GlobalVariables.player
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -48,11 +48,7 @@ class ProfileActivity : AppCompatActivity() {
         updateProfile()
         addLogoutAlertDialog()
         bottomNavListener()
-
-
     }
-
-
 
     fun logout() {
         auth.signOut()
@@ -65,10 +61,7 @@ class ProfileActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
-
-
     fun addLogoutAlertDialog() {
-
         val addLogoutDialog = AlertDialog.Builder(this)
             .setTitle("Log out")
             .setMessage("Do you want to log out?")
@@ -79,6 +72,7 @@ class ProfileActivity : AppCompatActivity() {
                 intent = Intent(this, MainActivity::class.java)
                 startActivity(intent)
             }
+
             .setNegativeButton("No") { _, _ ->
                 Toast.makeText(this, "You didn't log out", Toast.LENGTH_SHORT).show()
 
@@ -90,12 +84,10 @@ class ProfileActivity : AppCompatActivity() {
     }
 
     fun updateProfile() {
-
-        //Which rank is missing eg. "#12" We need an function for that
-        //And also the text for how many Games played, we need a attribute for that in the player class
         if (GlobalVariables.player?.avatarImage != null) {
             profilePicture.setImageResource(GlobalVariables.player!!.avatarImage)
         }
+
         if (GlobalVariables.player != null) {
             lifecycleScope.launch {
                 getPlayerObject(player?.userId)
@@ -106,9 +98,11 @@ class ProfileActivity : AppCompatActivity() {
             gamesPlayed.text = "Games Played: ${GlobalVariables.player!!.gamesPlayed}"
             gamesWon.text = "Games Won: ${GlobalVariables.player!!.wins}"
             gamesLost.text = "Games Lost: ${GlobalVariables.player!!.lost}"
+
             lifecycleScope.launch {
                 val sortedScores = getHighscore()
-                var myIndex = sortedScores.indexOfFirst { it.first == GlobalVariables.player?.username }
+                var myIndex =
+                    sortedScores.indexOfFirst { it.first == GlobalVariables.player?.username }
                 myIndex++
                 whichRank.text = myIndex.toString()
             }
@@ -122,7 +116,6 @@ class ProfileActivity : AppCompatActivity() {
             when (item.itemId) {
                 R.id.navigation_play_game -> {
                     // Koden som körs när "Play game"-knappen klickas på
-                    //temporary solution for testing, should lead to: ???
                     val intent = Intent(this, MainActivity::class.java)
                     startActivity(intent)
                     true
@@ -145,8 +138,5 @@ class ProfileActivity : AppCompatActivity() {
                 else -> false
             }
         }
-
-
-
     }
 }
