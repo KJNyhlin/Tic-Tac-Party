@@ -1,28 +1,26 @@
 package com.example.tictacparty
 
+import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
+import android.view.View
+import android.view.ViewGroup
+import android.view.animation.ScaleAnimation
+import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
-import android.widget.Toast
-import android.util.Log
-import android.view.animation.AlphaAnimation
-import android.view.animation.ScaleAnimation
 import android.widget.ImageView
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.FirebaseFirestore
-import android.app.Activity
-import android.content.Context
-import android.view.MotionEvent
-import android.view.View
-import android.view.ViewGroup
-import android.view.inputmethod.InputMethodManager
-import androidx.constraintlayout.widget.ConstraintLayout
 
 
 class CreateAccountActivity : AppCompatActivity() {
@@ -34,8 +32,9 @@ class CreateAccountActivity : AppCompatActivity() {
     private fun setupUI(view: View) {
         // Set up touch listener for non-text box views to hide keyboard
         if (view !is EditText) {
-            view.setOnTouchListener { _, _ ->
+            view.setOnTouchListener { v, _ ->
                 hideKeyboard(this@CreateAccountActivity)
+                v.performClick()
                 false
             }
         }
@@ -56,6 +55,7 @@ class CreateAccountActivity : AppCompatActivity() {
             imm.hideSoftInputFromWindow(view.windowToken, 0)
         }
     }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_create_account)
@@ -109,9 +109,6 @@ class CreateAccountActivity : AppCompatActivity() {
                 }
             }
         }
-
-        //Just for test/example how to call
-        //createUser("andreas", "Passw0rd", "andreas@andreas.se")
     }
 
     private fun userNameFree(username: String, callback: (Boolean) -> Unit) {
@@ -131,7 +128,6 @@ class CreateAccountActivity : AppCompatActivity() {
     }
 
     private fun createUser(userName: String, password: String, email: String, avatarImage: Int) {
-        // UserName cannot be stored, just email+password, might be added as a connected table in firestore as well somehow?
         auth = Firebase.auth
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
@@ -238,7 +234,7 @@ class CreateAccountActivity : AppCompatActivity() {
                 Log.d("!!!", "inAvatarListener - New avatarImage: ${newPlayer.avatarImage}")
 
                 selectedImageView?.let { deselectAvatar(it) }
-                selectedImageView=imageView
+                selectedImageView = imageView
 
                 selectAvatar(imageView)
                 //Added an animation, so that user "knows" that the avatar is clicked
@@ -249,9 +245,11 @@ class CreateAccountActivity : AppCompatActivity() {
             }
         }
     }
+
     private fun deselectAvatar(imageView: ImageView) {
         imageView.background = null // Ta bort kanten genom att sätta bakgrund till null
     }
+
     fun selectAvatar(imageView: ImageView) {
         val borderColor = Color.BLUE // Byt ut Color.RED mot önskad färg
         val borderWidth = 5 // Bredden på kanten
