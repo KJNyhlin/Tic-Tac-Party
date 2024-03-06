@@ -57,6 +57,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
     lateinit var exitImage: ImageView
     lateinit var helpImage: ImageView
     var gameResult = ""
+    var gameFinished = false
     var localPlayerGivesUp : Boolean = false
     var roomId:String?=""
     lateinit var game: Game
@@ -360,7 +361,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
             }
         }
         if (game.status == "finished") {
-            Log.d("???", "Rad 362 inuti if (game.status == finished)")
+            //Log.d("???", "Rad 362 inuti if (game.status == finished)")
             playAgainButton.visibility = View.VISIBLE
             if(gameResult == "Draw"){
                 gameInfo.text = "Game over, its a draw"
@@ -423,7 +424,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
             intArrayOf(2, 4, 6),
         )
 
-        var gameFinished = false
+        //var gameFinished = false
 
         game.apply {
             for (i in winningPos) {
@@ -437,6 +438,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
                     //gameInfo.text = "${currentPlayer.username.capitalize()} wins"
                     // ovanstående rad visas aldrig för texten uppdateras igen i updateUI
                     gameResult = "Win"
+                    Log.d("???", "Nu sätts gameFinished till true")
                     gameFinished = true
                     break
                 }
@@ -447,12 +449,13 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
                 status = "finished"
                 gameResult = "Draw"
                 //gameInfo.text = "Draw" //visas aldrig för texten uppdateras igen i updateUI
+                Log.d("???", "Nu sätts gameFinished till true")
                 gameFinished = true
             }
         }
 
         if (gameFinished) {
-            Log.d("???", "Rad 451 inuti if(gameFinished)")
+            //Log.d("???", "Rad 451 inuti if(gameFinished)")
             updateDatabase(game)
             updateUI(game)
         }
@@ -528,7 +531,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     fun addExitDialog() {
-        if(gameResult == "Win" || gameResult == "Draw"){
+        if(gameFinished){
             updateMMRScore(gameResult)
             gameResult = "" //TEMP för säkerhets skull, så att den inte ligger kvar som Win el Draw
             //TODO viktigt att avsluta nuvarande game! removeFinishedGame()?
