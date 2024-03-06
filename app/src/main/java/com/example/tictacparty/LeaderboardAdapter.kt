@@ -27,12 +27,12 @@ class LeaderboardAdapter(private val leaderboardData: List<Any>) :
     override fun onBindViewHolder(holder: LeaderboardViewHolder, position: Int) {
         val data = leaderboardData[position]
         if (data is Player) {
-            holder.usernameTextView.text = data.username
+            holder.usernameTextView.text = data.username.capitalize()
             holder.mmrTextView.text = data.mmrScore.toString()
             holder.profileImageView.setImageResource(data.avatarImage)
 
         } else if (data is LeaderboardPlayer) {
-            holder.usernameTextView.text = data.username
+            holder.usernameTextView.text = data.username.capitalize()
             holder.mmrTextView.text = data.mmrScore.toString()
             holder.profileImageView.setImageResource(data.avatarImage)
         }
