@@ -345,13 +345,13 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
         if(currentPlayer.username==GlobalVariables.player?.username) {
 
             gameInfo.text = "${currentPlayer.symbol} - Your turn"
-            setColorPink(player1_avatar)
+            setColorPurple(player1_avatar)
             player2_avatar.background=null
 
         }
         else {
             gameInfo.text = "${currentPlayer.symbol} - ${userName.capitalize()}'s turn"
-            setColorPink(player2_avatar)
+            setColorPurple(player2_avatar)
             player1_avatar.background=null
         }
 
@@ -556,7 +556,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
             startActivity(intent)
         }
         else { // if game is not finished
-            val addContactDialog = AlertDialog.Builder(this)
+            val addExitDialog = AlertDialog.Builder(this)
                 .setTitle(" Exit game?")
                 .setMessage("Do you want to exit the game? You will lose points by exiting")
                 .setIcon(R.drawable.gameboard)
@@ -568,33 +568,16 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
                     //TODO viktigt att avsluta nuvarande game! removeFinishedGame()?
                     val intent = Intent(this, MainActivity::class.java)
                     startActivity(intent)
+                    finish()
                 }
                 .setNegativeButton("No") { _, _ ->
                     Toast.makeText(this, "You didn't exit.", Toast.LENGTH_SHORT).show()
-
-/*
-        val addContactDialog = AlertDialog.Builder(this)
-            .setTitle(" Exit game?")
-            .setMessage("Do you want to exit the game? You will lose points by exiting")
-            .setIcon(R.drawable.gameboard)
-            .setPositiveButton("Yes") { _, _ ->
-                Toast.makeText(this, "You exited!", Toast.LENGTH_SHORT).show()
-                localPlayerGivesUp=true
-                updateMMRScore("Win") // "Win" because it's not a draw
-                //TODO viktigt att avsluta nuvarande game! removeFinishedGame()?
-                val intent = Intent(this, MainActivity::class.java)
-                startActivity(intent)
-                finish()
-            }
-            .setNegativeButton("No") { _, _ ->
-                Toast.makeText(this, "You didn't exit.", Toast.LENGTH_SHORT).show()
-*/
             }.create()
 
 
 
             exitImage.setOnClickListener {
-                addContactDialog.show()
+                addExitDialog.show()
             }
         }
     }
@@ -602,11 +585,6 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
     fun showGameViews() {
 
         if (playerOne != null && playerTwo != null) {
-//            player1_avatar.setImageResource(playerOne.avatarImage)
-//            username1.text = "${playerOne.username.capitalize()}"
-//
-//            player2_avatar.setImageResource(playerTwo.avatarImage)
-//            username2.text = "${playerTwo.username.capitalize()}"
             if(GlobalVariables!=null) {
                 if (GlobalVariables.player!!.email == game.playerOneId) {
                     player1_avatar.setImageResource(playerOne.avatarImage)
@@ -619,22 +597,8 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
                     player2_avatar.setImageResource(playerOne.avatarImage)
                     username2.text = "${playerOne.username.capitalize()}"
                 }
-                //setColorPink(player1_avatar)
             }
         }
-    }
-    fun setColorPink(imageView: ImageView) {
-
-            val borderColor = Color.parseColor("#691669")
-            val borderWidth = 10 // Bredden på kanten
-            val paddingSize = 10
-            val border = GradientDrawable()
-            border.setColor(Color.TRANSPARENT) // Bakgrundsfärgen
-            border.setStroke(borderWidth, borderColor)
-            imageView.setPadding(paddingSize, paddingSize, paddingSize,paddingSize)// Kantfärgen och bredden
-
-            imageView.background = border
-
     }
     fun setColorPurple(imageView: ImageView) {
 
