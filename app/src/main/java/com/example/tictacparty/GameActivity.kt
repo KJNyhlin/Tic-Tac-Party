@@ -122,7 +122,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
         documentRef.set(game)
             .addOnSuccessListener {
                 Log.d("!!!", "Game added to Firestore with document ID: ${game.documentId}")
-                setupGameSnapshotListener(game.documentId)
+                //setupGameSnapshotListener(game.documentId)
             }
             .addOnFailureListener { e ->
                 Log.d("!!!", "Error adding game to Firestore: $e")
