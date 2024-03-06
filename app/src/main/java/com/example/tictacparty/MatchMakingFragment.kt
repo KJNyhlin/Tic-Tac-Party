@@ -14,6 +14,8 @@ import androidx.appcompat.app.AlertDialog
 import android.widget.TextView
 import androidx.core.content.ContextCompat.startActivity
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import com.example.tictacparty.GlobalVariables.player
 import com.google.android.play.integrity.internal.c
 import com.google.firebase.firestore.DocumentReference
@@ -163,24 +165,32 @@ class MatchMakingFragment() : Fragment() {
     }
 
     fun monitorRoom(roomId: String) {
+        this.roomId=roomId
         val db = FirebaseFirestore.getInstance()
         val roomRef = db.collection("matchmaking_rooms").document(roomId)
 
-        roomRef.addSnapshotListener { snapshot, e ->
+        val listenerRegistration = roomRef.addSnapshotListener { snapshot, e ->
             if (e != null) {
-                // Handle errors
+                // Hantera fel
                 return@addSnapshotListener
             }
 
             if (snapshot != null && snapshot.exists()) {
                 val room = snapshot.toObject(MatchmakingRoom::class.java)
                 if (room != null && room.player2Id.isNotEmpty()) {
-                    // Both players have joined the room, transition to game activity
+                    // Båda spelarna har gått med i rummet, övergå till spelaktiviteten
                     Log.d("!!!", "Room: $player1Id $player2Id")
                     transitionToGameActivity(room)
                 }
             }
         }
+
+        // Ta bort lyssnaren när fragmentet förstörs
+        viewLifecycleOwner.lifecycle.addObserver(LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_DESTROY) {
+                listenerRegistration.remove()
+            }
+        })
     }
 
     fun transitionToGameActivity(room: MatchmakingRoom) {
@@ -192,6 +202,7 @@ class MatchMakingFragment() : Fragment() {
             intent.putExtra("player2Id", room.player2Id)
             Log.d("!!!", "Room id : ${room.roomId}roomId: $player1Id $player2Id")
             startActivity(intent)
+            requireActivity().finish()
         }
         else {
             Log.e("Error", "Room is null")

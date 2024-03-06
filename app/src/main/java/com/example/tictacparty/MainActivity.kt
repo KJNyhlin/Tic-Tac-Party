@@ -41,7 +41,13 @@ class MainActivity : AppCompatActivity() {
         db = FirebaseFirestore.getInstance()
         auth = Firebase.auth
 
-        if (auth.currentUser != null) {
+        if (auth.currentUser == null) {
+            val intent = Intent(this, StartActivity::class.java)
+            startActivity(intent)
+            finish()
+            return
+        }
+        //if (auth.currentUser != null) {
             GlobalVariables.loggedIn = true
             GlobalVariables.loggedInUser = auth.currentUser?.email
             GlobalScope.launch {
@@ -51,12 +57,9 @@ class MainActivity : AppCompatActivity() {
                     toastWelcome()
                 }
             }
-        }
+        //}
 
-        if (!GlobalVariables.loggedIn) {
-            val intent = Intent(this, StartActivity::class.java)
-            startActivity(intent)
-        }
+
 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
