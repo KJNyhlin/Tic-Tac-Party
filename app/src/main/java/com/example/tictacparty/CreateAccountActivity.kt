@@ -114,14 +114,11 @@ class CreateAccountActivity : AppCompatActivity() {
     private fun userNameFree(username: String, callback: (Boolean) -> Unit) {
         val db = FirebaseFirestore.getInstance()
         val playersCollection = db.collection("players")
-        playersCollection
-            .whereEqualTo("username", username)
-            .get()
+        playersCollection.whereEqualTo("username", username).get()
             .addOnSuccessListener { documents ->
                 val isFree = documents.isEmpty // Check if no documents match the query
                 callback(isFree)
-            }
-            .addOnFailureListener { exception ->
+            }.addOnFailureListener { exception ->
                 Log.w("!!!", "Error getting documents: ", exception)
                 callback(false)
             }
@@ -129,8 +126,7 @@ class CreateAccountActivity : AppCompatActivity() {
 
     private fun createUser(userName: String, password: String, email: String, avatarImage: Int) {
         auth = Firebase.auth
-        auth.createUserWithEmailAndPassword(email, password)
-            .addOnCompleteListener { task ->
+        auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     Log.d("!!!", "create success")
                     Log.d("!!!", "logged in user: ${auth.currentUser?.email}")
@@ -139,27 +135,13 @@ class CreateAccountActivity : AppCompatActivity() {
                     var uid = auth.currentUser?.uid ?: ""
 
                     val player = Player(
-                        "",
-                        email,
-                        userName,
-                        uid.toString(),
-                        0,
-                        0,
-                        0,
-                        avatarImage,
-                        0,
-                        false,
-                        0,
-                        ""
+                        "", email, userName, uid.toString(), 0, 0, 0, avatarImage, 0, false, 0, ""
                     )
                     GlobalVariables.player = player
                     Log.d("!!!", "player.avatarimage=${player.avatarImage}")
-                    db.collection("players")
-                        .add(player)
-                        .addOnSuccessListener { documentReference ->
+                    db.collection("players").add(player).addOnSuccessListener { documentReference ->
                             Log.d("!!!", "DocumentSnapshot added with ID: ${documentReference.id}")
-                        }
-                        .addOnFailureListener { e ->
+                        }.addOnFailureListener { e ->
                             Log.w("!!!", "Error adding document", e)
                         }
                     if (auth.currentUser?.email != null) {
@@ -174,9 +156,7 @@ class CreateAccountActivity : AppCompatActivity() {
                                         GlobalVariables.loggedInUser = auth.currentUser?.email
                                         GlobalVariables.loggedIn = true
                                         Toast.makeText(
-                                            this,
-                                            "Authentication succeeded.",
-                                            Toast.LENGTH_SHORT
+                                            this, "Authentication succeeded.", Toast.LENGTH_SHORT
                                         ).show()
 
                                     } else {
@@ -188,9 +168,7 @@ class CreateAccountActivity : AppCompatActivity() {
                                     }
                                 } else {
                                     Toast.makeText(
-                                        baseContext,
-                                        "Authentication failed.",
-                                        Toast.LENGTH_SHORT
+                                        baseContext, "Authentication failed.", Toast.LENGTH_SHORT
                                     ).show()
                                 }
 

@@ -14,6 +14,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 object GlobalVariables {
     var loggedInUser: String? = null
@@ -117,16 +118,16 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    override fun onPause() {
-        super.onPause()
-    }
-
     fun toastWelcome() {
         if (GlobalVariables.sayHello) {
             runOnUiThread {
                 Toast.makeText(
                     this,
-                    "Welcome ${GlobalVariables.player?.username?.capitalize()}",
+                    "Welcome ${GlobalVariables.player?.username?.replaceFirstChar {
+                        if (it.isLowerCase()) it.titlecase(
+                            Locale.getDefault()
+                        ) else it.toString()
+                    }}",
                     Toast.LENGTH_SHORT
                 ).show()
                 GlobalVariables.sayHello = false

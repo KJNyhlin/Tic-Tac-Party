@@ -9,17 +9,13 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 object Function {
-
-
     var auth: FirebaseAuth = Firebase.auth
 
     suspend fun getHighscore(): List<Pair<String, Int>> {
         return suspendCoroutine { continuation ->
             val db = FirebaseFirestore.getInstance()
             val playersCollection = db.collection("players")
-            playersCollection
-                .get()
-                .addOnSuccessListener { documents ->
+            playersCollection.get().addOnSuccessListener { documents ->
                     val highScore = mutableListOf<Pair<String, Int>>()
                     for (document in documents) {
                         // Convert the document data to a Player object
@@ -30,8 +26,7 @@ object Function {
                     }
                     val sortedList = highScore.sortedByDescending { it.second }
                     continuation.resume(sortedList)
-                }
-                .addOnFailureListener { exception ->
+                }.addOnFailureListener { exception ->
                     continuation.resumeWith(Result.failure(exception))
                 }
         }
@@ -43,9 +38,7 @@ object Function {
             if (userId != null) {
                 val playersCollection = db.collection("players")
                 var player: Player? = null
-                playersCollection
-                    .whereEqualTo("userId", userId)
-                    .get()
+                playersCollection.whereEqualTo("userId", userId).get()
                     .addOnSuccessListener { documents ->
                         for (document in documents) {
                             // Convert the document data to a Player object
@@ -65,8 +58,7 @@ object Function {
                         GlobalVariables.loggedIn = true
                         Log.d("!!!", "Authentication succeeded.")
 
-                    }
-                    .addOnFailureListener { exception ->
+                    }.addOnFailureListener { exception ->
                         Log.w("!!!", "Error getting documents: ", exception)
                         continuation.resume(null)
                     }
@@ -81,11 +73,9 @@ object Function {
         val db = FirebaseFirestore.getInstance()
         val roomRef = db.collection("matchmaking_rooms").document(roomId)
 
-        roomRef.delete()
-            .addOnSuccessListener {
+        roomRef.delete().addOnSuccessListener {
                 Log.d("!!!", "Matchmaking room successful deleted.")
-            }
-            .addOnFailureListener { exception ->
+            }.addOnFailureListener { exception ->
                 Log.w("!!!", "Matchmaking room failed deletion.", exception)
             }
     }

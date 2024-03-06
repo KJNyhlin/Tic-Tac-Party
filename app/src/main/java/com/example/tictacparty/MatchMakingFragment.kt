@@ -17,12 +17,11 @@ import androidx.lifecycle.LifecycleEventObserver
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import java.util.Locale
 import java.util.Timer
 import java.util.TimerTask
 
-class MatchMakingFragment() : Fragment() {
-
-    var animationSpinning = AnimationDrawable()
+class MatchMakingFragment : Fragment() {
 
     lateinit var spinningWheel: ImageView
     lateinit var loggedInPlayer: ImageView
@@ -30,10 +29,6 @@ class MatchMakingFragment() : Fragment() {
 
     val player = GlobalVariables.player
     val db = Firebase.firestore
-    val playersCollection = db.collection("players")
-    var opponentFound = false
-    var opponentsUserName: String = ""
-    var opponentDocumentId: String = ""
 
     var roomId: String = ""
 
@@ -50,9 +45,7 @@ class MatchMakingFragment() : Fragment() {
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_matchmaking, container, false)
 
@@ -69,17 +62,12 @@ class MatchMakingFragment() : Fragment() {
         return view
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-    }
-
     fun createOrJoinRoom() {
         val db = FirebaseFirestore.getInstance()
         val roomsRef = db.collection("matchmaking_rooms")
 
         // Check for available rooms with only one player
-        roomsRef.whereEqualTo("status", "waiting").get()
-            .addOnSuccessListener { documents ->
+        roomsRef.whereEqualTo("status", "waiting").get().addOnSuccessListener { documents ->
                 for (document in documents) {
                     room = document.toObject(MatchmakingRoom::class.java)
                     if (room.player2Id.isEmpty()) {
@@ -90,8 +78,7 @@ class MatchMakingFragment() : Fragment() {
                 }
                 // No available rooms found, create a new room
                 createRoom()
-            }
-            .addOnFailureListener { e ->
+            }.addOnFailureListener { e ->
                 Log.w("!!!", "Error creation or join of room: ", e)
             }
     }
@@ -101,17 +88,15 @@ class MatchMakingFragment() : Fragment() {
         val roomsRef = db.collection("matchmaking_rooms")
 
         if (player != null) {
-            room = MatchmakingRoom("", player.documentId ?: "", "", "waiting")
+            room = MatchmakingRoom("", player.documentId, "", "waiting")
         }
 
-        roomsRef.add(room)
-            .addOnSuccessListener { documentReference ->
+        roomsRef.add(room).addOnSuccessListener { documentReference ->
                 // Room created successfully
                 val roomId = documentReference.id
                 monitorRoom(roomId)
                 startTimer(roomId)
-            }
-            .addOnFailureListener { e ->
+            }.addOnFailureListener { e ->
                 Log.w("!!!", "Error create room: ", e)
             }
     }
@@ -121,12 +106,10 @@ class MatchMakingFragment() : Fragment() {
         val roomRef = db.collection("matchmaking_rooms").document(roomId)
 
         // Update the existing room document to include Player 2's ID
-        roomRef.update("player2Id", player!!.documentId, "status", "matched")
-            .addOnSuccessListener {
+        roomRef.update("player2Id", player!!.documentId, "status", "matched").addOnSuccessListener {
                 // Room updated successfully, transition to game activity
                 transitionToGameActivity(room)
-            }
-            .addOnFailureListener { e ->
+            }.addOnFailureListener { e ->
                 Log.w("!!!", "Error join room: ", e)
             }
     }
@@ -227,11 +210,11 @@ class MatchMakingFragment() : Fragment() {
         }
 
         //capitalize() - Skriver ut användarnamnet så att första bokstaven blir stor och resten blir små.
-        loggedInUsername.text = GlobalVariables.player?.username?.capitalize()
+        loggedInUsername.text = GlobalVariables.player?.username?.replaceFirstChar {
+            if (it.isLowerCase()) it.titlecase(
+                Locale.getDefault()
+            ) else it.toString()
+        }
     }
 
-    override fun onDetach() {
-        super.onDetach()
-        //removeMatchmakingRoom(roomId)
-    }
 }

@@ -13,7 +13,7 @@ import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 
-class MainActivityFragment() : Fragment() {
+class MainActivityFragment : Fragment() {
 
     lateinit var auth: FirebaseAuth
 
@@ -26,9 +26,7 @@ class MainActivityFragment() : Fragment() {
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_mainactivity, container, false)
         return view
@@ -39,7 +37,6 @@ class MainActivityFragment() : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val playNowButton = view.findViewById<Button>(R.id.playNowButton)
-        val matchHistoryButton = view.findViewById<Button>(R.id.matchHistoryButton)
         val challengeAFriendButton = view.findViewById<Button>(R.id.challengeAFriendButton)
 
         playNowButton.setOnClickListener {

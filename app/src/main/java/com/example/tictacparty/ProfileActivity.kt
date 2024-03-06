@@ -17,6 +17,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 class ProfileActivity : AppCompatActivity() {
 
@@ -54,29 +55,27 @@ class ProfileActivity : AppCompatActivity() {
         auth.signOut()
         GlobalVariables.loggedInUser = null
         GlobalVariables.loggedIn = false
-        GlobalVariables.player = null
-        Log.d("!!!", "Log out: ${GlobalVariables.player?.username}")
+        player = null
+        Log.d("!!!", "Log out: ${player?.username}")
 
         val intent = Intent(this, MainActivity::class.java)
         startActivity(intent)
     }
 
     fun addLogoutAlertDialog() {
-        val addLogoutDialog = AlertDialog.Builder(this)
-            .setTitle("Log out")
-            .setMessage("Do you want to log out?")
-            .setIcon(R.drawable.pinkgameboard)
-            .setPositiveButton("Yes") { _, _ ->
-                Toast.makeText(this, "You logged out!", Toast.LENGTH_SHORT).show()
-                logout()
-                intent = Intent(this, MainActivity::class.java)
-                startActivity(intent)
-            }
+        val addLogoutDialog =
+            AlertDialog.Builder(this).setTitle("Log out").setMessage("Do you want to log out?")
+                .setIcon(R.drawable.pinkgameboard).setPositiveButton("Yes") { _, _ ->
+                    Toast.makeText(this, "You logged out!", Toast.LENGTH_SHORT).show()
+                    logout()
+                    intent = Intent(this, MainActivity::class.java)
+                    startActivity(intent)
+                }
 
-            .setNegativeButton("No") { _, _ ->
-                Toast.makeText(this, "You didn't log out", Toast.LENGTH_SHORT).show()
+                .setNegativeButton("No") { _, _ ->
+                    Toast.makeText(this, "You didn't log out", Toast.LENGTH_SHORT).show()
 
-            }.create()
+                }.create()
 
         logOutImage.setOnClickListener {
             addLogoutDialog.show()
@@ -84,25 +83,29 @@ class ProfileActivity : AppCompatActivity() {
     }
 
     fun updateProfile() {
-        if (GlobalVariables.player?.avatarImage != null) {
-            profilePicture.setImageResource(GlobalVariables.player!!.avatarImage)
+        if (player?.avatarImage != null) {
+            profilePicture.setImageResource(player!!.avatarImage)
         }
 
-        if (GlobalVariables.player != null) {
+        if (player != null) {
             lifecycleScope.launch {
                 getPlayerObject(player?.userId)
             }
 
-            profileUsername.text = GlobalVariables.player!!.username.capitalize()
-            rankingScore.text = "Current Ranking Score: ${GlobalVariables.player!!.mmrScore}"
-            gamesPlayed.text = "Games Played: ${GlobalVariables.player!!.gamesPlayed}"
-            gamesWon.text = "Games Won: ${GlobalVariables.player!!.wins}"
-            gamesLost.text = "Games Lost: ${GlobalVariables.player!!.lost}"
+            profileUsername.text = player!!.username.replaceFirstChar {
+                if (it.isLowerCase()) it.titlecase(
+                    Locale.getDefault()
+                ) else it.toString()
+            }
+            rankingScore.text = "Current Ranking Score: ${player!!.mmrScore}"
+            gamesPlayed.text = "Games Played: ${player!!.gamesPlayed}"
+            gamesWon.text = "Games Won: ${player!!.wins}"
+            gamesLost.text = "Games Lost: ${player!!.lost}"
 
             lifecycleScope.launch {
                 val sortedScores = getHighscore()
                 var myIndex =
-                    sortedScores.indexOfFirst { it.first == GlobalVariables.player?.username }
+                    sortedScores.indexOfFirst { it.first == player?.username }
                 myIndex++
                 whichRank.text = myIndex.toString()
             }

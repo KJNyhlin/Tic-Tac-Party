@@ -25,6 +25,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.firestore
 import com.google.firebase.firestore.ktx.firestore
+import java.util.Locale
 
 
 class GameActivity : AppCompatActivity(), View.OnClickListener {
@@ -118,11 +119,9 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
 
         val documentRef = db.collection("games").document(game.documentId)
 
-        documentRef.set(game)
-            .addOnSuccessListener {
+        documentRef.set(game).addOnSuccessListener {
                 Log.d("!!!", "Game added to Firestore with document ID: ${game.documentId}")
-            }
-            .addOnFailureListener { e ->
+            }.addOnFailureListener { e ->
                 Log.d("!!!", "Error adding game to Firestore: $e")
             }
     }
@@ -149,8 +148,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
         val db = FirebaseFirestore.getInstance()
         val roomRef = db.collection("matchmaking_rooms").document(roomId)
 
-        roomRef.get()
-            .addOnSuccessListener { documentSnapshot ->
+        roomRef.get().addOnSuccessListener { documentSnapshot ->
                 if (documentSnapshot.exists()) {
                     val room = documentSnapshot.toObject(MatchmakingRoom::class.java)
                     if (room != null) {
@@ -167,8 +165,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
                 } else {
                     Log.d("!!!", "Room document does not exist")
                 }
-            }
-            .addOnFailureListener { e ->
+            }.addOnFailureListener { e ->
                 Log.d("!!!", "Failed to fetch room document: $e")
             }
     }
@@ -227,24 +224,18 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
                     checkForWinner()
                     updateUI(game)
                     updateFilledPosInDatabase(
-                        game.documentId,
-                        clickedPos,
-                        filledPos[clickedPos],
-                        nextTurnPlayer
+                        game.documentId, clickedPos, filledPos[clickedPos], nextTurnPlayer
                     )
                 } else {
                     Toast.makeText(
-                        this@GameActivity,
-                        "This place is taken! 😅",
-                        Toast.LENGTH_SHORT
+                        this@GameActivity, "This place is taken! 😅", Toast.LENGTH_SHORT
                     ).show()
                 }
             }
         }
     }
 
-    private fun updateMMRScore(gameResult: String) {
-        /*
+    private fun updateMMRScore(gameResult: String) {/*
         Vinst mot bättre spelare : 25+ mmr score
         Förlust mot bättre spelare: 0 mmr score
         Vinst mot sämre spelare : 10+ mmr score
@@ -295,12 +286,10 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
         val updatedValues = player.toHashMap()
 
         // Uppdatera dokumentet i Firestore med de nya värdena
-        playerRef.update(updatedValues)
-            .addOnSuccessListener {
+        playerRef.update(updatedValues).addOnSuccessListener {
                 // Uppdateringen lyckades
                 Log.d("!!!", "Player updated successfully")
-            }
-            .addOnFailureListener { exception ->
+            }.addOnFailureListener { exception ->
                 // Uppdateringen misslyckades, logga felet
                 Log.d("!!!", "Error updating player", exception)
             }
@@ -333,7 +322,11 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
             player2_avatar.background = null
 
         } else {
-            gameInfo.text = "${currentPlayer.symbol} - ${userName.capitalize()}'s turn"
+            gameInfo.text = "${currentPlayer.symbol} - ${userName.replaceFirstChar {
+                if (it.isLowerCase()) it.titlecase(
+                    Locale.getDefault()
+                ) else it.toString()
+            }}'s turn"
             setColorPurple(player2_avatar)
             player1_avatar.background = null
         }
@@ -358,7 +351,11 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
                 if (GlobalVariables.player?.username == nonActivePlayerUsername) {
                     gameInfo.text = "You win!"
                 } else {
-                    gameInfo.text = "${nonActivePlayerUsername.capitalize()} wins!"
+                    gameInfo.text = "${nonActivePlayerUsername.replaceFirstChar {
+                        if (it.isLowerCase()) it.titlecase(
+                            Locale.getDefault()
+                        ) else it.toString()
+                    }} wins!"
                 }
             }
 
@@ -375,8 +372,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
         val db = FirebaseFirestore.getInstance()
         val gameRef = db.collection("games").document(game.documentId)
 
-        gameRef.get()
-            .addOnSuccessListener { documentSnapshot ->
+        gameRef.get().addOnSuccessListener { documentSnapshot ->
                 if (documentSnapshot.exists()) {
                     val updatedGame = documentSnapshot.toObject(Game::class.java)
                     if (updatedGame != null) {
@@ -389,8 +385,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
                 } else {
                     Log.d(TAG, "Document does not exist")
                 }
-            }
-            .addOnFailureListener { e ->
+            }.addOnFailureListener { e ->
                 Log.d(TAG, "Failed to get document snapshot: $e")
             }
     }
@@ -410,11 +405,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
 
         game.apply {
             for (i in winningPos) {
-                if (
-                    filledPos[i[0]] == filledPos[i[1]] &&
-                    filledPos[i[1]] == filledPos[i[2]] &&
-                    filledPos[i[0]].isNotEmpty()
-                ) {
+                if (filledPos[i[0]] == filledPos[i[1]] && filledPos[i[1]] == filledPos[i[2]] && filledPos[i[0]].isNotEmpty()) {
                     Log.d("!!!", "Den senaste spelaren vinner.")
                     status = "finished"
                     gameResult = "Win"
@@ -458,15 +449,12 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
 
         Log.d("UpdateDatabase", "updateDatabase startar")
 
-        documentRef.set(game)
-            .addOnSuccessListener {
+        documentRef.set(game).addOnSuccessListener {
                 Log.d("UpdateDatabase", "Game successfully updated!")
-            }
-            .addOnFailureListener { e ->
+            }.addOnFailureListener { e ->
                 Log.w("UpdateDatabase", "Error updating game", e)
             }
-    }
-    /*fun removeFinishedGames(game: Game, onComplete: () -> Unit) {
+    }/*fun removeFinishedGames(game: Game, onComplete: () -> Unit) {
         val db = FirebaseFirestore.getInstance()
         val gameRef = db.collection("games").document(game.documentId)
         gameRef.delete()
@@ -475,7 +463,6 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
                     delay(5000) // Delay execution for 5 seconds
                     onComplete()
                     playAgainButton.visibility = View.VISIBLE
-                    //startMainActivity()
                 }
             }
             .addOnFailureListener {
@@ -483,11 +470,6 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
             }
 
     }*/
-
-    private fun startMainActivity() {
-        val intent = Intent(this, MainActivity::class.java)
-        startActivity(intent)
-    }
 
     fun fetchPlayer(playerId: String, onComplete: (Player?) -> Unit) {
         val db = FirebaseFirestore.getInstance()
@@ -510,11 +492,9 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
 
     fun addExitDialog() {
         // if game is not finished
-        val addExitDialog = AlertDialog.Builder(this)
-            .setTitle(" Exit game?")
+        val addExitDialog = AlertDialog.Builder(this).setTitle(" Exit game?")
             .setMessage("Do you want to exit the game? You will lose points by exiting")
-            .setIcon(R.drawable.gameboard)
-            .setPositiveButton("Yes") { _, _ ->
+            .setIcon(R.drawable.gameboard).setPositiveButton("Yes") { _, _ ->
                 Toast.makeText(this, "You exited!", Toast.LENGTH_SHORT).show()
                 localPlayerGivesUp = true
                 updateMMRScore("Win") // "Win" because it's not a draw
@@ -524,8 +504,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
                 val intent = Intent(this, MainActivity::class.java)
                 startActivity(intent)
                 finish()
-            }
-            .setNegativeButton("No") { _, _ ->
+            }.setNegativeButton("No") { _, _ ->
                 Toast.makeText(this, "You didn't exit.", Toast.LENGTH_SHORT).show()
             }.create()
 
@@ -552,14 +531,30 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
             if (GlobalVariables != null) {
                 if (GlobalVariables.player!!.email == game.playerOneId) {
                     player1_avatar.setImageResource(playerOne.avatarImage)
-                    username1.text = "${playerOne.username.capitalize()}"
+                    username1.text = "${playerOne.username.replaceFirstChar {
+                        if (it.isLowerCase()) it.titlecase(
+                            Locale.getDefault()
+                        ) else it.toString()
+                    }}"
                     player2_avatar.setImageResource(playerTwo.avatarImage)
-                    username2.text = "${playerTwo.username.capitalize()}"
+                    username2.text = "${playerTwo.username.replaceFirstChar {
+                        if (it.isLowerCase()) it.titlecase(
+                            Locale.getDefault()
+                        ) else it.toString()
+                    }}"
                 } else if (GlobalVariables.player!!.email == game.playerTwoId) {
                     player1_avatar.setImageResource(playerTwo.avatarImage)
-                    username1.text = "${playerTwo.username.capitalize()}"
+                    username1.text = "${playerTwo.username.replaceFirstChar {
+                        if (it.isLowerCase()) it.titlecase(
+                            Locale.getDefault()
+                        ) else it.toString()
+                    }}"
                     player2_avatar.setImageResource(playerOne.avatarImage)
-                    username2.text = "${playerOne.username.capitalize()}"
+                    username2.text = "${playerOne.username.replaceFirstChar {
+                        if (it.isLowerCase()) it.titlecase(
+                            Locale.getDefault()
+                        ) else it.toString()
+                    }}"
                 }
             }
         }
@@ -576,10 +571,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
         border.setColor(Color.TRANSPARENT) // Bakgrundsfärgen
         border.setStroke(borderWidth, borderColor)
         imageView.setPadding(
-            paddingSize,
-            paddingSize,
-            paddingSize,
-            paddingSize
+            paddingSize, paddingSize, paddingSize, paddingSize
         ) // Kantfärgen och bredden
 
         imageView.background = border
@@ -638,10 +630,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     fun updateFilledPosInDatabase(
-        documentId: String,
-        index: Int,
-        newValue: String,
-        nextTurnPlayer: String
+        documentId: String, index: Int, newValue: String, nextTurnPlayer: String
     ) {
         val db = Firebase.firestore
         val documentRef = db.collection("games").document(documentId)
@@ -654,15 +643,12 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
                     filledPos[index] = newValue
 
                     val updates = hashMapOf<String, Any>(
-                        "filledPos" to filledPos,
-                        "nextTurnPlayer" to nextTurnPlayer
+                        "filledPos" to filledPos, "nextTurnPlayer" to nextTurnPlayer
                     )
 
-                    documentRef.update(updates)
-                        .addOnSuccessListener {
+                    documentRef.update(updates).addOnSuccessListener {
                             Log.d("UpdateFilledPos", "FilledPos successfully updated!")
-                        }
-                        .addOnFailureListener { e ->
+                        }.addOnFailureListener { e ->
                             Log.w("UpdateFilledPos", "Error updating filledPos", e)
                         }
                 } else {

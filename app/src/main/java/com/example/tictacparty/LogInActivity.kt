@@ -44,16 +44,13 @@ class LogInActivity : AppCompatActivity() {
         val playersCollection = db.collection("players")
 
         auth = Firebase.auth
-        auth.signInWithEmailAndPassword(email, password)
-            .addOnCompleteListener(this) { task ->
+        auth.signInWithEmailAndPassword(email, password).addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     // Sign in success, update UI with the signed-in user's information
                     if (auth.currentUser?.email != null) {
                         val userId = auth.currentUser?.uid.toString()
                         var player: Player? = null
-                        playersCollection
-                            .whereEqualTo("userId", userId)
-                            .get()
+                        playersCollection.whereEqualTo("userId", userId).get()
                             .addOnSuccessListener { documents ->
                                 for (document in documents) {
                                     // Convert the document data to a Player object
@@ -71,8 +68,7 @@ class LogInActivity : AppCompatActivity() {
                                 val intent = Intent(this, MainActivity::class.java)
                                 startActivity(intent)
                                 finish()
-                            }
-                            .addOnFailureListener { exception ->
+                            }.addOnFailureListener { exception ->
                                 Log.w("!!!", "Error getting documents: ", exception)
                             }
                     } else {
