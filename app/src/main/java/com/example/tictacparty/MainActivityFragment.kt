@@ -8,7 +8,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
@@ -42,32 +41,29 @@ class MainActivityFragment() : Fragment() {
         val playNowButton = view.findViewById<Button>(R.id.playNowButton)
         val matchHistoryButton = view.findViewById<Button>(R.id.matchHistoryButton)
         val challengeAFriendButton = view.findViewById<Button>(R.id.challengeAFriendButton)
+
         playNowButton.setOnClickListener {
             val matchFragment = MatchMakingFragment()
             val transaction = activity?.supportFragmentManager?.beginTransaction()
             transaction?.replace(R.id.fragmentContainer, matchFragment, "matchFragment")
             transaction?.commit()
         }
+
         challengeAFriendButton.setOnClickListener {
             val intent = Intent(context, GameActivity::class.java)
             startActivity(intent)
         }
 
         val picture = view.findViewById<ImageView>(R.id.imageAvatar)
+
         if (GlobalVariables.player?.avatarImage != null) {
             picture.setImageResource(GlobalVariables.player!!.avatarImage)
             Log.d("!!!", "inMainActivity: ${GlobalVariables.player!!.avatarImage}")
         }
+
         picture.setOnClickListener {
             val intent = Intent(context, GameActivity::class.java)
             startActivity(intent)
         }
-
-
-        /*f(GlobalVariables.loggedIn == false){
-            val intent = Intent(requireContext(), MainActivity::class.java)
-            startActivity(intent)
-        }*/
-
     }
 }
