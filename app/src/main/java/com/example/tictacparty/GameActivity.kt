@@ -21,6 +21,7 @@ import com.google.android.gms.tasks.Task
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.ktx.firestore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -62,6 +63,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
     var buttons = mutableListOf<ImageButton>()
     val db = com.google.firebase.ktx.Firebase.firestore
     val playersCollection = db.collection("players")
+    private var gameSnapshotListener: ListenerRegistration? = null
 
 
 
@@ -73,14 +75,19 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
     override fun onDestroy() {
         super.onDestroy()
         // Nullify the game variable to release its memory
+        removeGameSnapshotListener()
         game = Game()
+    }
+    private fun removeGameSnapshotListener() {
+        gameSnapshotListener?.remove()
+        gameSnapshotListener = null
     }
 
     private fun setupGameSnapshotListener(roomId: String) {
         val db = Firebase.firestore
         val gameRef = db.collection("games").document(roomId)
 
-        gameRef.addSnapshotListener { snapshot, e ->
+        gameSnapshotListener = gameRef.addSnapshotListener { snapshot, e ->
             if (e != null) {
                 Log.w(TAG, "Listen failed", e)
                 return@addSnapshotListener
@@ -366,10 +373,10 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
                 startActivity(intent)
                 finish()
             }
-            removeFinishedGames(game){
+            //removeFinishedGames(game){
                 updateUIAfterGameFinished(game)
 //                startTimerGoToMainActivity()
-            }
+            //}
         }
     }
 
@@ -441,7 +448,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
         if (gameFinished) {
             updateDatabase(game)
             updateUI(game)
-            updateMMRScore(gameResult)
+            //updateMMRScore(gameResult)
         }
     }
 
@@ -472,7 +479,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
                 Log.w("UpdateDatabase", "Error updating game", e)
             }
     }
-    fun removeFinishedGames(game: Game, onComplete: () -> Unit) {
+    /*fun removeFinishedGames(game: Game, onComplete: () -> Unit) {
         val db = FirebaseFirestore.getInstance()
         val gameRef = db.collection("games").document(game.documentId)
         gameRef.delete()
@@ -480,6 +487,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
                 CoroutineScope(Dispatchers.Main).launch {
                     delay(5000) // Delay execution for 5 seconds
                     onComplete()
+                    playAgainButton.visibility = View.VISIBLE
                     //startMainActivity()
                 }
             }
@@ -487,7 +495,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
                 Log.e(TAG, "Failed to remove game from Firestore", it)
             }
 
-    }
+    }*/
 
     private fun startMainActivity() {
         val intent = Intent(this, MainActivity::class.java)
