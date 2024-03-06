@@ -60,6 +60,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
     lateinit var exitImage: ImageView
     lateinit var helpImage: ImageView
     var gameResult = ""
+    var gameFinished = false
     var localPlayerGivesUp : Boolean = false
     var roomId:String?=""
     lateinit var game: Game
@@ -152,6 +153,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
 
 
     fun fetchRoomAndPlayers(roomId: String) {
+        Log.d("???", "Här körs fetchRoomAndPlayers")
         val db = FirebaseFirestore.getInstance()
         val roomRef = db.collection("matchmaking_rooms").document(roomId)
 
@@ -370,6 +372,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
         }
         if (game.status == "finished") {
 //            playAgainButton.visibility = View.VISIBLE
+            //Log.d("???", "Rad 362 inuti if (game.status == finished)")
             if(gameResult == "Draw"){
                 gameInfo.text = "Game over, its a draw"
             } else {
@@ -384,11 +387,13 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
             gameInfo.setTextColor(ContextCompat.getColor(this, android.R.color.holo_red_dark))
             gameInfo.setTypeface(null, Typeface.BOLD)
 
+
 //            playAgainButton.setOnClickListener {
 //                val intent = Intent(this, MainActivity::class.java)
 //                startActivity(intent)
 //                finish()
 //            }
+
             //removeFinishedGames(game){
                 updateUIAfterGameFinished(game)
 //                startTimerGoToMainActivity()
@@ -397,6 +402,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     fun updateUIAfterGameFinished(game: Game) {
+        Log.d("???", "Här körs updateUIAfterGameFinished")
         val db = FirebaseFirestore.getInstance()
         val gameRef = db.collection("games").document(game.documentId)
 
@@ -418,6 +424,8 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
             .addOnFailureListener { e ->
                 Log.d(TAG, "Failed to get document snapshot: $e")
             }
+        //Log.d("!!!", "Nu körs updateMMRScore med gameResult $gameResult")
+        //updateMMRScore(gameResult) //verkar köras 4 gånger om den ligger här
     }
     
     fun checkForWinner() {
@@ -433,7 +441,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
             intArrayOf(2, 4, 6),
         )
 
-        var gameFinished = false
+        //var gameFinished = false
 
         game.apply {
             for (i in winningPos) {
@@ -447,6 +455,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
                     //gameInfo.text = "${currentPlayer.username.capitalize()} wins"
                     // ovanstående rad visas aldrig för texten uppdateras igen i updateUI
                     gameResult = "Win"
+                    Log.d("???", "Nu sätts gameFinished till true")
                     gameFinished = true
                     break
                 }
@@ -457,14 +466,15 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
                 status = "finished"
                 gameResult = "Draw"
                 //gameInfo.text = "Draw" //visas aldrig för texten uppdateras igen i updateUI
+                Log.d("???", "Nu sätts gameFinished till true")
                 gameFinished = true
             }
         }
 
         if (gameFinished) {
+            //Log.d("???", "Rad 451 inuti if(gameFinished)")
             updateDatabase(game)
             updateUI(game)
-            //updateMMRScore(gameResult)
         }
     }
 
@@ -538,7 +548,31 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     fun addExitDialog() {
+        if(gameFinished){
+            updateMMRScore(gameResult)
+            gameResult = "" //TEMP för säkerhets skull, så att den inte ligger kvar som Win el Draw
+            //TODO viktigt att avsluta nuvarande game! removeFinishedGame()?
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
+        }
+        else { // if game is not finished
+            val addContactDialog = AlertDialog.Builder(this)
+                .setTitle(" Exit game?")
+                .setMessage("Do you want to exit the game? You will lose points by exiting")
+                .setIcon(R.drawable.gameboard)
+                .setPositiveButton("Yes") { _, _ ->
+                    Toast.makeText(this, "You exited!", Toast.LENGTH_SHORT).show()
+                    localPlayerGivesUp=true
+                    updateMMRScore("Win") // "Win" because it's not a draw
+                    gameResult = "" //TEMP för säkerhets skull, så att den inte ligger kvar som Win el Draw
+                    //TODO viktigt att avsluta nuvarande game! removeFinishedGame()?
+                    val intent = Intent(this, MainActivity::class.java)
+                    startActivity(intent)
+                }
+                .setNegativeButton("No") { _, _ ->
+                    Toast.makeText(this, "You didn't exit.", Toast.LENGTH_SHORT).show()
 
+/*
         val addContactDialog = AlertDialog.Builder(this)
             .setTitle(" Exit game?")
             .setMessage("Do you want to exit the game? You will lose points by exiting")
@@ -554,11 +588,14 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
             }
             .setNegativeButton("No") { _, _ ->
                 Toast.makeText(this, "You didn't exit.", Toast.LENGTH_SHORT).show()
-
+*/
             }.create()
 
-        exitImage.setOnClickListener {
-            addContactDialog.show()
+
+
+            exitImage.setOnClickListener {
+                addContactDialog.show()
+            }
         }
     }
 
