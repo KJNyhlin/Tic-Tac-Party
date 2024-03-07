@@ -359,6 +359,8 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
                 }
             }
 
+            player1_avatar.background = null
+            player2_avatar.background = null
             gameInfo.setTextColor(ContextCompat.getColor(this, android.R.color.holo_red_dark))
             gameInfo.setTypeface(null, Typeface.BOLD)
 
