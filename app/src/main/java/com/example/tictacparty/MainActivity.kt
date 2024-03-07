@@ -2,15 +2,10 @@ package com.example.tictacparty
 
 import Function.getPlayerObject
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.view.View
-import android.widget.Button
-import android.widget.ImageButton
 import android.widget.Toast
-import androidx.core.content.ContextCompat.startActivity
-import com.example.tictacparty.GlobalVariables.player
+import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
@@ -18,23 +13,19 @@ import com.google.firebase.auth.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.util.logging.Handler
-import kotlin.concurrent.thread
+import java.util.Locale
 
 object GlobalVariables {
     var loggedInUser: String? = null
     var loggedIn: Boolean = false
     var player: Player? = null
-    var opponentPlayer: Player? = null
-    var sayHello : Boolean = true
+    var sayHello: Boolean = true
 }
 
 class MainActivity : AppCompatActivity() {
     lateinit var auth: FirebaseAuth
     lateinit var db: FirebaseFirestore
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -47,19 +38,16 @@ class MainActivity : AppCompatActivity() {
             finish()
             return
         }
-        //if (auth.currentUser != null) {
-            GlobalVariables.loggedIn = true
-            GlobalVariables.loggedInUser = auth.currentUser?.email
-            GlobalScope.launch {
-                val player = getPlayerObject(auth.currentUser?.uid)
-                player?.let {
-                    GlobalVariables.player = it
-                    toastWelcome()
-                }
+
+        GlobalVariables.loggedIn = true
+        GlobalVariables.loggedInUser = auth.currentUser?.email
+        GlobalScope.launch {
+            val player = getPlayerObject(auth.currentUser?.uid)
+            player?.let {
+                GlobalVariables.player = it
+                toastWelcome()
             }
-        //}
-
-
+        }
 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -67,20 +55,18 @@ class MainActivity : AppCompatActivity() {
 
         bottomNavListener()
 
-
         android.os.Handler().postDelayed({
             addMainFragment()
 
         }, 500)
-        //temp test code
+
         val mainFragment = supportFragmentManager.findFragmentByTag("mainFragment")
+
         if (mainFragment != null) {
             Log.d("MainActivity", "MainActivityFragment finns i backstacken")
         } else {
             Log.d("MainActivity", "MainActivityFragment finns inte i backstacken")
         }
-
-
     }
 
     fun bottomNavListener() {
@@ -109,7 +95,6 @@ class MainActivity : AppCompatActivity() {
                 else -> false
             }
         }
-
     }
 
     fun addMainFragment() {
@@ -117,7 +102,7 @@ class MainActivity : AppCompatActivity() {
         val fragmentManager = supportFragmentManager
         val transaction = fragmentManager.beginTransaction()
 
-        transaction.replace(R.id.fragmentContainer,mainFragment, "mainFragment")
+        transaction.replace(R.id.fragmentContainer, mainFragment, "mainFragment")
         transaction.addToBackStack("mainFragment")
 
         transaction.commit()
@@ -133,22 +118,20 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    override fun onPause() {
-        super.onPause()
-
-    }
-
     fun toastWelcome() {
-        if(GlobalVariables.sayHello){
+        if (GlobalVariables.sayHello) {
             runOnUiThread {
                 Toast.makeText(
                     this,
-                    "Welcome ${GlobalVariables.player?.username?.capitalize()}",
+                    "Welcome ${GlobalVariables.player?.username?.replaceFirstChar {
+                        if (it.isLowerCase()) it.titlecase(
+                            Locale.getDefault()
+                        ) else it.toString()
+                    }}",
                     Toast.LENGTH_SHORT
                 ).show()
                 GlobalVariables.sayHello = false
             }
         }
     }
-
 }

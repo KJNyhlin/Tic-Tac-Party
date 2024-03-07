@@ -20,22 +20,22 @@ class LeaderboardAdapter(private val leaderboardData: List<Any>) :
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LeaderboardViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.leaderboardrecycler, parent, false)
-
         return LeaderboardViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: LeaderboardViewHolder, position: Int) {
         val data = leaderboardData[position]
+
         if (data is Player) {
             holder.usernameTextView.text = data.username.capitalize()
             holder.mmrTextView.text = data.mmrScore.toString()
             holder.profileImageView.setImageResource(data.avatarImage)
-
         } else if (data is LeaderboardPlayer) {
             holder.usernameTextView.text = data.username.capitalize()
             holder.mmrTextView.text = data.mmrScore.toString()
             holder.profileImageView.setImageResource(data.avatarImage)
         }
+
         holder.rankingTextView.text = (position + 1).toString()
     }
 

@@ -1,28 +1,26 @@
 package com.example.tictacparty
 
+import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
+import android.view.View
+import android.view.ViewGroup
+import android.view.animation.ScaleAnimation
+import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
-import android.widget.Toast
-import android.util.Log
-import android.view.animation.AlphaAnimation
-import android.view.animation.ScaleAnimation
 import android.widget.ImageView
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.FirebaseFirestore
-import android.app.Activity
-import android.content.Context
-import android.view.MotionEvent
-import android.view.View
-import android.view.ViewGroup
-import android.view.inputmethod.InputMethodManager
-import androidx.constraintlayout.widget.ConstraintLayout
 
 
 class CreateAccountActivity : AppCompatActivity() {
@@ -34,8 +32,9 @@ class CreateAccountActivity : AppCompatActivity() {
     private fun setupUI(view: View) {
         // Set up touch listener for non-text box views to hide keyboard
         if (view !is EditText) {
-            view.setOnTouchListener { _, _ ->
+            view.setOnTouchListener { v, _ ->
                 hideKeyboard(this@CreateAccountActivity)
+                v.performClick()
                 false
             }
         }
@@ -56,6 +55,7 @@ class CreateAccountActivity : AppCompatActivity() {
             imm.hideSoftInputFromWindow(view.windowToken, 0)
         }
     }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_create_account)
@@ -109,32 +109,24 @@ class CreateAccountActivity : AppCompatActivity() {
                 }
             }
         }
-
-        //Just for test/example how to call
-        //createUser("andreas", "Passw0rd", "andreas@andreas.se")
     }
 
     private fun userNameFree(username: String, callback: (Boolean) -> Unit) {
         val db = FirebaseFirestore.getInstance()
         val playersCollection = db.collection("players")
-        playersCollection
-            .whereEqualTo("username", username)
-            .get()
+        playersCollection.whereEqualTo("username", username).get()
             .addOnSuccessListener { documents ->
                 val isFree = documents.isEmpty // Check if no documents match the query
                 callback(isFree)
-            }
-            .addOnFailureListener { exception ->
+            }.addOnFailureListener { exception ->
                 Log.w("!!!", "Error getting documents: ", exception)
                 callback(false)
             }
     }
 
     private fun createUser(userName: String, password: String, email: String, avatarImage: Int) {
-        // UserName cannot be stored, just email+password, might be added as a connected table in firestore as well somehow?
         auth = Firebase.auth
-        auth.createUserWithEmailAndPassword(email, password)
-            .addOnCompleteListener { task ->
+        auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     Log.d("!!!", "create success")
                     Log.d("!!!", "logged in user: ${auth.currentUser?.email}")
@@ -143,27 +135,13 @@ class CreateAccountActivity : AppCompatActivity() {
                     var uid = auth.currentUser?.uid ?: ""
 
                     val player = Player(
-                        "",
-                        email,
-                        userName,
-                        uid.toString(),
-                        0,
-                        0,
-                        0,
-                        avatarImage,
-                        0,
-                        false,
-                        0,
-                        ""
+                        "", email, userName, uid.toString(), 0, 0, 0, avatarImage, 0, false, 0, ""
                     )
                     GlobalVariables.player = player
                     Log.d("!!!", "player.avatarimage=${player.avatarImage}")
-                    db.collection("players")
-                        .add(player)
-                        .addOnSuccessListener { documentReference ->
+                    db.collection("players").add(player).addOnSuccessListener { documentReference ->
                             Log.d("!!!", "DocumentSnapshot added with ID: ${documentReference.id}")
-                        }
-                        .addOnFailureListener { e ->
+                        }.addOnFailureListener { e ->
                             Log.w("!!!", "Error adding document", e)
                         }
                     if (auth.currentUser?.email != null) {
@@ -178,9 +156,7 @@ class CreateAccountActivity : AppCompatActivity() {
                                         GlobalVariables.loggedInUser = auth.currentUser?.email
                                         GlobalVariables.loggedIn = true
                                         Toast.makeText(
-                                            this,
-                                            "Authentication succeeded.",
-                                            Toast.LENGTH_SHORT
+                                            this, "Authentication succeeded.", Toast.LENGTH_SHORT
                                         ).show()
 
                                     } else {
@@ -192,9 +168,7 @@ class CreateAccountActivity : AppCompatActivity() {
                                     }
                                 } else {
                                     Toast.makeText(
-                                        baseContext,
-                                        "Authentication failed.",
-                                        Toast.LENGTH_SHORT
+                                        baseContext, "Authentication failed.", Toast.LENGTH_SHORT
                                     ).show()
                                 }
 
@@ -238,7 +212,7 @@ class CreateAccountActivity : AppCompatActivity() {
                 Log.d("!!!", "inAvatarListener - New avatarImage: ${newPlayer.avatarImage}")
 
                 selectedImageView?.let { deselectAvatar(it) }
-                selectedImageView=imageView
+                selectedImageView = imageView
 
                 selectAvatar(imageView)
                 //Added an animation, so that user "knows" that the avatar is clicked
@@ -249,9 +223,11 @@ class CreateAccountActivity : AppCompatActivity() {
             }
         }
     }
+
     private fun deselectAvatar(imageView: ImageView) {
         imageView.background = null // Ta bort kanten genom att sätta bakgrund till null
     }
+
     fun selectAvatar(imageView: ImageView) {
         val borderColor = Color.BLUE // Byt ut Color.RED mot önskad färg
         val borderWidth = 5 // Bredden på kanten

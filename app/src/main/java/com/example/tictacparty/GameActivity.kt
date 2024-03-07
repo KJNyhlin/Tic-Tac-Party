@@ -7,8 +7,6 @@ import android.content.Intent
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
-import android.graphics.drawable.LayerDrawable
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -16,20 +14,18 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
-import com.google.firebase.Firebase
-import com.google.firebase.firestore.firestore
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.google.android.gms.tasks.Task
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.firebase.Firebase
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
+import com.google.firebase.firestore.firestore
 import com.google.firebase.firestore.ktx.firestore
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import java.util.Locale
 
 
 class GameActivity : AppCompatActivity(), View.OnClickListener {
@@ -61,8 +57,8 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
     lateinit var helpImage: ImageView
     var gameResult = ""
     var gameFinished = false
-    var localPlayerGivesUp : Boolean = false
-    var roomId:String?=""
+    var localPlayerGivesUp: Boolean = false
+    var roomId: String? = ""
     lateinit var game: Game
     var buttons = mutableListOf<ImageButton>()
     val db = com.google.firebase.ktx.Firebase.firestore
@@ -70,10 +66,9 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
     private var gameSnapshotListener: ListenerRegistration? = null
 
 
-
     @SuppressLint("MissingSuperCall")
     override fun onBackPressed() {
-        //do nothing
+        //Disabled backbutton
     }
 
     override fun onDestroy() {
@@ -82,6 +77,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
         removeGameSnapshotListener()
         game = Game()
     }
+
     private fun removeGameSnapshotListener() {
         gameSnapshotListener?.remove()
         gameSnapshotListener = null
@@ -123,12 +119,9 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
 
         val documentRef = db.collection("games").document(game.documentId)
 
-        documentRef.set(game)
-            .addOnSuccessListener {
+        documentRef.set(game).addOnSuccessListener {
                 Log.d("!!!", "Game added to Firestore with document ID: ${game.documentId}")
-                //setupGameSnapshotListener(game.documentId)
-            }
-            .addOnFailureListener { e ->
+            }.addOnFailureListener { e ->
                 Log.d("!!!", "Error adding game to Firestore: $e")
             }
     }
@@ -151,14 +144,11 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
         }
     }
 
-
     fun fetchRoomAndPlayers(roomId: String) {
-        Log.d("???", "Här körs fetchRoomAndPlayers")
         val db = FirebaseFirestore.getInstance()
         val roomRef = db.collection("matchmaking_rooms").document(roomId)
 
-        roomRef.get()
-            .addOnSuccessListener { documentSnapshot ->
+        roomRef.get().addOnSuccessListener { documentSnapshot ->
                 if (documentSnapshot.exists()) {
                     val room = documentSnapshot.toObject(MatchmakingRoom::class.java)
                     if (room != null) {
@@ -175,12 +165,10 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
                 } else {
                     Log.d("!!!", "Room document does not exist")
                 }
-            }
-            .addOnFailureListener { e ->
+            }.addOnFailureListener { e ->
                 Log.d("!!!", "Failed to fetch room document: $e")
             }
     }
-
 
     fun iniatilizeViews() {
         titleTextView = findViewById(R.id.titleTextView)
@@ -202,8 +190,6 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
         exitImage = findViewById(R.id.exitImage)
         helpImage = findViewById(R.id.helpImage)
 
-
-
         buttons.add(gamebutton1)
         buttons.add(gamebutton2)
         buttons.add(gamebutton3)
@@ -219,45 +205,37 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
         }
     }
 
-    fun addingClickListeners() {
-
-        helpImage.setOnClickListener {
-
-        }
-
-    }
-
     override fun onClick(button: View?) {
         Log.d("!!!", "current player on click${currentPlayer.username}")
-        if(currentPlayer.username == GlobalVariables.player?.username) {
+        if (currentPlayer.username == GlobalVariables.player?.username) {
             game.apply {
                 //apply gör att man kan göra operationer direkt på ett objekt, i det här fallet game, så slipper man skriva game.filledPos
                 Log.d("!!!", "on click : {$filledPos]")
 
                 val clickedPos = (button?.tag as String).toInt() - 1
                 if (filledPos[clickedPos].isEmpty()) {
-                    nextTurnPlayer = if (currentPlayer.email == playerOneId) playerTwoId else playerOneId
-                    Log.d("!!!","CurrentPlayer Email: ${currentPlayer.email}")
-                    Log.d("!!!","Player One ID ${playerOneId}")
-                    Log.d("!!!","Player Two ID ${playerTwoId}")
+                    nextTurnPlayer =
+                        if (currentPlayer.email == playerOneId) playerTwoId else playerOneId
+                    Log.d("!!!", "CurrentPlayer Email: ${currentPlayer.email}")
+                    Log.d("!!!", "Player One ID ${playerOneId}")
+                    Log.d("!!!", "Player Two ID ${playerTwoId}")
 
                     filledPos[clickedPos] = currentPlayer.symbol
                     checkForWinner()
                     updateUI(game)
-                    updateFilledPosInDatabase(game.documentId, clickedPos, filledPos[clickedPos], nextTurnPlayer)
+                    updateFilledPosInDatabase(
+                        game.documentId, clickedPos, filledPos[clickedPos], nextTurnPlayer
+                    )
                 } else {
                     Toast.makeText(
-                        this@GameActivity,
-                        "This place is taken! 😅",
-                        Toast.LENGTH_SHORT
+                        this@GameActivity, "This place is taken! 😅", Toast.LENGTH_SHORT
                     ).show()
                 }
             }
         }
     }
 
-    private fun updateMMRScore(gameResult: String) {
-        /*
+    private fun updateMMRScore(gameResult: String) {/*
         Vinst mot bättre spelare : 25+ mmr score
         Förlust mot bättre spelare: 0 mmr score
         Vinst mot sämre spelare : 10+ mmr score
@@ -274,8 +252,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
             } else {
                 Log.d("!!!", "Draw. Opponent is lower ranked. ±0")
             }
-        }
-        else if (gameResult == "Win") {
+        } else if (gameResult == "Win") {
             if (currentPlayer.username == localPlayer?.username || localPlayerGivesUp) {
                 // opponent made the last move, ie opponent wins
                 // or local player has quit the game (given up) = opponent wins
@@ -294,8 +271,8 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
                     Log.d("!!!", "You won against an inferior player. +10 MMR")
                     localPlayer?.mmrScore = localPlayer?.mmrScore!! + 10
                 }
-                }
             }
+        }
         localPlayer?.gamesPlayed = localPlayer?.gamesPlayed!! + 1
         val playerCopy = localPlayer!!.copy()
         updatePlayerInFirestore(playerCopy)
@@ -309,28 +286,25 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
         val updatedValues = player.toHashMap()
 
         // Uppdatera dokumentet i Firestore med de nya värdena
-        playerRef.update(updatedValues)
-            .addOnSuccessListener {
+        playerRef.update(updatedValues).addOnSuccessListener {
                 // Uppdateringen lyckades
                 Log.d("!!!", "Player updated successfully")
-            }
-            .addOnFailureListener { exception ->
+            }.addOnFailureListener { exception ->
                 // Uppdateringen misslyckades, logga felet
                 Log.d("!!!", "Error updating player", exception)
             }
     }
 
 
-
     fun updateUI(game: Game) {
-        var nonActivePlayerUsername : String
+        var nonActivePlayerUsername: String
         var userName: String
         if (game.nextTurnPlayer == playerOne.email) {
             userName = playerOne.username
-            nonActivePlayerUsername= playerTwo.username
+            nonActivePlayerUsername = playerTwo.username
         } else if (game.nextTurnPlayer == playerTwo.email) {
             userName = playerTwo.username
-            nonActivePlayerUsername= playerOne.username
+            nonActivePlayerUsername = playerOne.username
         } else {
             userName = game.nextTurnPlayer
             nonActivePlayerUsername = "Unknown"
@@ -341,18 +315,20 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
             playerTwo
         }
 
-
-        if(currentPlayer.username==GlobalVariables.player?.username) {
+        if (currentPlayer.username == GlobalVariables.player?.username) {
 
             gameInfo.text = "${currentPlayer.symbol} - Your turn"
             setColorPurple(player1_avatar)
-            player2_avatar.background=null
+            player2_avatar.background = null
 
-        }
-        else {
-            gameInfo.text = "${currentPlayer.symbol} - ${userName.capitalize()}'s turn"
+        } else {
+            gameInfo.text = "${currentPlayer.symbol} - ${userName.replaceFirstChar {
+                if (it.isLowerCase()) it.titlecase(
+                    Locale.getDefault()
+                ) else it.toString()
+            }}'s turn"
             setColorPurple(player2_avatar)
-            player1_avatar.background=null
+            player1_avatar.background = null
         }
 
         game.apply {
@@ -366,38 +342,28 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
                     }
                 )
             }
-            if (status == "ongoing") {
-//                playAgainButton.visibility = View.INVISIBLE
-            }
         }
+
         if (game.status == "finished") {
-//            playAgainButton.visibility = View.VISIBLE
-            //Log.d("???", "Rad 362 inuti if (game.status == finished)")
-            if(gameResult == "Draw"){
+            if (gameResult == "Draw") {
                 gameInfo.text = "Game over, its a draw"
             } else {
-                if(GlobalVariables.player?.username==nonActivePlayerUsername){
+                if (GlobalVariables.player?.username == nonActivePlayerUsername) {
                     gameInfo.text = "You win!"
+                } else {
+                    gameInfo.text = "${nonActivePlayerUsername.replaceFirstChar {
+                        if (it.isLowerCase()) it.titlecase(
+                            Locale.getDefault()
+                        ) else it.toString()
+                    }} wins!"
                 }
-                else{
-                    gameInfo.text = "${nonActivePlayerUsername.capitalize()} wins!"
-                }
-                //gameInfo.text = "${nonActivePlayerUsername.capitalize()} wins!"
             }
+
             gameInfo.setTextColor(ContextCompat.getColor(this, android.R.color.holo_red_dark))
             gameInfo.setTypeface(null, Typeface.BOLD)
 
-
-//            playAgainButton.setOnClickListener {
-//                val intent = Intent(this, MainActivity::class.java)
-//                startActivity(intent)
-//                finish()
-//            }
-
             //removeFinishedGames(game){
-                updateUIAfterGameFinished(game)
-//                startTimerGoToMainActivity()
-            //}
+            updateUIAfterGameFinished(game)
         }
     }
 
@@ -406,8 +372,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
         val db = FirebaseFirestore.getInstance()
         val gameRef = db.collection("games").document(game.documentId)
 
-        gameRef.get()
-            .addOnSuccessListener { documentSnapshot ->
+        gameRef.get().addOnSuccessListener { documentSnapshot ->
                 if (documentSnapshot.exists()) {
                     val updatedGame = documentSnapshot.toObject(Game::class.java)
                     if (updatedGame != null) {
@@ -420,14 +385,11 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
                 } else {
                     Log.d(TAG, "Document does not exist")
                 }
-            }
-            .addOnFailureListener { e ->
+            }.addOnFailureListener { e ->
                 Log.d(TAG, "Failed to get document snapshot: $e")
             }
-        //Log.d("!!!", "Nu körs updateMMRScore med gameResult $gameResult")
-        //updateMMRScore(gameResult) //verkar köras 4 gånger om den ligger här
     }
-    
+
     fun checkForWinner() {
 
         val winningPos = arrayOf(
@@ -441,19 +403,11 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
             intArrayOf(2, 4, 6),
         )
 
-        //var gameFinished = false
-
         game.apply {
             for (i in winningPos) {
-                if (
-                    filledPos[i[0]] == filledPos[i[1]] &&
-                    filledPos[i[1]] == filledPos[i[2]] &&
-                    filledPos[i[0]].isNotEmpty()
-                ) {
+                if (filledPos[i[0]] == filledPos[i[1]] && filledPos[i[1]] == filledPos[i[2]] && filledPos[i[0]].isNotEmpty()) {
                     Log.d("!!!", "Den senaste spelaren vinner.")
                     status = "finished"
-                    //gameInfo.text = "${currentPlayer.username.capitalize()} wins"
-                    // ovanstående rad visas aldrig för texten uppdateras igen i updateUI
                     gameResult = "Win"
                     Log.d("???", "Nu sätts gameFinished till true")
                     gameFinished = true
@@ -465,14 +419,12 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
                 Log.d("!!!", "Det blev oavgjort.")
                 status = "finished"
                 gameResult = "Draw"
-                //gameInfo.text = "Draw" //visas aldrig för texten uppdateras igen i updateUI
                 Log.d("???", "Nu sätts gameFinished till true")
                 gameFinished = true
             }
         }
 
         if (gameFinished) {
-            //Log.d("???", "Rad 451 inuti if(gameFinished)")
             updateDatabase(game)
             updateUI(game)
         }
@@ -497,15 +449,12 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
 
         Log.d("UpdateDatabase", "updateDatabase startar")
 
-        documentRef.set(game)
-            .addOnSuccessListener {
+        documentRef.set(game).addOnSuccessListener {
                 Log.d("UpdateDatabase", "Game successfully updated!")
-            }
-            .addOnFailureListener { e ->
+            }.addOnFailureListener { e ->
                 Log.w("UpdateDatabase", "Error updating game", e)
             }
-    }
-    /*fun removeFinishedGames(game: Game, onComplete: () -> Unit) {
+    }/*fun removeFinishedGames(game: Game, onComplete: () -> Unit) {
         val db = FirebaseFirestore.getInstance()
         val gameRef = db.collection("games").document(game.documentId)
         gameRef.delete()
@@ -514,7 +463,6 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
                     delay(5000) // Delay execution for 5 seconds
                     onComplete()
                     playAgainButton.visibility = View.VISIBLE
-                    //startMainActivity()
                 }
             }
             .addOnFailureListener {
@@ -522,11 +470,6 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
             }
 
     }*/
-
-    private fun startMainActivity() {
-        val intent = Intent(this, MainActivity::class.java)
-        startActivity(intent)
-    }
 
     fun fetchPlayer(playerId: String, onComplete: (Player?) -> Unit) {
         val db = FirebaseFirestore.getInstance()
@@ -548,60 +491,75 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     fun addExitDialog() {
-         // if game is not finished
-            val addExitDialog = AlertDialog.Builder(this)
-                .setTitle(" Exit game?")
-                .setMessage("Do you want to exit the game? You will lose points by exiting")
-                .setIcon(R.drawable.gameboard)
-                .setPositiveButton("Yes") { _, _ ->
-                    Toast.makeText(this, "You exited!", Toast.LENGTH_SHORT).show()
-                    localPlayerGivesUp=true
-                    updateMMRScore("Win") // "Win" because it's not a draw
-                    gameResult = "" //TEMP för säkerhets skull, så att den inte ligger kvar som Win el Draw
-                    //TODO viktigt att avsluta nuvarande game! removeFinishedGame()?
-                    val intent = Intent(this, MainActivity::class.java)
-                    startActivity(intent)
-                    finish()
-                }
-                .setNegativeButton("No") { _, _ ->
-                    Toast.makeText(this, "You didn't exit.", Toast.LENGTH_SHORT).show()
+        // if game is not finished
+        val addExitDialog = AlertDialog.Builder(this).setTitle(" Exit game?")
+            .setMessage("Do you want to exit the game? You will lose points by exiting")
+            .setIcon(R.drawable.gameboard).setPositiveButton("Yes") { _, _ ->
+                Toast.makeText(this, "You exited!", Toast.LENGTH_SHORT).show()
+                localPlayerGivesUp = true
+                updateMMRScore("Win") // "Win" because it's not a draw
+                gameResult =
+                    "" //TEMP för säkerhets skull, så att den inte ligger kvar som Win el Draw
+                //TODO viktigt att avsluta nuvarande game! removeFinishedGame()?
+                val intent = Intent(this, MainActivity::class.java)
+                startActivity(intent)
+                finish()
+            }.setNegativeButton("No") { _, _ ->
+                Toast.makeText(this, "You didn't exit.", Toast.LENGTH_SHORT).show()
             }.create()
 
 
 
-            exitImage.setOnClickListener {
-                if(gameFinished){
-                    updateMMRScore(gameResult)
-                    gameResult = "" //TEMP för säkerhets skull, så att den inte ligger kvar som Win el Draw
-                    //TODO viktigt att avsluta nuvarande game! removeFinishedGame()?
-                    val intent = Intent(this, MainActivity::class.java)
-                    startActivity(intent)
-                }
-                else {
-                    addExitDialog.show()
-                }
+        exitImage.setOnClickListener {
+            if (gameFinished) {
+                updateMMRScore(gameResult)
+                gameResult =
+                    "" //TEMP för säkerhets skull, så att den inte ligger kvar som Win el Draw
+                //TODO viktigt att avsluta nuvarande game! removeFinishedGame()?
+                val intent = Intent(this, MainActivity::class.java)
+                startActivity(intent)
+            } else {
+                addExitDialog.show()
             }
+        }
 
     }
 
     fun showGameViews() {
 
         if (playerOne != null && playerTwo != null) {
-            if(GlobalVariables!=null) {
+            if (GlobalVariables != null) {
                 if (GlobalVariables.player!!.email == game.playerOneId) {
                     player1_avatar.setImageResource(playerOne.avatarImage)
-                    username1.text = "${playerOne.username.capitalize()}"
+                    username1.text = "${playerOne.username.replaceFirstChar {
+                        if (it.isLowerCase()) it.titlecase(
+                            Locale.getDefault()
+                        ) else it.toString()
+                    }}"
                     player2_avatar.setImageResource(playerTwo.avatarImage)
-                    username2.text = "${playerTwo.username.capitalize()}"
+                    username2.text = "${playerTwo.username.replaceFirstChar {
+                        if (it.isLowerCase()) it.titlecase(
+                            Locale.getDefault()
+                        ) else it.toString()
+                    }}"
                 } else if (GlobalVariables.player!!.email == game.playerTwoId) {
                     player1_avatar.setImageResource(playerTwo.avatarImage)
-                    username1.text = "${playerTwo.username.capitalize()}"
+                    username1.text = "${playerTwo.username.replaceFirstChar {
+                        if (it.isLowerCase()) it.titlecase(
+                            Locale.getDefault()
+                        ) else it.toString()
+                    }}"
                     player2_avatar.setImageResource(playerOne.avatarImage)
-                    username2.text = "${playerOne.username.capitalize()}"
+                    username2.text = "${playerOne.username.replaceFirstChar {
+                        if (it.isLowerCase()) it.titlecase(
+                            Locale.getDefault()
+                        ) else it.toString()
+                    }}"
                 }
             }
         }
     }
+
     fun setColorPurple(imageView: ImageView) {
 
         val borderColor = Color.parseColor("#691669")
@@ -612,11 +570,14 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
         val border = GradientDrawable()
         border.setColor(Color.TRANSPARENT) // Bakgrundsfärgen
         border.setStroke(borderWidth, borderColor)
-        imageView.setPadding(paddingSize, paddingSize, paddingSize,paddingSize) // Kantfärgen och bredden
+        imageView.setPadding(
+            paddingSize, paddingSize, paddingSize, paddingSize
+        ) // Kantfärgen och bredden
 
         imageView.background = border
 
     }
+
     fun fetchPlayers(player1Id: String, player2Id: String) {
         fetchPlayer(player1Id) { player1 ->
             if (player1 != null) {
@@ -633,9 +594,8 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
                             playerOne
                         }
 
-
                         val tempRoomId = roomId
-                        if(tempRoomId != null) {
+                        if (tempRoomId != null) {
                             removeMatchmakingRoom(tempRoomId)
                         }
                         initializeGame()
@@ -669,7 +629,9 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
 
     }
 
-    fun updateFilledPosInDatabase(documentId: String, index: Int, newValue: String, nextTurnPlayer : String) {
+    fun updateFilledPosInDatabase(
+        documentId: String, index: Int, newValue: String, nextTurnPlayer: String
+    ) {
         val db = Firebase.firestore
         val documentRef = db.collection("games").document(documentId)
 
@@ -677,19 +639,16 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
             if (documentSnapshot.exists()) {
                 val game = documentSnapshot.toObject(Game::class.java)
                 if (game != null) {
-                    val filledPos = game.filledPos ?: mutableListOf() // Provide a default value if filledPos is null
+                    val filledPos = game.filledPos
                     filledPos[index] = newValue
 
                     val updates = hashMapOf<String, Any>(
-                        "filledPos" to filledPos,
-                        "nextTurnPlayer" to nextTurnPlayer
+                        "filledPos" to filledPos, "nextTurnPlayer" to nextTurnPlayer
                     )
 
-                    documentRef.update(updates)
-                        .addOnSuccessListener {
+                    documentRef.update(updates).addOnSuccessListener {
                             Log.d("UpdateFilledPos", "FilledPos successfully updated!")
-                        }
-                        .addOnFailureListener { e ->
+                        }.addOnFailureListener { e ->
                             Log.w("UpdateFilledPos", "Error updating filledPos", e)
                         }
                 } else {
