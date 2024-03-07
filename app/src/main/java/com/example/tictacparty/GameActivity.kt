@@ -206,6 +206,10 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     override fun onClick(button: View?) {
+
+        if(game.status=="finished"){
+            return
+        }
         Log.d("!!!", "current player on click${currentPlayer.username}")
         if (currentPlayer.username == GlobalVariables.player?.username) {
             game.apply {
@@ -249,6 +253,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
             if (opponent.mmrScore >= localPlayer?.mmrScore!!) {
                 localPlayer?.mmrScore = localPlayer?.mmrScore!! + 1
                 Log.d("!!!", "Draw. Opponent is higher ranked, +1 MMR")
+                Log.d("!!!", "${opponent.username}")
             } else {
                 Log.d("!!!", "Draw. Opponent is lower ranked. ±0")
             }
@@ -595,6 +600,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
                         } else {
                             playerOne
                         }
+
 
                         val tempRoomId = roomId
                         if (tempRoomId != null) {
