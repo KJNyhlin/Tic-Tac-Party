@@ -64,6 +64,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
     val db = com.google.firebase.ktx.Firebase.firestore
     val playersCollection = db.collection("players")
     private var gameSnapshotListener: ListenerRegistration? = null
+    var isMMRCalculated = false
 
 
     @SuppressLint("MissingSuperCall")
@@ -286,16 +287,12 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
 
     fun updatePlayerInFirestore(player: Player) {
         val playerRef = playersCollection.document(player.documentId)
-
         // Skapa en HashMap med de nya värdena för spelaren
         val updatedValues = player.toHashMap()
-
         // Uppdatera dokumentet i Firestore med de nya värdena
         playerRef.update(updatedValues).addOnSuccessListener {
-                // Uppdateringen lyckades
                 Log.d("!!!", "Player updated successfully")
             }.addOnFailureListener { exception ->
-                // Uppdateringen misslyckades, logga felet
                 Log.d("!!!", "Error updating player", exception)
             }
     }
@@ -352,7 +349,8 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
         if (game.status == "finished") {
             if (gameResult == "Draw") {
                 gameInfo.text = "Game over, its a draw"
-            } else {
+            }
+            else if (gameResult == "Win") {
                 if (GlobalVariables.player?.username == nonActivePlayerUsername) {
                     gameInfo.text = "You win!"
                 } else {
@@ -361,6 +359,19 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
                             Locale.getDefault()
                         ) else it.toString()
                     }} wins!"
+                }
+            }
+            else { //if gameResult is neither Draw nor Win, ie someone gave up
+                Log.d("???", "Nu körs rad 363 när någon gett upp")
+                /*
+                - motspelaren kollar att game.finished men att det inte är "Win" eller "Draw",
+                dvs någon har gett upp (ev kollar motspelare också att localPlayerGivesUp = false)
+                - motspelarens game ändras till "Win" (kontrollera att det verkligen
+                är motspelaren som räknas som vinnare, ska vara den som gjorde senaste draget
+                så det finns risk att det blir "tvärtom")
+                - dialogruta "$opponent gave up! You win." och updateMMRScore för motspelaren*/
+                if (!localPlayerGivesUp) {
+                    opponentGivesUpDialog()
                 }
             }
 
@@ -372,6 +383,22 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
             //removeFinishedGames(game){
             updateUIAfterGameFinished(game)
         }
+    }
+
+    private fun opponentGivesUpDialog() {
+        val builder = AlertDialog.Builder(this)
+        builder.setMessage("${opponent.username} gave up. You win!")
+        //builder.setTitle("Dialogruta")
+        builder.setPositiveButton("OK") { dialog, which ->
+            Log.d("???", "Vinnaren tryckte på OK-knappen")
+            if (!isMMRCalculated) {
+                Log.d("???", "Nu uppdateras MMR för vinnaren, rad 388")
+                updateMMRScore("Win")
+            }
+            dialog.dismiss()
+        }
+        val dialog = builder.create()
+        dialog.show()
     }
 
     fun updateUIAfterGameFinished(game: Game) {
@@ -416,7 +443,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
                     Log.d("!!!", "Den senaste spelaren vinner.")
                     status = "finished"
                     gameResult = "Win"
-                    Log.d("???", "Nu sätts gameFinished till true")
+                    Log.d("???", "Nu körs rad 412, gameFinished = true")
                     gameFinished = true
                     break
                 }
@@ -426,11 +453,10 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
                 Log.d("!!!", "Det blev oavgjort.")
                 status = "finished"
                 gameResult = "Draw"
-                Log.d("???", "Nu sätts gameFinished till true")
+                Log.d("???", "Nu körs rad 422, gameFinished = true")
                 gameFinished = true
             }
         }
-
         if (gameFinished) {
             updateDatabase(game)
             updateUI(game)
@@ -503,10 +529,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
             .setMessage("Do you want to exit the game? You will lose points by exiting")
             .setIcon(R.drawable.gameboard).setPositiveButton("Yes") { _, _ ->
                 Toast.makeText(this, "You exited!", Toast.LENGTH_SHORT).show()
-                localPlayerGivesUp = true
-                updateMMRScore("Win") // "Win" because it's not a draw
-                gameResult =
-                    "" //TEMP för säkerhets skull, så att den inte ligger kvar som Win el Draw
+                giveUpGame()
                 //TODO viktigt att avsluta nuvarande game! removeFinishedGame()?
                 val intent = Intent(this, MainActivity::class.java)
                 startActivity(intent)
@@ -530,6 +553,28 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
             }
         }
 
+    }
+
+    private fun giveUpGame() {
+        localPlayerGivesUp = true
+        /*
+        skicka signal till game i databasen att spelet är slut och att motspelaren vunnit
+        Kanske så här:
+        - sätt game till finished i databasen
+        - motspelaren kollar att game.finished men att det inte är "Win" eller "Draw", dvs
+        någon har gett upp (ev kollar motspelare också att localPlayerGivesUp = false)
+        - motspelarens game ändras till "Win" (kontrollera att det verkligen
+        är motspelaren som räknas som vinnare, ska vara den som gjorde senaste draget
+        så det finns risk att det blir "tvärtom")
+        - dialogruta "$opponent gave up! You win." och updateMMRScore för motspelaren
+        */
+        gameFinished = true
+        game.status = "finished"
+        updateDatabase(game)
+        if (!isMMRCalculated) {
+            isMMRCalculated = true
+            updateMMRScore("Win") // "Win" because it's not a draw
+        }
     }
 
     fun showGameViews() {
@@ -618,6 +663,8 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     fun initializeGame() {
+        isMMRCalculated = false
+        gameResult = ""
         game = Game(
             roomId!!,
             playerOne.email,
